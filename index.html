@@ -2,6 +2,10 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+
+<!-- 🔥 모바일 필수 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>4자성어 산성비 게임</title>
 
 <style>
@@ -12,24 +16,30 @@ body {
   font-family: Arial;
 }
 
+/* 🔥 반응형 게임 영역 */
 #game {
   position: relative;
-  width: 400px;
-  height: 600px;
+  width: 90vw;
+  height: 70vh;
+  max-width: 400px;
+  max-height: 600px;
   margin: auto;
   border: 3px solid white;
   overflow: hidden;
   background: rgba(0,0,0,0.3);
 }
 
+/* 🔥 글자 크기 자동 조절 */
 .word {
   position: absolute;
-  font-size: 26px;
+  font-size: 6vw;
+  max-font-size: 26px;
   font-weight: bold;
 }
 
 .bar {
-  width: 200px;
+  width: 60vw;
+  max-width: 200px;
   height: 20px;
   border: 1px solid white;
   margin: auto;
@@ -42,6 +52,26 @@ body {
 
 #combo {
   color: yellow;
+}
+
+/* 🔥 입력창 모바일 최적화 */
+#input {
+  width: 80%;
+  max-width: 300px;
+  padding: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+/* 🔥 작은 화면 대응 */
+@media (max-width: 500px) {
+  h2 {
+    font-size: 20px;
+  }
+
+  #game {
+    height: 60vh;
+  }
 }
 </style>
 </head>
@@ -63,7 +93,6 @@ body {
 
 <script>
 
-// 🔊 안전 효과음 함수 (에러 방지)
 function playSound(url) {
   try {
     const audio = new Audio(url);
@@ -71,7 +100,6 @@ function playSound(url) {
   } catch(e){}
 }
 
-// 🎯 4자성어 데이터 (20개)
 const words = [
   { hanja: "四面楚歌", reading: "사면초가" },
   { hanja: "一石二鳥", reading: "일석이조" },
@@ -101,28 +129,25 @@ let score = 0;
 let combo = 0;
 let speed = 1;
 
-// 🟢 단어 생성
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
   const el = document.createElement("div");
   el.className = "word";
   el.innerText = data.hanja;
 
-  el.style.left = Math.random()*350 + "px";
+  el.style.left = Math.random()*80 + "vw";
   el.style.top = "0px";
 
   document.getElementById("game").appendChild(el);
-
   activeWords.push({ el, data, y:0 });
 }
 
-// 🔄 게임 업데이트
 function update() {
   activeWords.forEach((w, i) => {
     w.y += speed;
     w.el.style.top = w.y + "px";
 
-    if (w.y > 550) {
+    if (w.y > window.innerHeight * 0.6) {
       hp -= 10;
       combo = 0;
       document.getElementById("combo").innerText = combo;
@@ -142,12 +167,10 @@ function update() {
   });
 }
 
-// ❤️ HP 업데이트
 function updateHP() {
   document.getElementById("hpBar").style.width = hp + "%";
 }
 
-// ⏱️ 난이도 증가
 setInterval(() => {
   spawnWord();
   speed += 0.03;
@@ -155,7 +178,6 @@ setInterval(() => {
 
 setInterval(update, 20);
 
-// ⌨️ 입력 처리
 document.getElementById("input").addEventListener("keydown", e => {
   if (e.key === "Enter") {
     const input = e.target.value.trim();
