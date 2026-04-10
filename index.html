@@ -2,8 +2,6 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-
-<!-- 🔥 모바일 필수 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>4자성어 산성비 게임</title>
@@ -16,24 +14,21 @@ body {
   font-family: Arial;
 }
 
-/* 🔥 반응형 게임 영역 */
+/* 게임 영역 */
 #game {
   position: relative;
   width: 90vw;
-  height: 70vh;
+  height: 60vh;
   max-width: 400px;
-  max-height: 600px;
   margin: auto;
   border: 3px solid white;
   overflow: hidden;
   background: rgba(0,0,0,0.3);
 }
 
-/* 🔥 글자 크기 자동 조절 */
 .word {
   position: absolute;
   font-size: 6vw;
-  max-font-size: 26px;
   font-weight: bold;
 }
 
@@ -54,24 +49,33 @@ body {
   color: yellow;
 }
 
-/* 🔥 입력창 모바일 최적화 */
-#input {
-  width: 80%;
-  max-width: 300px;
-  padding: 10px;
-  font-size: 16px;
-  margin-top: 10px;
+/* 입력 표시 */
+#display {
+  margin: 10px;
+  font-size: 20px;
+  height: 30px;
 }
 
-/* 🔥 작은 화면 대응 */
-@media (max-width: 500px) {
-  h2 {
-    font-size: 20px;
-  }
+/* 버튼 영역 */
+#buttons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  width: 90vw;
+  max-width: 400px;
+  margin: auto;
+}
 
-  #game {
-    height: 60vh;
-  }
+.btn {
+  padding: 10px;
+  font-size: 16px;
+  background: white;
+  color: black;
+  border-radius: 5px;
+}
+
+.control {
+  background: orange;
 }
 </style>
 </head>
@@ -89,7 +93,9 @@ body {
 
 <div id="game"></div>
 
-<input type="text" id="input" placeholder="한글 입력 후 Enter">
+<div id="display"></div>
+
+<div id="buttons"></div>
 
 <script>
 
@@ -110,17 +116,7 @@ const words = [
   { hanja: "塞翁之馬", reading: "새옹지마" },
   { hanja: "井底之蛙", reading: "정저지와" },
   { hanja: "狐假虎威", reading: "호가호위" },
-  { hanja: "指鹿爲馬", reading: "지록위마" },
-  { hanja: "背水之陣", reading: "배수지진" },
-  { hanja: "破竹之勢", reading: "파죽지세" },
-  { hanja: "同床異夢", reading: "동상이몽" },
-  { hanja: "青出於藍", reading: "청출어람" },
-  { hanja: "一箭雙鵰", reading: "일전쌍조" },
-  { hanja: "過猶不及", reading: "과유불급" },
-  { hanja: "亡羊補牢", reading: "망양보뢰" },
-  { hanja: "見利思義", reading: "견리사의" },
-  { hanja: "無爲徒食", reading: "무위도식" },
-  { hanja: "臥薪嘗膽", reading: "와신상담" }
+  { hanja: "指鹿爲馬", reading: "지록위마" }
 ];
 
 let activeWords = [];
@@ -129,6 +125,69 @@ let score = 0;
 let combo = 0;
 let speed = 1;
 
+let currentInput = "";
+
+// 버튼용 글자 풀
+const chars = ["사","면","초","가","일","석","이","조","자","업","득","각","주","구","검","동","문","서","답"];
+
+// 버튼 생성
+const buttonsDiv = document.getElementById("buttons");
+
+chars.forEach(c => {
+  const btn = document.createElement("button");
+  btn.innerText = c;
+  btn.className = "btn";
+  btn.onclick = () => {
+    currentInput += c;
+    updateDisplay();
+  };
+  buttonsDiv.appendChild(btn);
+});
+
+// 컨트롤 버튼
+["지우기","확인"].forEach(name => {
+  const btn = document.createElement("button");
+  btn.innerText = name;
+  btn.className = "btn control";
+
+  btn.onclick = () => {
+    if (name === "지우기") {
+      currentInput = currentInput.slice(0, -1);
+    } else {
+      checkAnswer();
+    }
+    updateDisplay();
+  };
+
+  buttonsDiv.appendChild(btn);
+});
+
+// 표시 업데이트
+function updateDisplay() {
+  document.getElementById("display").innerText = currentInput;
+}
+
+// 정답 체크
+function checkAnswer() {
+  activeWords.forEach((w, i) => {
+    if (w.data.reading === currentInput) {
+      combo++;
+      score += 10 * combo;
+
+      document.getElementById("score").innerText = score;
+      document.getElementById("combo").innerText = combo;
+
+      playSound("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+
+      w.el.remove();
+      activeWords.splice(i,1);
+    }
+  });
+
+  currentInput = "";
+}
+
+// 단어 생성
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
   const el = document.createElement("div");
@@ -142,6 +201,7 @@ function spawnWord() {
   activeWords.push({ el, data, y:0 });
 }
 
+// 업데이트
 function update() {
   activeWords.forEach((w, i) => {
     w.y += speed;
@@ -177,29 +237,6 @@ setInterval(() => {
 }, 1500);
 
 setInterval(update, 20);
-
-document.getElementById("input").addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    const input = e.target.value.trim();
-
-    activeWords.forEach((w, i) => {
-      if (w.data.reading === input) {
-        combo++;
-        score += 10 * combo;
-
-        document.getElementById("score").innerText = score;
-        document.getElementById("combo").innerText = combo;
-
-        playSound("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-
-        w.el.remove();
-        activeWords.splice(i,1);
-      }
-    });
-
-    e.target.value = "";
-  }
-});
 
 updateHP();
 
