@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>한자 산성비 게임</title>
+<style>
+  body { background: black; color: white; text-align: center; }
+  #game { position: relative; width: 400px; height: 600px; margin: auto; border: 2px solid white; overflow: hidden;}
+  .word { position: absolute; font-size: 24px; }
+</style>
+</head>
+<body>
+
+<h2>한자 산성비 게임</h2>
+<p>HP: <span id="hp">10</span></p>
+
+<div id="game"></div>
+<input type="text" id="input" placeholder="한글 입력 후 Enter">
+
+<script>
+const words = [
+  { hanja: "水", korean: "물" },
+  { hanja: "火", korean: "불" },
+  { hanja: "木", korean: "나무" },
+  { hanja: "金", korean: "금" },
+  { hanja: "土", korean: "흙" }
+];
+
+let activeWords = [];
+let hp = 10;
+
+function spawnWord() {
+  const data = words[Math.floor(Math.random()*words.length)];
+  const el = document.createElement("div");
+  el.className = "word";
+  el.innerText = data.hanja;
+
+  el.style.left = Math.random()*350 + "px";
+  el.style.top = "0px";
+
+  document.getElementById("game").appendChild(el);
+
+  activeWords.push({ el, data, y:0 });
+}
+
+function update() {
+  activeWords.forEach((w, i) => {
+    w.y += 1;
+    w.el.style.top = w.y + "px";
+
+    if (w.y > 550) {
+      // 바닥 도달 → HP 감소
+      hp--;
+      document.getElementById("hp").innerText = hp;
+
+      w.el.remove();
+      activeWords.splice(i,1);
+
+      if (hp <= 0) {
+        alert("게임 오버");
+        location.reload();
+      }
+    }
+  });
+}
+
+setInterval(spawnWord, 2000);
+setInterval(update, 20);
+
+document.getElementById("input").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const input = e.target.value;
+
+    activeWords.forEach((w, i) => {
+      if (w.data.korean === input) {
+        w.el.remove();
+        activeWords.splice(i,1);
+      }
+    });
+
+    e.target.value = "";
+  }
+});
+</script>
+
+</body>
+</html>
