@@ -13,61 +13,88 @@ body {
   font-family: Arial;
 }
 
+/* 🟢 게임 영역 (PC 크게) */
 #game {
   position: relative;
   width: 90vw;
-  height: 55vh;
-  max-width: 400px;
+  max-width: 800px;
+  height: 70vh;
   margin: auto;
   border: 3px solid white;
   overflow: hidden;
 }
 
+/* 🟢 PC용 글자 */
 .word {
   position: absolute;
-  font-size: 6vw;
+  font-size: 40px;
   font-weight: bold;
 }
 
+/* HP */
 .bar {
-  width: 60vw;
-  max-width: 200px;
+  width: 300px;
   height: 20px;
   border: 1px solid white;
   margin: auto;
 }
-
 #hpBar {
   height: 100%;
   background: red;
 }
 
-#buttons {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 5px;
-  width: 90vw;
-  max-width: 400px;
-  margin: auto;
-}
-
-.btn {
-  padding: 10px;
-  background: white;
-  color: black;
-}
-
-.control {
-  background: orange;
-}
-
+/* 입력 표시 */
 #display {
-  height: 30px;
+  font-size: 24px;
   margin: 10px;
 }
 
-#controls {
-  margin: 10px;
+/* 버튼 (모바일용) */
+#buttons {
+  display: none;
+}
+
+/* PC 키보드 */
+#keyboardInput {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 18px;
+  width: 300px;
+}
+
+/* 🎯 모바일 전용 */
+@media (max-width: 768px) {
+
+  .word {
+    font-size: 6vw;
+  }
+
+  #game {
+    height: 55vh;
+  }
+
+  #keyboardInput {
+    display: none;
+  }
+
+  #buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    width: 90vw;
+    margin: auto;
+  }
+
+  .btn {
+    padding: 12px;
+    font-size: 16px;
+    background: white;
+    color: black;
+  }
+
+  .control {
+    background: orange;
+  }
 }
 </style>
 </head>
@@ -83,18 +110,13 @@ body {
 
 <div class="bar"><div id="hpBar"></div></div>
 
-<div id="controls">
+<div>
 난이도:
 <select id="level">
   <option value="1">1</option>
-  <option value="2">2</option>
   <option value="3">3</option>
-  <option value="4">4</option>
   <option value="5" selected>5</option>
-  <option value="6">6</option>
   <option value="7">7</option>
-  <option value="8">8</option>
-  <option value="9">9</option>
   <option value="10">10</option>
 </select>
 
@@ -103,10 +125,14 @@ body {
 </div>
 
 <div id="game"></div>
+
 <div id="display"></div>
+
+<!-- 모바일 버튼 -->
 <div id="buttons"></div>
 
-<input type="text" id="keyboardInput" placeholder="PC 입력">
+<!-- PC 입력 -->
+<input type="text" id="keyboardInput" placeholder="사자성어 입력 후 Enter">
 
 <script>
 
@@ -124,17 +150,16 @@ let score = 0;
 let combo = 0;
 let hp = 100;
 
-let gameInterval;
-let spawnInterval;
+let gameInterval, spawnInterval;
 let speed = 1;
 
-// 난이도 적용
+/* 난이도 */
 function setSpeed() {
   const level = document.getElementById("level").value;
-  speed = level * 0.3;
+  speed = level * 0.4;
 }
 
-// 시작
+/* 시작 */
 function startGame() {
   stopGame();
   setSpeed();
@@ -143,78 +168,13 @@ function startGame() {
   gameInterval = setInterval(update, 20);
 }
 
-// 정지
+/* 정지 */
 function stopGame() {
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
 }
 
-// 버튼 글자
-function getButtonChars() {
-  let chars = [];
-
-  activeWords.forEach(w => {
-    w.data.reading.split("").forEach(c => {
-      if (!chars.includes(c)) chars.push(c);
-    });
-  });
-
-  while (chars.length < 12) {
-    const rand = "가나다라마바사아자차카타파하"[Math.floor(Math.random()*14)];
-    if (!chars.includes(rand)) chars.push(rand);
-  }
-
-  return chars.sort(() => Math.random() - 0.5);
-}
-
-// 버튼 생성
-function createButtons() {
-  const div = document.getElementById("buttons");
-  div.innerHTML = "";
-
-  getButtonChars().forEach(c => {
-    const btn = document.createElement("button");
-    btn.innerText = c;
-    btn.className = "btn";
-    btn.onclick = () => {
-      currentInput += c;
-      updateDisplay();
-    };
-    div.appendChild(btn);
-  });
-
-  ["지우기","확인"].forEach(name => {
-    const btn = document.createElement("button");
-    btn.innerText = name;
-    btn.className = "btn control";
-    btn.onclick = () => {
-      if(name==="지우기") currentInput=currentInput.slice(0,-1);
-      else checkAnswer();
-      updateDisplay();
-    };
-    div.appendChild(btn);
-  });
-}
-
-function updateDisplay() {
-  document.getElementById("display").innerText = currentInput;
-}
-
-function checkAnswer() {
-  activeWords.forEach((w,i)=>{
-    if(w.data.reading===currentInput){
-      score+=10;
-      combo++;
-      document.getElementById("score").innerText=score;
-      document.getElementById("combo").innerText=combo;
-      w.el.remove();
-      activeWords.splice(i,1);
-      createButtons();
-    }
-  });
-  currentInput="";
-}
-
+/* 단어 생성 */
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
 
@@ -222,42 +182,70 @@ function spawnWord() {
   el.className="word";
   el.innerText=data.hanja;
 
-  el.style.left=Math.random()*80+"vw";
+  el.style.left=Math.random()*80+"%";
   el.style.top="0px";
 
   document.getElementById("game").appendChild(el);
   activeWords.push({el,data,y:0});
-
-  createButtons();
 }
 
+/* 업데이트 */
 function update() {
   activeWords.forEach((w,i)=>{
     w.y+=speed;
     w.el.style.top=w.y+"px";
 
-    if(w.y>window.innerHeight*0.55){
-      hp-=10;
-      combo=0;
-      document.getElementById("combo").innerText=combo;
+    if(w.y > document.getElementById("game").offsetHeight - 50){
+      hp -= 10;
+      combo = 0;
+
+      document.getElementById("combo").innerText = combo;
+      updateHP();
 
       w.el.remove();
       activeWords.splice(i,1);
-
-      createButtons();
     }
   });
 }
 
-// 키보드 입력
-document.getElementById("keyboardInput").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
-    currentInput=e.target.value.trim();
+/* HP */
+function updateHP() {
+  document.getElementById("hpBar").style.width = hp + "%";
+}
+
+/* 정답 체크 */
+function checkAnswer() {
+  activeWords.forEach((w,i)=>{
+    if(w.data.reading === currentInput){
+      score += 10;
+      combo++;
+
+      document.getElementById("score").innerText = score;
+      document.getElementById("combo").innerText = combo;
+
+      w.el.remove();
+      activeWords.splice(i,1);
+    }
+  });
+  currentInput = "";
+  updateDisplay();
+}
+
+/* 표시 */
+function updateDisplay() {
+  document.getElementById("display").innerText = currentInput;
+}
+
+/* PC 입력 */
+document.getElementById("keyboardInput").addEventListener("keydown", e=>{
+  if(e.key === "Enter"){
+    currentInput = e.target.value.trim();
     checkAnswer();
-    updateDisplay();
     e.target.value="";
   }
 });
+
+updateHP();
 
 </script>
 
