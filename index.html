@@ -14,7 +14,6 @@ body {
   font-family: Arial;
 }
 
-/* 게임 영역 */
 #game {
   position: relative;
   width: 90vw;
@@ -49,14 +48,12 @@ body {
   color: yellow;
 }
 
-/* 입력 표시 */
 #display {
   margin: 10px;
-  font-size: 20px;
+  font-size: 22px;
   height: 30px;
 }
 
-/* 버튼 영역 */
 #buttons {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -99,6 +96,7 @@ body {
 
 <script>
 
+// 🔊 효과음
 function playSound(url) {
   try {
     const audio = new Audio(url);
@@ -106,6 +104,7 @@ function playSound(url) {
   } catch(e){}
 }
 
+// 🎯 데이터
 const words = [
   { hanja: "四面楚歌", reading: "사면초가" },
   { hanja: "一石二鳥", reading: "일석이조" },
@@ -124,50 +123,74 @@ let hp = 100;
 let score = 0;
 let combo = 0;
 let speed = 1;
-
 let currentInput = "";
 
-// 버튼용 글자 풀
-const chars = ["사","면","초","가","일","석","이","조","자","업","득","각","주","구","검","동","문","서","답"];
+// 🔀 셔플 함수
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
-// 버튼 생성
-const buttonsDiv = document.getElementById("buttons");
+// 🎲 랜덤 글자 생성
+function getRandomChars() {
+  let allChars = [];
 
-chars.forEach(c => {
-  const btn = document.createElement("button");
-  btn.innerText = c;
-  btn.className = "btn";
-  btn.onclick = () => {
-    currentInput += c;
-    updateDisplay();
-  };
-  buttonsDiv.appendChild(btn);
-});
+  words.forEach(w => {
+    w.reading.split("").forEach(c => {
+      if (!allChars.includes(c)) {
+        allChars.push(c);
+      }
+    });
+  });
 
-// 컨트롤 버튼
-["지우기","확인"].forEach(name => {
-  const btn = document.createElement("button");
-  btn.innerText = name;
-  btn.className = "btn control";
+  return shuffle(allChars).slice(0, 20);
+}
 
-  btn.onclick = () => {
-    if (name === "지우기") {
-      currentInput = currentInput.slice(0, -1);
-    } else {
-      checkAnswer();
-    }
-    updateDisplay();
-  };
+// 🔘 버튼 생성
+function createButtons() {
+  const buttonsDiv = document.getElementById("buttons");
+  buttonsDiv.innerHTML = "";
 
-  buttonsDiv.appendChild(btn);
-});
+  const chars = getRandomChars();
 
-// 표시 업데이트
+  chars.forEach(c => {
+    const btn = document.createElement("button");
+    btn.innerText = c;
+    btn.className = "btn";
+    btn.onclick = () => {
+      currentInput += c;
+      updateDisplay();
+    };
+    buttonsDiv.appendChild(btn);
+  });
+
+  ["지우기","확인"].forEach(name => {
+    const btn = document.createElement("button");
+    btn.innerText = name;
+    btn.className = "btn control";
+
+    btn.onclick = () => {
+      if (name === "지우기") {
+        currentInput = currentInput.slice(0, -1);
+      } else {
+        checkAnswer();
+      }
+      updateDisplay();
+    };
+
+    buttonsDiv.appendChild(btn);
+  });
+}
+
+// 📺 입력 표시
 function updateDisplay() {
   document.getElementById("display").innerText = currentInput;
 }
 
-// 정답 체크
+// ✅ 정답 체크
 function checkAnswer() {
   activeWords.forEach((w, i) => {
     if (w.data.reading === currentInput) {
@@ -187,7 +210,7 @@ function checkAnswer() {
   currentInput = "";
 }
 
-// 단어 생성
+// 🟢 단어 생성
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
   const el = document.createElement("div");
@@ -201,7 +224,7 @@ function spawnWord() {
   activeWords.push({ el, data, y:0 });
 }
 
-// 업데이트
+// 🔄 업데이트
 function update() {
   activeWords.forEach((w, i) => {
     w.y += speed;
@@ -227,10 +250,12 @@ function update() {
   });
 }
 
+// ❤️ HP
 function updateHP() {
   document.getElementById("hpBar").style.width = hp + "%";
 }
 
+// 실행
 setInterval(() => {
   spawnWord();
   speed += 0.03;
@@ -239,6 +264,7 @@ setInterval(() => {
 setInterval(update, 20);
 
 updateHP();
+createButtons();
 
 </script>
 
