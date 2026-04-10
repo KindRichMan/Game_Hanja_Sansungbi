@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>한자 산성비 게임</title>
+<title>4자성어 산성비 게임</title>
 
 <style>
 body {
@@ -24,12 +24,8 @@ body {
 
 .word {
   position: absolute;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
-}
-
-#ui {
-  margin: 10px;
 }
 
 .bar {
@@ -43,17 +39,23 @@ body {
   height: 100%;
   background: red;
 }
+
+#combo {
+  color: yellow;
+}
 </style>
 </head>
 
 <body>
 
-<h2>🌧️ 한자 산성비</h2>
+<h2>🌧️ 4자성어 산성비</h2>
 
-<div id="ui">
-  점수: <span id="score">0</span>
-  <div class="bar"><div id="hpBar"></div></div>
+<div>
+  점수: <span id="score">0</span> |
+  콤보: <span id="combo">0</span>
 </div>
+
+<div class="bar"><div id="hpBar"></div></div>
 
 <div id="game"></div>
 
@@ -61,18 +63,45 @@ body {
 
 <script>
 
+// 🔊 안전 효과음 함수 (에러 방지)
+function playSound(url) {
+  try {
+    const audio = new Audio(url);
+    audio.play().catch(()=>{});
+  } catch(e){}
+}
+
+// 🎯 4자성어 데이터 (20개)
 const words = [
-  { hanja: "水", korean: "물" },
-  { hanja: "火", korean: "불" },
-  { hanja: "木", korean: "나무" },
-  { hanja: "金", korean: "금" },
-  { hanja: "土", korean: "흙" }
+  { hanja: "四面楚歌", reading: "사면초가" },
+  { hanja: "一石二鳥", reading: "일석이조" },
+  { hanja: "自業自得", reading: "자업자득" },
+  { hanja: "刻舟求劍", reading: "각주구검" },
+  { hanja: "東問西答", reading: "동문서답" },
+  { hanja: "畫龍點睛", reading: "화룡점정" },
+  { hanja: "塞翁之馬", reading: "새옹지마" },
+  { hanja: "井底之蛙", reading: "정저지와" },
+  { hanja: "狐假虎威", reading: "호가호위" },
+  { hanja: "指鹿爲馬", reading: "지록위마" },
+  { hanja: "背水之陣", reading: "배수지진" },
+  { hanja: "破竹之勢", reading: "파죽지세" },
+  { hanja: "同床異夢", reading: "동상이몽" },
+  { hanja: "青出於藍", reading: "청출어람" },
+  { hanja: "一箭雙鵰", reading: "일전쌍조" },
+  { hanja: "過猶不及", reading: "과유불급" },
+  { hanja: "亡羊補牢", reading: "망양보뢰" },
+  { hanja: "見利思義", reading: "견리사의" },
+  { hanja: "無爲徒食", reading: "무위도식" },
+  { hanja: "臥薪嘗膽", reading: "와신상담" }
 ];
 
 let activeWords = [];
 let hp = 100;
 let score = 0;
+let combo = 0;
+let speed = 1;
 
+// 🟢 단어 생성
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
   const el = document.createElement("div");
@@ -87,13 +116,19 @@ function spawnWord() {
   activeWords.push({ el, data, y:0 });
 }
 
+// 🔄 게임 업데이트
 function update() {
   activeWords.forEach((w, i) => {
-    w.y += 1;
+    w.y += speed;
     w.el.style.top = w.y + "px";
 
     if (w.y > 550) {
       hp -= 10;
+      combo = 0;
+      document.getElementById("combo").innerText = combo;
+
+      playSound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+
       updateHP();
 
       w.el.remove();
@@ -107,21 +142,33 @@ function update() {
   });
 }
 
+// ❤️ HP 업데이트
 function updateHP() {
   document.getElementById("hpBar").style.width = hp + "%";
 }
 
-setInterval(spawnWord, 1500);
+// ⏱️ 난이도 증가
+setInterval(() => {
+  spawnWord();
+  speed += 0.03;
+}, 1500);
+
 setInterval(update, 20);
 
+// ⌨️ 입력 처리
 document.getElementById("input").addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    const input = e.target.value;
+    const input = e.target.value.trim();
 
     activeWords.forEach((w, i) => {
-      if (w.data.korean === input) {
-        score += 10;
+      if (w.data.reading === input) {
+        combo++;
+        score += 10 * combo;
+
         document.getElementById("score").innerText = score;
+        document.getElementById("combo").innerText = combo;
+
+        playSound("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 
         w.el.remove();
         activeWords.splice(i,1);
@@ -131,6 +178,8 @@ document.getElementById("input").addEventListener("keydown", e => {
     e.target.value = "";
   }
 });
+
+updateHP();
 
 </script>
 
