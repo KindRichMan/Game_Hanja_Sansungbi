@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>4자성어 산성비 게임</title>
+<title>4자성어 산성비</title>
 
 <style>
 body {
@@ -17,12 +16,11 @@ body {
 #game {
   position: relative;
   width: 90vw;
-  height: 60vh;
+  height: 55vh;
   max-width: 400px;
   margin: auto;
   border: 3px solid white;
   overflow: hidden;
-  background: rgba(0,0,0,0.3);
 }
 
 .word {
@@ -49,9 +47,9 @@ body {
 }
 
 #display {
-  margin: 10px;
-  font-size: 22px;
   height: 30px;
+  margin: 10px;
+  font-size: 20px;
 }
 
 #buttons {
@@ -64,7 +62,7 @@ body {
 }
 
 .btn {
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
   background: white;
   color: black;
@@ -91,7 +89,6 @@ body {
 <div id="game"></div>
 
 <div id="display"></div>
-
 <div id="buttons"></div>
 
 <script>
@@ -104,7 +101,7 @@ function playSound(url) {
   } catch(e){}
 }
 
-// 🎯 데이터
+// 🎯 사자성어
 const words = [
   { hanja: "四面楚歌", reading: "사면초가" },
   { hanja: "一石二鳥", reading: "일석이조" },
@@ -119,42 +116,47 @@ const words = [
 ];
 
 let activeWords = [];
+let currentWord = null;
+let currentInput = "";
 let hp = 100;
 let score = 0;
 let combo = 0;
 let speed = 1;
-let currentInput = "";
 
-// 🔀 셔플 함수
+// 🔀 셔플
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(Math.random()*(i+1));
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
 }
 
-// 🎲 랜덤 글자 생성
-function getRandomChars() {
-  let allChars = [];
+// 🎯 버튼 글자 생성
+function getButtonChars() {
+  let chars = currentWord.reading.split("");
 
+  let pool = [];
   words.forEach(w => {
     w.reading.split("").forEach(c => {
-      if (!allChars.includes(c)) {
-        allChars.push(c);
-      }
+      if (!pool.includes(c)) pool.push(c);
     });
   });
 
-  return shuffle(allChars).slice(0, 20);
+  while (chars.length < 12) {
+    const rand = pool[Math.floor(Math.random()*pool.length)];
+    if (!chars.includes(rand)) chars.push(rand);
+  }
+
+  return shuffle(chars);
 }
 
 // 🔘 버튼 생성
 function createButtons() {
-  const buttonsDiv = document.getElementById("buttons");
-  buttonsDiv.innerHTML = "";
+  const div = document.getElementById("buttons");
+  div.innerHTML = "";
 
-  const chars = getRandomChars();
+  const chars = getButtonChars();
 
   chars.forEach(c => {
     const btn = document.createElement("button");
@@ -164,7 +166,7 @@ function createButtons() {
       currentInput += c;
       updateDisplay();
     };
-    buttonsDiv.appendChild(btn);
+    div.appendChild(btn);
   });
 
   ["지우기","확인"].forEach(name => {
@@ -174,23 +176,23 @@ function createButtons() {
 
     btn.onclick = () => {
       if (name === "지우기") {
-        currentInput = currentInput.slice(0, -1);
+        currentInput = currentInput.slice(0,-1);
       } else {
         checkAnswer();
       }
       updateDisplay();
     };
 
-    buttonsDiv.appendChild(btn);
+    div.appendChild(btn);
   });
 }
 
-// 📺 입력 표시
+// 표시
 function updateDisplay() {
   document.getElementById("display").innerText = currentInput;
 }
 
-// ✅ 정답 체크
+// 정답 체크
 function checkAnswer() {
   activeWords.forEach((w, i) => {
     if (w.data.reading === currentInput) {
@@ -210,9 +212,11 @@ function checkAnswer() {
   currentInput = "";
 }
 
-// 🟢 단어 생성
+// 생성
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
+  currentWord = data;
+
   const el = document.createElement("div");
   el.className = "word";
   el.innerText = data.hanja;
@@ -222,15 +226,17 @@ function spawnWord() {
 
   document.getElementById("game").appendChild(el);
   activeWords.push({ el, data, y:0 });
+
+  createButtons();
 }
 
-// 🔄 업데이트
+// 업데이트
 function update() {
   activeWords.forEach((w, i) => {
     w.y += speed;
     w.el.style.top = w.y + "px";
 
-    if (w.y > window.innerHeight * 0.6) {
+    if (w.y > window.innerHeight * 0.55) {
       hp -= 10;
       combo = 0;
       document.getElementById("combo").innerText = combo;
@@ -250,7 +256,6 @@ function update() {
   });
 }
 
-// ❤️ HP
 function updateHP() {
   document.getElementById("hpBar").style.width = hp + "%";
 }
@@ -264,7 +269,6 @@ setInterval(() => {
 setInterval(update, 20);
 
 updateHP();
-createButtons();
 
 </script>
 
