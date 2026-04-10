@@ -10,10 +10,12 @@ body {
   background: linear-gradient(#001f3f, #0074D9);
   color: white;
   text-align: center;
-  font-family: Arial;
+
+  /* 🔥 한양해서체 적용 */
+  font-family: "HYhaeseo", "한양해서체", "궁서", serif;
 }
 
-/* 🎯 반응형 게임 영역 */
+/* 게임 영역 */
 #game {
   position: relative;
   width: 90vw;
@@ -24,10 +26,10 @@ body {
   overflow: hidden;
 }
 
-/* 🎯 글자 자동 크기 */
+/* 글자 */
 .word {
   position: absolute;
-  font-size: clamp(20px, 4vw, 36px);
+  font-size: clamp(22px, 4vw, 36px);
   font-weight: bold;
 }
 
@@ -44,7 +46,7 @@ body {
   background: red;
 }
 
-/* 입력창 */
+/* 입력 */
 #keyboardInput {
   margin-top: 15px;
   padding: 12px;
@@ -53,10 +55,17 @@ body {
   max-width: 400px;
 }
 
-/* 입력 표시 */
+/* 표시 */
 #display {
   font-size: clamp(18px, 3vw, 24px);
   margin: 10px;
+}
+
+/* 버튼 */
+button {
+  margin: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -84,6 +93,7 @@ body {
 
 <button onclick="startGame()">START</button>
 <button onclick="stopGame()">STOP</button>
+<button onclick="resetGame()">CLEAN</button>
 </div>
 
 <div id="game"></div>
@@ -136,6 +146,27 @@ function stopGame() {
   clearInterval(gameInterval);
 }
 
+/* 🔥 초기화 (CLEAN) */
+function resetGame() {
+  stopGame();
+
+  // 상태 초기화
+  activeWords.forEach(w => w.el.remove());
+  activeWords = [];
+
+  score = 0;
+  combo = 0;
+  hp = 100;
+  currentInput = "";
+
+  document.getElementById("score").innerText = 0;
+  document.getElementById("combo").innerText = 0;
+  document.getElementById("display").innerText = "";
+  document.getElementById("keyboardInput").value = "";
+
+  updateHP();
+}
+
 /* 단어 생성 */
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
@@ -169,7 +200,7 @@ function update() {
 
       if(hp <= 0){
         alert("게임 오버! 점수: " + score);
-        location.reload();
+        resetGame();
       }
     }
   });
@@ -204,7 +235,7 @@ function updateDisplay() {
   document.getElementById("display").innerText = currentInput;
 }
 
-/* 키보드 입력 (모바일도 포함) */
+/* 입력 */
 document.getElementById("keyboardInput").addEventListener("keydown", e=>{
   if(e.key === "Enter"){
     currentInput = e.target.value.trim();
