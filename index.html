@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>4자성어 산성비 게임</title>
+<title>한자 산성비 게임</title>
 
 <style>
 body {
@@ -24,8 +24,12 @@ body {
 
 .word {
   position: absolute;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: bold;
+}
+
+#ui {
+  margin: 10px;
 }
 
 .bar {
@@ -39,23 +43,17 @@ body {
   height: 100%;
   background: red;
 }
-
-#combo {
-  color: yellow;
-}
 </style>
 </head>
 
 <body>
 
-<h2>🌧️ 4자성어 산성비</h2>
+<h2>🌧️ 한자 산성비</h2>
 
-<div>
-  점수: <span id="score">0</span> |
-  콤보: <span id="combo">0</span>
+<div id="ui">
+  점수: <span id="score">0</span>
+  <div class="bar"><div id="hpBar"></div></div>
 </div>
-
-<div class="bar"><div id="hpBar"></div></div>
 
 <div id="game"></div>
 
@@ -63,17 +61,8 @@ body {
 
 <script>
 
-// 🔊 안전 효과음 함수 (에러 방지)
-function playSound(url) {
-  try {
-    const audio = new Audio(url);
-    audio.play().catch(()=>{});
-  } catch(e){}
-}
-
-// 🎯 4자성어 데이터 (20개)
 const words = [
-  { hanja: "四面楚歌", reading: "사면초가" },
+ { hanja: "四面楚歌", reading: "사면초가" },
   { hanja: "一石二鳥", reading: "일석이조" },
   { hanja: "自業自得", reading: "자업자득" },
   { hanja: "刻舟求劍", reading: "각주구검" },
@@ -98,10 +87,7 @@ const words = [
 let activeWords = [];
 let hp = 100;
 let score = 0;
-let combo = 0;
-let speed = 1;
 
-// 🟢 단어 생성
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
   const el = document.createElement("div");
@@ -116,19 +102,13 @@ function spawnWord() {
   activeWords.push({ el, data, y:0 });
 }
 
-// 🔄 게임 업데이트
 function update() {
   activeWords.forEach((w, i) => {
-    w.y += speed;
+    w.y += 1;
     w.el.style.top = w.y + "px";
 
     if (w.y > 550) {
       hp -= 10;
-      combo = 0;
-      document.getElementById("combo").innerText = combo;
-
-      playSound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
-
       updateHP();
 
       w.el.remove();
@@ -142,33 +122,21 @@ function update() {
   });
 }
 
-// ❤️ HP 업데이트
 function updateHP() {
   document.getElementById("hpBar").style.width = hp + "%";
 }
 
-// ⏱️ 난이도 증가
-setInterval(() => {
-  spawnWord();
-  speed += 0.03;
-}, 1500);
-
+setInterval(spawnWord, 1500);
 setInterval(update, 20);
 
-// ⌨️ 입력 처리
 document.getElementById("input").addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    const input = e.target.value.trim();
+    const input = e.target.value;
 
     activeWords.forEach((w, i) => {
-      if (w.data.reading === input) {
-        combo++;
-        score += 10 * combo;
-
+      if (w.data.korean === input) {
+        score += 10;
         document.getElementById("score").innerText = score;
-        document.getElementById("combo").innerText = combo;
-
-        playSound("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 
         w.el.remove();
         activeWords.splice(i,1);
@@ -178,8 +146,6 @@ document.getElementById("input").addEventListener("keydown", e => {
     e.target.value = "";
   }
 });
-
-updateHP();
 
 </script>
 
