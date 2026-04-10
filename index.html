@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>4자성어 산성비 (PC 전용)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4자성어 산성비</title>
 
 <style>
 body {
@@ -12,26 +13,28 @@ body {
   font-family: Arial;
 }
 
-/* 🎯 게임 영역 크게 */
+/* 🎯 반응형 게임 영역 */
 #game {
   position: relative;
-  width: 900px;
-  height: 700px;
+  width: 90vw;
+  max-width: 900px;
+  height: 70vh;
   margin: 20px auto;
   border: 3px solid white;
   overflow: hidden;
 }
 
-/* 🎯 글씨 크기 조정 */
+/* 🎯 글자 자동 크기 */
 .word {
   position: absolute;
-  font-size: 36px;
+  font-size: clamp(20px, 4vw, 36px);
   font-weight: bold;
 }
 
 /* HP */
 .bar {
-  width: 400px;
+  width: 60vw;
+  max-width: 400px;
   height: 20px;
   border: 1px solid white;
   margin: auto;
@@ -44,14 +47,15 @@ body {
 /* 입력창 */
 #keyboardInput {
   margin-top: 15px;
-  padding: 10px;
-  font-size: 20px;
-  width: 300px;
+  padding: 12px;
+  font-size: 18px;
+  width: 80vw;
+  max-width: 400px;
 }
 
 /* 입력 표시 */
 #display {
-  font-size: 24px;
+  font-size: clamp(18px, 3vw, 24px);
   margin: 10px;
 }
 </style>
@@ -59,7 +63,7 @@ body {
 
 <body>
 
-<h2>🌧️ 4자성어 산성비 (PC)</h2>
+<h2>🌧️ 4자성어 산성비</h2>
 
 <div>
 점수: <span id="score">0</span> |
@@ -140,7 +144,7 @@ function spawnWord() {
   el.className="word";
   el.innerText=data.hanja;
 
-  el.style.left=Math.random()*800 + "px";
+  el.style.left=Math.random()*80 + "%";
   el.style.top="0px";
 
   document.getElementById("game").appendChild(el);
@@ -153,7 +157,7 @@ function update() {
     w.y += speed;
     w.el.style.top = w.y + "px";
 
-    if(w.y > 650){
+    if(w.y > document.getElementById("game").offsetHeight - 50){
       hp -= 10;
       combo = 0;
 
@@ -200,12 +204,12 @@ function updateDisplay() {
   document.getElementById("display").innerText = currentInput;
 }
 
-/* 키보드 입력 */
+/* 키보드 입력 (모바일도 포함) */
 document.getElementById("keyboardInput").addEventListener("keydown", e=>{
   if(e.key === "Enter"){
     currentInput = e.target.value.trim();
     checkAnswer();
-    e.target.value = "";
+    e.target.value="";
   }
 });
 
