@@ -3,21 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <title>한자 산성비 게임</title>
+
 <style>
-  body { background: black; color: white; text-align: center; }
-  #game { position: relative; width: 400px; height: 600px; margin: auto; border: 2px solid white; overflow: hidden;}
-  .word { position: absolute; font-size: 24px; }
+body {
+  background: linear-gradient(#001f3f, #0074D9);
+  color: white;
+  text-align: center;
+  font-family: Arial;
+}
+
+#game {
+  position: relative;
+  width: 400px;
+  height: 600px;
+  margin: auto;
+  border: 3px solid white;
+  overflow: hidden;
+  background: rgba(0,0,0,0.3);
+}
+
+.word {
+  position: absolute;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+#ui {
+  margin: 10px;
+}
+
+.bar {
+  width: 200px;
+  height: 20px;
+  border: 1px solid white;
+  margin: auto;
+}
+
+#hpBar {
+  height: 100%;
+  background: red;
+}
 </style>
 </head>
+
 <body>
 
-<h2>한자 산성비 게임</h2>
-<p>HP: <span id="hp">10</span></p>
+<h2>🌧️ 한자 산성비</h2>
+
+<div id="ui">
+  점수: <span id="score">0</span>
+  <div class="bar"><div id="hpBar"></div></div>
+</div>
 
 <div id="game"></div>
+
 <input type="text" id="input" placeholder="한글 입력 후 Enter">
 
 <script>
+
 const words = [
   { hanja: "水", korean: "물" },
   { hanja: "火", korean: "불" },
@@ -27,7 +70,8 @@ const words = [
 ];
 
 let activeWords = [];
-let hp = 10;
+let hp = 100;
+let score = 0;
 
 function spawnWord() {
   const data = words[Math.floor(Math.random()*words.length)];
@@ -49,22 +93,25 @@ function update() {
     w.el.style.top = w.y + "px";
 
     if (w.y > 550) {
-      // 바닥 도달 → HP 감소
-      hp--;
-      document.getElementById("hp").innerText = hp;
+      hp -= 10;
+      updateHP();
 
       w.el.remove();
       activeWords.splice(i,1);
 
       if (hp <= 0) {
-        alert("게임 오버");
+        alert("게임 오버! 점수: " + score);
         location.reload();
       }
     }
   });
 }
 
-setInterval(spawnWord, 2000);
+function updateHP() {
+  document.getElementById("hpBar").style.width = hp + "%";
+}
+
+setInterval(spawnWord, 1500);
 setInterval(update, 20);
 
 document.getElementById("input").addEventListener("keydown", e => {
@@ -73,6 +120,9 @@ document.getElementById("input").addEventListener("keydown", e => {
 
     activeWords.forEach((w, i) => {
       if (w.data.korean === input) {
+        score += 10;
+        document.getElementById("score").innerText = score;
+
         w.el.remove();
         activeWords.splice(i,1);
       }
@@ -81,6 +131,7 @@ document.getElementById("input").addEventListener("keydown", e => {
     e.target.value = "";
   }
 });
+
 </script>
 
 </body>
