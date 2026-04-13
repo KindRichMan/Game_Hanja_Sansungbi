@@ -10,12 +10,9 @@ body {
   background: linear-gradient(#001f3f, #0074D9);
   color: white;
   text-align: center;
-
-  /* 🔥 한양해서체 적용 */
   font-family: "HYhaeseo", "한양해서체", "궁서", serif;
 }
 
-/* 게임 영역 */
 #game {
   position: relative;
   width: 90vw;
@@ -26,14 +23,12 @@ body {
   overflow: hidden;
 }
 
-/* 글자 */
 .word {
   position: absolute;
   font-size: clamp(22px, 4vw, 36px);
   font-weight: bold;
 }
 
-/* HP */
 .bar {
   width: 60vw;
   max-width: 400px;
@@ -41,12 +36,12 @@ body {
   border: 1px solid white;
   margin: auto;
 }
+
 #hpBar {
   height: 100%;
   background: red;
 }
 
-/* 입력 */
 #keyboardInput {
   margin-top: 15px;
   padding: 12px;
@@ -55,13 +50,11 @@ body {
   max-width: 400px;
 }
 
-/* 표시 */
 #display {
   font-size: clamp(18px, 3vw, 24px);
   margin: 10px;
 }
 
-/* 버튼 */
 button {
   margin: 5px;
   padding: 8px 12px;
@@ -102,20 +95,12 @@ button {
 
 <input type="text" id="keyboardInput" placeholder="사자성어 입력 후 Enter">
 
-<script>
+<!-- 🔥 핵심: module script -->
+<script type="module">
 
-const words = [
-  { hanja: "四面楚歌", reading: "사면초가" },
-  { hanja: "一石二鳥", reading: "일석이조" },
-  { hanja: "自業自得", reading: "자업자득" },
-  { hanja: "刻舟求劍", reading: "각주구검" },
-  { hanja: "東問西答", reading: "동문서답" },
-  { hanja: "畫龍點睛", reading: "화룡점정" },
-  { hanja: "塞翁之馬", reading: "새옹지마" },
-  { hanja: "井底之蛙", reading: "정저지와" },
-  { hanja: "狐假虎威", reading: "호가호위" }
-];
+import { loadWords } from "./firebase.js";
 
+let words = [];
 let activeWords = [];
 let currentInput = "";
 let score = 0;
@@ -125,6 +110,14 @@ let hp = 100;
 let gameInterval, spawnInterval;
 let speed = 1;
 
+/* 🔥 Firebase에서 데이터 로드 */
+async function init() {
+  words = await loadWords();
+  console.log("words loaded:", words);
+}
+
+init();
+
 /* 난이도 */
 function setSpeed() {
   const level = document.getElementById("level").value;
@@ -132,7 +125,7 @@ function setSpeed() {
 }
 
 /* 시작 */
-function startGame() {
+window.startGame = function() {
   stopGame();
   setSpeed();
 
@@ -141,16 +134,15 @@ function startGame() {
 }
 
 /* 정지 */
-function stopGame() {
+window.stopGame = function() {
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
 }
 
-/* 🔥 초기화 (CLEAN) */
-function resetGame() {
+/* 초기화 */
+window.resetGame = function() {
   stopGame();
 
-  // 상태 초기화
   activeWords.forEach(w => w.el.remove());
   activeWords = [];
 
@@ -169,6 +161,8 @@ function resetGame() {
 
 /* 단어 생성 */
 function spawnWord() {
+  if(words.length === 0) return;
+
   const data = words[Math.floor(Math.random()*words.length)];
 
   const el = document.createElement("div");
