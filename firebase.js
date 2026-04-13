@@ -15,7 +15,8 @@ const firebaseConfig = {
 
 // 🔥 초기화
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+export const db = getFirestore(app);
+// const db = getFirestore(app);
 
 // 🔥 words 불러오기 함수
 export async function loadWords() {

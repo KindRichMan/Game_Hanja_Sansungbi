@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>단어 등록</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 30px;
+}
+
+input {
+  padding: 10px;
+  margin: 10px;
+  width: 250px;
+}
+
+button {
+  padding: 10px 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📌 사자성어 등록</h2>
+
+<input id="hanja" placeholder="한자 (예: 四面楚歌)">
+<br>
+<input id="reading" placeholder="뜻 (예: 사면초가)">
+<br>
+
+<button onclick="addWord()">추가</button>
+
+<p id="result"></p>
+
+<script type="module">
+
+import { db } from "./firebase.js";
+import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+window.addWord = async function() {
+
+  const hanja = document.getElementById("hanja").value.trim();
+  const reading = document.getElementById("reading").value.trim();
+
+  if(!hanja || !reading){
+    alert("둘 다 입력하세요");
+    return;
+  }
+
+  await addDoc(collection(db, "words"), {
+    hanja,
+    reading
+  });
+
+  document.getElementById("result").innerText = "✅ 저장 완료";
+
+  document.getElementById("hanja").value = "";
+  document.getElementById("reading").value = "";
+}
+
+</script>
+
+</body>
+</html>
