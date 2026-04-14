@@ -5,8 +5,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { 
   getFirestore, 
   collection, 
+  doc,
+  getDoc, // 🔥 중요
   getDocs,
-  addDoc,
+  setDoc,
   query,
   orderBy,
   limit
@@ -45,20 +47,28 @@ const provider = new GoogleAuthProvider();
 export { auth, provider, signInWithPopup };
 
 
-// 🔥 words 불러오기
+// 🔥 단어 로드
 export async function loadWords() {
   const snapshot = await getDocs(collection(db, "words"));
   return snapshot.docs.map(doc => doc.data());
 }
 
 
-// 🔥 랭킹 저장
+// 🔥 최고점만 저장
 export async function saveScore(nickname, score) {
-  await addDoc(collection(db, "ranking"), {
-    nickname,
-    score,
-    createdAt: Date.now()
-  });
+
+  const ref = doc(db, "ranking", nickname);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    await setDoc(ref, { nickname, score });
+  } else {
+    const old = snap.data().score;
+
+    if (score > old) {
+      await setDoc(ref, { nickname, score });
+    }
+  }
 }
 
 
