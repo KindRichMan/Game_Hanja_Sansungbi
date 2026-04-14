@@ -71,7 +71,8 @@ input {
 <!-- 🔥 CSV 업로드 추가 -->
 <div>
   <input type="file" id="csvFile" accept=".csv">
-  <button onclick="uploadCSV()">CSV 업로드</button>
+  <!-- <button onclick="uploadCSV()">CSV 업로드</button> -->
+ <button id="uploadBtn">CSV 업로드</button>
 </div>
 
 <hr>
@@ -218,6 +219,8 @@ window.loadList = async function() {
 
 updateUI();
 
+// uploadBtn 버튼 클릭 시 CSV 업로드 실행
+document.getElementById("uploadBtn").addEventListener("click", uploadCSV);
 </script>
 
 </body>
