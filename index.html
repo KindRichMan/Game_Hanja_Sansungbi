@@ -18,6 +18,7 @@ body {
   height: 70vh;
   margin: 20px auto;
   border: 3px solid white;
+  overflow: hidden;
 }
 
 .word {
@@ -40,6 +41,7 @@ body {
 
 #rankingBox {
   display: none;
+  margin-top: 20px;
 }
 </style>
 </head>
@@ -55,17 +57,16 @@ body {
 콤보: <span id="combo">0</span>
 </div>
 
-<!-- 🔥 hpBar 반드시 있어야됨 -->
 <div class="bar"><div id="hpBar"></div></div>
 
 <div>
 난이도:
 <select id="level">
-  <option value="1">1</option>
+  <option value="1">1 (매우 쉬움)</option>
   <option value="2">2</option>
   <option value="3" selected>3</option>
   <option value="4">4</option>
-  <option value="5">5</option>
+  <option value="5">5 (어려움)</option>
 </select>
 
 <button onclick="startGame()">START</button>
@@ -74,7 +75,7 @@ body {
 
 <div id="game"></div>
 
-<input id="keyboardInput" placeholder="뜻 입력">
+<input id="keyboardInput" placeholder="뜻 입력 후 Enter">
 
 <div id="rankingBox">
   <h3>🏆 TOP 10</h3>
@@ -95,9 +96,11 @@ let nickname = "";
 
 let gameInterval, spawnInterval;
 
-/* 입력 */
+/* 🔥 DOM 로딩 이후 실행 (중요) */
 document.addEventListener("DOMContentLoaded", () => {
+
   const input = document.getElementById("keyboardInput");
+
   if(input){
     input.addEventListener("keydown", e=>{
       if(e.key==="Enter"){
@@ -106,17 +109,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  updateHP(); // 🔥 여기로 이동 (에러 해결)
+
 });
 
-/* 단어 로드 */
+/* 🔥 단어 로드 */
 loadWords().then(w => words = w);
 
-/* 생성 속도 */
+/* 🔥 생성 속도 */
 function getSpawnDelay(level){
   return [3000,2500,2000,1500,1200][level-1];
 }
 
-/* 시작 */
+/* 🔥 시작 */
 window.startGame = function(){
   nickname = document.getElementById("nickname").value.trim();
   if(!nickname) return alert("닉네임 입력");
@@ -131,7 +137,7 @@ window.startGame = function(){
   document.getElementById("rankingBox").style.display="none";
 }
 
-/* 생성 */
+/* 🔥 단어 생성 */
 function spawnWord(){
   if(words.length===0) return;
 
@@ -148,7 +154,7 @@ function spawnWord(){
   activeWords.push({el,data,y:0});
 }
 
-/* 업데이트 */
+/* 🔥 업데이트 */
 function update(){
   activeWords.forEach((w,i)=>{
     w.y+=speed;
@@ -156,6 +162,8 @@ function update(){
 
     if(w.y>600){
       hp-=10;
+      combo = 0;
+
       w.el.remove();
       activeWords.splice(i,1);
 
@@ -166,18 +174,20 @@ function update(){
   updateHP();
 }
 
-/* HP */
+/* 🔥 HP 업데이트 (안전 코드 포함) */
 function updateHP(){
   const bar = document.getElementById("hpBar");
-  if(bar) bar.style.width = hp + "%";
+  if(!bar) return;
+  bar.style.width = hp + "%";
 }
 
-/* 정답 */
+/* 🔥 정답 체크 */
 function checkAnswer(input){
   activeWords.forEach((w,i)=>{
     if(w.data.reading===input){
       score+=10;
       combo++;
+
       w.el.remove();
       activeWords.splice(i,1);
     }
@@ -187,7 +197,7 @@ function checkAnswer(input){
   document.getElementById("combo").innerText=combo;
 }
 
-/* 종료 */
+/* 🔥 게임 종료 */
 async function gameOver(){
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
@@ -198,7 +208,7 @@ async function gameOver(){
   showRanking(ranking);
 }
 
-/* 랭킹 */
+/* 🔥 랭킹 표시 */
 function showRanking(ranking){
   const list = document.getElementById("rankingList");
   list.innerHTML="";
@@ -209,10 +219,12 @@ function showRanking(ranking){
     if(i===0){
       el.innerHTML=`👑 1위 - ${r.nickname} (${r.score})`;
       el.style.color="gold";
+      el.style.fontSize="20px";
     }
     else if(r.nickname===nickname){
       el.innerHTML=`⭐ ${i+1}위 - ${r.nickname} (${r.score})`;
       el.style.color="yellow";
+      el.style.fontWeight="bold";
     }
     else{
       el.innerText=`${i+1}위 - ${r.nickname} (${r.score})`;
@@ -224,7 +236,7 @@ function showRanking(ranking){
   document.getElementById("rankingBox").style.display="block";
 }
 
-/* 리셋 */
+/* 🔥 리셋 */
 window.resetGame = function(){
   location.reload();
 }
