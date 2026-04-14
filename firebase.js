@@ -6,7 +6,7 @@ import {
   getFirestore, 
   collection, 
   doc,
-  getDoc, // 🔥 중요
+  getDoc,
   getDocs,
   setDoc,
   query,
@@ -54,19 +54,30 @@ export async function loadWords() {
 }
 
 
-// 🔥 최고점만 저장
+// 🔥 최고점만 저장 (중복 방지 + 소문자 통일)
 export async function saveScore(nickname, score) {
+
+  // 🔥 핵심: 닉네임 정규화
+  nickname = nickname.toLowerCase();
 
   const ref = doc(db, "ranking", nickname);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
-    await setDoc(ref, { nickname, score });
+    await setDoc(ref, {
+      nickname,
+      score,
+      updatedAt: Date.now()
+    });
   } else {
     const old = snap.data().score;
 
     if (score > old) {
-      await setDoc(ref, { nickname, score });
+      await setDoc(ref, {
+        nickname,
+        score,
+        updatedAt: Date.now()
+      });
     }
   }
 }
@@ -74,6 +85,7 @@ export async function saveScore(nickname, score) {
 
 // 🔥 랭킹 불러오기
 export async function loadRanking() {
+
   const q = query(
     collection(db, "ranking"),
     orderBy("score", "desc"),

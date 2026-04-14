@@ -43,6 +43,10 @@ body {
   display: none;
   margin-top: 20px;
 }
+
+#rankingList div {
+  margin: 5px;
+}
 </style>
 </head>
 
@@ -96,7 +100,7 @@ let nickname = "";
 
 let gameInterval, spawnInterval;
 
-/* 🔥 DOM 로딩 이후 실행 (중요) */
+/* 🔥 DOM 로딩 */
 document.addEventListener("DOMContentLoaded", () => {
 
   const input = document.getElementById("keyboardInput");
@@ -110,8 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  updateHP(); // 🔥 여기로 이동 (에러 해결)
-
+  updateHP();
 });
 
 /* 🔥 단어 로드 */
@@ -124,8 +127,20 @@ function getSpawnDelay(level){
 
 /* 🔥 시작 */
 window.startGame = function(){
-  nickname = document.getElementById("nickname").value.trim();
+
+  nickname = document.getElementById("nickname").value.trim().toLowerCase();
+
   if(!nickname) return alert("닉네임 입력");
+
+  stopGame();
+
+  score = 0;
+  combo = 0;
+  hp = 100;
+  activeWords = [];
+
+  document.getElementById("score").innerText = 0;
+  document.getElementById("combo").innerText = 0;
 
   const level = Number(document.getElementById("level").value);
 
@@ -135,6 +150,12 @@ window.startGame = function(){
   gameInterval = setInterval(update, 20);
 
   document.getElementById("rankingBox").style.display="none";
+}
+
+/* 🔥 정지 */
+function stopGame(){
+  clearInterval(spawnInterval);
+  clearInterval(gameInterval);
 }
 
 /* 🔥 단어 생성 */
@@ -160,32 +181,32 @@ function update(){
     w.y+=speed;
     w.el.style.top=w.y+"px";
 
-    if(w.y>600){
-      hp-=10;
+    if(w.y > document.getElementById("game").offsetHeight - 50){
+      hp -= 10;
       combo = 0;
 
       w.el.remove();
       activeWords.splice(i,1);
 
-      if(hp<=0) gameOver();
+      if(hp <= 0) gameOver();
     }
   });
 
   updateHP();
 }
 
-/* 🔥 HP 업데이트 (안전 코드 포함) */
+/* 🔥 HP */
 function updateHP(){
   const bar = document.getElementById("hpBar");
   if(!bar) return;
   bar.style.width = hp + "%";
 }
 
-/* 🔥 정답 체크 */
+/* 🔥 정답 */
 function checkAnswer(input){
   activeWords.forEach((w,i)=>{
     if(w.data.reading===input){
-      score+=10;
+      score += 10;
       combo++;
 
       w.el.remove();
@@ -193,14 +214,14 @@ function checkAnswer(input){
     }
   });
 
-  document.getElementById("score").innerText=score;
-  document.getElementById("combo").innerText=combo;
+  document.getElementById("score").innerText = score;
+  document.getElementById("combo").innerText = combo;
 }
 
 /* 🔥 게임 종료 */
 async function gameOver(){
-  clearInterval(spawnInterval);
-  clearInterval(gameInterval);
+
+  stopGame();
 
   await saveScore(nickname, score);
   const ranking = await loadRanking();
@@ -208,12 +229,14 @@ async function gameOver(){
   showRanking(ranking);
 }
 
-/* 🔥 랭킹 표시 */
+/* 🔥 랭킹 UI */
 function showRanking(ranking){
+
   const list = document.getElementById("rankingList");
-  list.innerHTML="";
+  list.innerHTML = "";
 
   ranking.forEach((r,i)=>{
+
     const el = document.createElement("div");
 
     if(i===0){
