@@ -11,14 +11,12 @@ body {
   padding: 30px;
 }
 
-/* 버튼 */
 button {
   padding: 10px 15px;
   margin: 5px;
   cursor: pointer;
 }
 
-/* 입력 영역 */
 .input-row {
   display: flex;
   justify-content: center;
@@ -37,7 +35,6 @@ input {
   width: 250px;
 }
 
-/* 리스트 UI */
 #list {
   margin-top: 30px;
   display: flex;
@@ -61,7 +58,6 @@ input {
 
 <h2>📌 사자성어 등록</h2>
 
-<!-- 🔥 버튼 영역 -->
 <div>
   <button id="loginBtn" onclick="login()">🔐 로그인</button>
   <button id="logoutBtn" onclick="logout()" style="display:none;">🚪 로그아웃</button>
@@ -72,21 +68,24 @@ input {
 
 <hr>
 
-<!-- 🔥 입력 + 추가 버튼 -->
-<div class="input-row">
+<!-- 🔥 CSV 업로드 추가 -->
+<div>
+  <input type="file" id="csvFile" accept=".csv">
+  <button onclick="uploadCSV()">CSV 업로드</button>
+</div>
 
+<hr>
+
+<div class="input-row">
   <div class="input-box">
     <input id="hanja" placeholder="한자 (예: 四面楚歌)">
     <input id="reading" placeholder="뜻 (예: 사면초가)">
   </div>
-
   <div>
     <button onclick="addWord()">추가</button>
   </div>
-
 </div>
 
-<!-- 🔥 리스트 -->
 <div id="list"></div>
 
 <script type="module">
@@ -98,13 +97,11 @@ import { signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-aut
 
 let user = null;
 
-// 관리자 이메일
 const admins = [
   "anghks12@gmail.com",
   "파트너이메일@gmail.com"
 ];
 
-// UI 업데이트
 function updateUI() {
   if(user){
     document.getElementById("loginBtn").style.display = "none";
@@ -117,34 +114,60 @@ function updateUI() {
   }
 }
 
-// 로그인
 window.login = async function() {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    user = result.user;
-
-    document.getElementById("result").innerText =
-      "로그인됨: " + user.email;
-
-    updateUI();
-
-  } catch (error) {
-    alert("로그인 실패: " + error.message);
-  }
-}
-
-// 로그아웃
-window.logout = async function() {
-  await signOut(auth);
-  user = null;
-
-  document.getElementById("result").innerText = "로그아웃됨";
-  document.getElementById("list").innerHTML = "";
-
+  const result = await signInWithPopup(auth, provider);
+  user = result.user;
+  document.getElementById("result").innerText = "로그인됨: " + user.email;
   updateUI();
 }
 
-// 추가
+window.logout = async function() {
+  await signOut(auth);
+  user = null;
+  document.getElementById("result").innerText = "로그아웃됨";
+  document.getElementById("list").innerHTML = "";
+  updateUI();
+}
+
+/* 🔥 CSV 업로드 핵심 */
+window.uploadCSV = function(){
+
+  if(!user){
+    alert("로그인 필요");
+    return;
+  }
+
+  const file = document.getElementById("csvFile").files[0];
+  if(!file){
+    alert("파일 선택하세요");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = async function(e){
+
+    const text = e.target.result;
+    const lines = text.trim().split("\n");
+
+    for(let i=1; i<lines.length; i++){
+
+      const [hanja, reading] = lines[i].split(",");
+
+      if(!hanja || !reading) continue;
+
+      await addDoc(collection(db, "words"), {
+        hanja: hanja.trim(),
+        reading: reading.trim()
+      });
+    }
+
+    alert("CSV 업로드 완료");
+  };
+
+  reader.readAsText(file, "utf-8");
+}
+
 window.addWord = async function() {
 
   if(!user){
@@ -173,13 +196,7 @@ window.addWord = async function() {
   alert("저장 완료");
 }
 
-// 데이터 조회
 window.loadList = async function() {
-
-  if(!user){
-    alert("로그인 필요");
-    return;
-  }
 
   const snapshot = await getDocs(collection(db, "words"));
 
@@ -199,7 +216,6 @@ window.loadList = async function() {
   document.getElementById("list").innerHTML = html;
 }
 
-// 초기 UI
 updateUI();
 
 </script>
