@@ -5,87 +5,54 @@
 <title>사자성어 관리자</title>
 
 <style>
-body {
-  font-family: sans-serif;
-  text-align: center;
-  padding: 30px;
-}
-
-button {
-  padding: 10px 15px;
-  margin: 5px;
-  cursor: pointer;
-}
-
-.input-row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.input-box {
-  display: flex;
-  flex-direction: column;
-}
-
-input {
-  padding: 10px;
-  margin: 5px;
-  width: 250px;
-}
-
-#list {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
+body { font-family: sans-serif; text-align:center; padding:20px; }
+button { margin:3px; padding:5px 10px; cursor:pointer; }
 .card {
-  width: 300px;
-  padding: 10px;
-  margin: 5px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  text-align: left;
-  background: #f9f9f9;
+  border:1px solid #ddd;
+  padding:10px;
+  margin:5px auto;
+  width:320px;
+  border-radius:10px;
+  text-align:left;
 }
+input { padding:5px; margin:3px; }
+#progress { margin:10px; font-weight:bold; }
 </style>
 </head>
 
 <body>
 
-<h2>📌 사자성어 등록</h2>
+<h2>📌 사자성어 관리자</h2>
 
 <div>
-  <button id="loginBtn" onclick="login()">🔐 로그인</button>
-  <button id="logoutBtn" onclick="logout()" style="display:none;">🚪 로그아웃</button>
-  <button id="loadBtn" onclick="loadList()" style="display:none;">📋 데이터 조회</button>
+  <button id="loginBtn" onclick="login()">로그인</button>
+  <button id="logoutBtn" onclick="logout()" style="display:none;">로그아웃</button>
+  <button onclick="loadList()">조회</button>
+  <button id="deleteAllBtn" onclick="deleteAll()" style="display:none;">전체삭제</button>
 </div>
 
 <p id="result"></p>
 
 <hr>
 
-<!-- 🔥 CSV 업로드 추가 -->
-<div>
-  <input type="file" id="csvFile" accept=".csv">
-  <!-- <button onclick="uploadCSV()">CSV 업로드</button> -->
- <button id="uploadBtn">CSV 업로드</button>
-</div>
+<input id="search" placeholder="검색">
+<button onclick="searchList()">검색</button>
 
 <hr>
 
-<div class="input-row">
-  <div class="input-box">
-    <input id="hanja" placeholder="한자 (예: 四面楚歌)">
-    <input id="reading" placeholder="뜻 (예: 사면초가)">
-  </div>
-  <div>
-    <button onclick="addWord()">추가</button>
-  </div>
+<div id="adminArea" style="display:none;">
+  <input type="file" id="csvFile">
+  <button onclick="uploadCSV()">CSV 업로드</button>
+  <div id="progress"></div>
+
+  <hr>
+
+  <input id="hanja" placeholder="한자">
+  <input id="reading" placeholder="뜻">
+  <button onclick="addWord()">추가</button>
 </div>
+
+<hr>
 
 <div id="list"></div>
 
@@ -93,134 +60,194 @@ input {
 
 import { auth, provider, signInWithPopup } from "./firebase.js";
 import { db } from "./firebase.js";
-import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { 
+  doc, setDoc, getDocs, deleteDoc, collection 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-let user = null;
-
+/* 🔥 관리자 리스트 */
 const admins = [
   "anghks12@gmail.com",
-  "파트너이메일@gmail.com"
+  "dolsaen@gmail.com"
 ];
 
-function updateUI() {
-  if(user){
-    document.getElementById("loginBtn").style.display = "none";
-    document.getElementById("logoutBtn").style.display = "inline-block";
-    document.getElementById("loadBtn").style.display = "inline-block";
-  } else {
-    document.getElementById("loginBtn").style.display = "inline-block";
-    document.getElementById("logoutBtn").style.display = "none";
-    document.getElementById("loadBtn").style.display = "none";
+let user=null;
+let allData=[];
+
+/* 관리자 체크 */
+function isAdmin(){
+  return user && admins.includes(user.email);
+}
+
+/* 로그인 */
+window.login=async()=>{
+  const res=await signInWithPopup(auth,provider);
+  user=res.user;
+
+  result.innerText=user.email;
+
+  loginBtn.style.display="none";
+  logoutBtn.style.display="inline";
+
+  if(isAdmin()){
+    adminArea.style.display="block";
+    deleteAllBtn.style.display="inline";
   }
+
+  loadList();
 }
 
-window.login = async function() {
-  const result = await signInWithPopup(auth, provider);
-  user = result.user;
-  document.getElementById("result").innerText = "로그인됨: " + user.email;
-  updateUI();
-}
-
-window.logout = async function() {
+/* 로그아웃 */
+window.logout=async()=>{
   await signOut(auth);
-  user = null;
-  document.getElementById("result").innerText = "로그아웃됨";
-  document.getElementById("list").innerHTML = "";
-  updateUI();
+  user=null;
+  result.innerText="";
+  location.reload();
 }
 
-/* 🔥 CSV 업로드 핵심 */
-window.uploadCSV = function(){
+/* 추가 */
+window.addWord=async()=>{
+  if(!isAdmin()) return alert("관리자만 가능");
 
-  if(!user){
-    alert("로그인 필요");
-    return;
-  }
+  const h=hanja.value.trim();
+  const r=reading.value.trim();
 
-  const file = document.getElementById("csvFile").files[0];
-  if(!file){
-    alert("파일 선택하세요");
-    return;
-  }
+  if(!h||!r) return alert("입력");
 
-  const reader = new FileReader();
-
-  reader.onload = async function(e){
-
-    const text = e.target.result;
-    const lines = text.trim().split("\n");
-
-    for(let i=1; i<lines.length; i++){
-
-      const [hanja, reading] = lines[i].split(",");
-
-      if(!hanja || !reading) continue;
-
-      await addDoc(collection(db, "words"), {
-        hanja: hanja.trim(),
-        reading: reading.trim()
-      });
-    }
-
-    alert("CSV 업로드 완료");
-  };
-
-  reader.readAsText(file, "utf-8");
-}
-
-window.addWord = async function() {
-
-  if(!user){
-    alert("로그인 필요");
-    return;
-  }
-
-  if(!admins.includes(user.email)){
-    alert("관리자만 가능");
-    return;
-  }
-
-  const hanja = document.getElementById("hanja").value.trim();
-  const reading = document.getElementById("reading").value.trim();
-
-  if(!hanja || !reading){
-    alert("입력하세요");
-    return;
-  }
-
-  await addDoc(collection(db, "words"), { hanja, reading });
-
-  document.getElementById("hanja").value = "";
-  document.getElementById("reading").value = "";
+  await setDoc(doc(db,"words",h),{
+    hanja:h,
+    reading:r
+  });
 
   alert("저장 완료");
+  loadList();
 }
 
-window.loadList = async function() {
+/* 조회 */
+window.loadList=async()=>{
+  const snap=await getDocs(collection(db,"words"));
+  allData=[];
+  snap.forEach(d=>allData.push(d.data()));
+  render(allData);
+}
 
-  const snapshot = await getDocs(collection(db, "words"));
+/* 검색 */
+window.searchList=()=>{
+  const keyword=search.value.trim();
 
-  let html = "<h3>📚 저장된 사자성어</h3>";
+  const filtered=allData.filter(d=>
+    d.hanja.includes(keyword) || d.reading.includes(keyword)
+  );
 
-  snapshot.forEach(doc => {
-    const data = doc.data();
+  render(filtered);
+}
 
-    html += `
-      <div class="card">
-        <div><b>${data.hanja}</b></div>
-        <div>${data.reading}</div>
-      </div>
+/* 렌더 */
+function render(data){
+
+  let html="";
+
+  data.forEach(d=>{
+
+    html+=`
+    <div class="card">
+      <input value="${d.hanja}" id="h_${d.hanja}" ${!isAdmin()?"readonly":""}>
+      <input value="${d.reading}" id="r_${d.hanja}" ${!isAdmin()?"readonly":""}>
+      
+      ${isAdmin()?`
+        <button onclick="updateWord('${d.hanja}')">수정</button>
+        <button onclick="deleteWord('${d.hanja}')">삭제</button>
+      `:""}
+    </div>
     `;
   });
 
-  document.getElementById("list").innerHTML = html;
+  list.innerHTML=html;
 }
 
-updateUI();
+/* 수정 */
+window.updateWord=async(oldId)=>{
+  if(!isAdmin()) return alert("관리자만 가능");
 
-// uploadBtn 버튼 클릭 시 CSV 업로드 실행
-document.getElementById("uploadBtn").addEventListener("click", uploadCSV);
+  const newH=document.getElementById("h_"+oldId).value.trim();
+  const newR=document.getElementById("r_"+oldId).value.trim();
+
+  if(oldId!==newH){
+    await deleteDoc(doc(db,"words",oldId));
+  }
+
+  await setDoc(doc(db,"words",newH),{
+    hanja:newH,
+    reading:newR
+  });
+
+  alert("수정 완료");
+  loadList();
+}
+
+/* 개별 삭제 */
+window.deleteWord=async(id)=>{
+  if(!isAdmin()) return;
+
+  if(!confirm("삭제하시겠습니까?")) return;
+
+  await deleteDoc(doc(db,"words",id));
+  loadList();
+}
+
+/* 전체 삭제 */
+window.deleteAll=async()=>{
+  if(!isAdmin()) return;
+
+  if(!confirm("전체 삭제하시겠습니까?")) return;
+
+  const snap=await getDocs(collection(db,"words"));
+
+  for(const d of snap.docs){
+    await deleteDoc(d.ref);
+  }
+
+  alert("전체 삭제 완료");
+  loadList();
+}
+
+/* CSV 업로드 */
+window.uploadCSV=()=>{
+  if(!isAdmin()) return;
+
+  const file=csvFile.files[0];
+  if(!file) return alert("파일 선택");
+
+  const reader=new FileReader();
+
+  reader.onload=async(e)=>{
+
+    const lines=e.target.result.split("\n");
+
+    let total=lines.length-1;
+    let done=0;
+
+    for(let i=1;i<lines.length;i++){
+
+      const [h,r]=lines[i].split(",");
+      if(!h||!r) continue;
+
+      await setDoc(doc(db,"words",h.trim()),{
+        hanja:h.trim(),
+        reading:r.trim()
+      });
+
+      done++;
+      progress.innerText=`${Math.floor(done/total*100)}%`;
+    }
+
+    progress.innerText="완료";
+    loadList();
+  };
+
+  reader.readAsText(file,"utf-8");
+}
+
 </script>
 
 </body>
