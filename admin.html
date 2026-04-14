@@ -61,7 +61,7 @@ input { padding:5px; margin:3px; }
 import { auth, provider, signInWithPopup } from "./firebase.js";
 import { db } from "./firebase.js";
 import { 
-  doc, setDoc, getDocs, deleteDoc, collection 
+  doc, setDoc, getDocs, deleteDoc, collection, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -196,20 +196,56 @@ window.deleteWord=async(id)=>{
 }
 
 /* 전체 삭제 */
-window.deleteAll=async()=>{
-  if(!isAdmin()) return;
-
-  if(!confirm("전체 삭제하시겠습니까?")) return;
-
-  const snap=await getDocs(collection(db,"words"));
-
-  for(const d of snap.docs){
-    await deleteDoc(d.ref);
+window.deleteAll = async () => {
+  if (!isAdmin()) {
+    alert("관리자만 가능");
+    return;
   }
 
-  alert("전체 삭제 완료");
-  loadList();
-}
+  const ok = confirm("전체 삭제하시겠습니까?");
+  if (!ok) return;
+
+  try {
+    const snap = await getDocs(collection(db, "words"));
+
+    if (snap.empty) {
+      alert("삭제할 데이터가 없습니다.");
+      return;
+    }
+
+    let deletedCount = 0;
+    let batch = writeBatch(db);
+    let opCount = 0;
+
+    progress.innerText = "전체 삭제 진행 중...";
+
+    for (const d of snap.docs) {
+      batch.delete(d.ref);
+      opCount++;
+      deletedCount++;
+
+      // Firestore batch는 최대 500건 권장
+      if (opCount === 450) {
+        await batch.commit();
+        batch = writeBatch(db);
+        opCount = 0;
+        progress.innerText = `전체 삭제 진행 중... ${deletedCount}개 삭제`;
+      }
+    }
+
+    if (opCount > 0) {
+      await batch.commit();
+    }
+
+    progress.innerText = `전체 삭제 완료: ${deletedCount}개`;
+    alert(`전체 삭제 완료: ${deletedCount}개`);
+
+    await loadList();
+  } catch (error) {
+    console.error("전체 삭제 오류:", error);
+    alert("전체 삭제 중 오류가 발생했습니다.");
+  }
+};
 
 /* CSV 업로드 */
 window.uploadCSV=()=>{
