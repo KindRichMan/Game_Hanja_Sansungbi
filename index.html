@@ -1,3 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4자성어 산성비</title>
+
+<style>
+body {
+  background: linear-gradient(#001f3f, #0074D9);
+  color: white;
+  text-align: center;
+  font-family: "HYhaeseo", "궁서", serif;
+}
+
+#game {
+  position: relative;
+  width: 90vw;
+  max-width: 900px;
+  height: 70vh;
+  margin: 20px auto;
+  border: 3px solid white;
+  overflow: hidden;
+}
+
+.word {
+  position: absolute;
+  font-size: clamp(22px, 4vw, 36px);
+  font-weight: bold;
+}
+
+.bar {
+  width: 60vw;
+  max-width: 400px;
+  height: 20px;
+  border: 1px solid white;
+  margin: auto;
+}
+
+#hpBar {
+  height: 100%;
+  background: red;
+}
+
+input {
+  padding: 10px;
+  margin: 10px;
+}
+
+#rankingBox {
+  display: none;
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🌧️ 4자성어 산성비</h2>
+
+<!-- 닉네임 -->
+<input id="nickname" placeholder="닉네임 입력">
+
+<div>
+점수: <span id="score">0</span> |
+콤보: <span id="combo">0</span>
+</div>
+
+<div class="bar"><div id="hpBar"></div></div>
+
+<div>
+난이도:
+<select id="level">
+  <option value="1">1 (매우 쉬움)</option>
+  <option value="2">2</option>
+  <option value="3" selected>3</option>
+  <option value="4">4</option>
+  <option value="5">5 (어려움)</option>
+</select>
+
+<button onclick="startGame()">START</button>
+<button onclick="stopGame()">STOP</button>
+<button onclick="resetGame()">CLEAN</button>
+</div>
+
+<div id="game"></div>
+
+<div id="display"></div>
+
+<input type="text" id="keyboardInput" placeholder="뜻 입력 후 Enter">
+
+<!-- 🔥 랭킹 -->
+<div id="rankingBox">
+  <h3>🏆 TOP 10</h3>
+  <div id="rankingList"></div>
+</div>
+
 <script type="module">
 
 import { loadWords, saveScore, loadRanking } from "./firebase.js";
@@ -13,20 +110,36 @@ let gameInterval, spawnInterval;
 let speed = 1;
 let nickname = "";
 
-/* 🔥 초기 데이터 로드 */
+/* 🔥 DOM 로딩 후 이벤트 등록 */
+document.addEventListener("DOMContentLoaded", () => {
+
+  const input = document.getElementById("keyboardInput");
+
+  if (input) {
+    input.addEventListener("keydown", e=>{
+      if(e.key === "Enter"){
+        currentInput = e.target.value.trim();
+        checkAnswer();
+        e.target.value="";
+      }
+    });
+  }
+
+});
+
+/* 🔥 데이터 로드 */
 async function init() {
   words = await loadWords();
 }
-
 init();
 
-/* 🔥 난이도 */
+/* 난이도 */
 function setSpeed() {
   const level = document.getElementById("level").value;
   speed = level * 0.3;
 }
 
-/* 🔥 시작 */
+/* 시작 */
 window.startGame = function() {
   nickname = document.getElementById("nickname").value.trim();
 
@@ -44,13 +157,13 @@ window.startGame = function() {
   gameInterval = setInterval(update, 20);
 }
 
-/* 🔥 정지 */
+/* 정지 */
 window.stopGame = function() {
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
 }
 
-/* 🔥 초기화 */
+/* 초기화 */
 window.resetGame = function() {
   stopGame();
 
@@ -70,7 +183,7 @@ window.resetGame = function() {
   updateHP();
 }
 
-/* 🔥 단어 생성 */
+/* 단어 생성 */
 function spawnWord() {
   if(words.length === 0) return;
 
@@ -87,7 +200,7 @@ function spawnWord() {
   activeWords.push({el,data,y:0});
 }
 
-/* 🔥 업데이트 */
+/* 업데이트 */
 function update() {
   activeWords.forEach((w,i)=>{
     w.y += speed;
@@ -110,7 +223,7 @@ function update() {
   });
 }
 
-/* 🔥 게임 종료 */
+/* 게임 종료 */
 async function gameOver() {
   stopGame();
 
@@ -120,7 +233,7 @@ async function gameOver() {
   showRanking(ranking);
 }
 
-/* 🔥 랭킹 표시 */
+/* 랭킹 표시 */
 function showRanking(ranking) {
   const box = document.getElementById("rankingBox");
   const list = document.getElementById("rankingList");
@@ -144,12 +257,12 @@ function showRanking(ranking) {
   box.style.display = "block";
 }
 
-/* 🔥 HP */
+/* HP */
 function updateHP() {
   document.getElementById("hpBar").style.width = hp + "%";
 }
 
-/* 🔥 정답 체크 */
+/* 정답 체크 */
 function checkAnswer() {
   activeWords.forEach((w,i)=>{
     if(w.data.reading === currentInput){
@@ -165,23 +278,12 @@ function checkAnswer() {
   });
 
   currentInput = "";
-  updateDisplay();
+  document.getElementById("display").innerText = "";
 }
-
-/* 🔥 표시 */
-function updateDisplay() {
-  document.getElementById("display").innerText = currentInput;
-}
-
-/* 🔥 입력 */
-document.getElementById("keyboardInput").addEventListener("keydown", e=>{
-  if(e.key === "Enter"){
-    currentInput = e.target.value.trim();
-    checkAnswer();
-    e.target.value="";
-  }
-});
 
 updateHP();
 
 </script>
+
+</body>
+</html>
