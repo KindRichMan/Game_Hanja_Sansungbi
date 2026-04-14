@@ -7,6 +7,7 @@
 <style>
 body { font-family: sans-serif; text-align:center; padding:20px; }
 button { margin:3px; padding:5px 10px; cursor:pointer; }
+
 .card {
   border:1px solid #ddd;
   padding:10px;
@@ -15,7 +16,9 @@ button { margin:3px; padding:5px 10px; cursor:pointer; }
   border-radius:10px;
   text-align:left;
 }
+
 input { padding:5px; margin:3px; }
+
 #progress { margin:10px; font-weight:bold; }
 </style>
 </head>
@@ -60,19 +63,19 @@ input { padding:5px; margin:3px; }
 
 import { auth, provider, signInWithPopup } from "./firebase.js";
 import { db } from "./firebase.js";
-import { 
-  doc, setDoc, getDocs, deleteDoc, collection, writeBatch
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { doc, setDoc, getDocs, deleteDoc, collection, writeBatch } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* 🔥 관리자 리스트 */
-const admins = [
-  "anghks12@gmail.com",
-  "dolsaen@gmail.com"
-];
+/* 관리자 */
+const admins = ["anghks12@gmail.com","dolsaen@gmail.com"];
 
 let user=null;
 let allData=[];
+
+/* 페이징 */
+let currentPage = 1;
+const pageSize = 20;
 
 /* 관리자 체크 */
 function isAdmin(){
@@ -93,41 +96,22 @@ window.login=async()=>{
     adminArea.style.display="block";
     deleteAllBtn.style.display="inline";
   }
-
-  loadList();
 }
 
 /* 로그아웃 */
 window.logout=async()=>{
   await signOut(auth);
-  user=null;
-  result.innerText="";
   location.reload();
-}
-
-/* 추가 */
-window.addWord=async()=>{
-  if(!isAdmin()) return alert("관리자만 가능");
-
-  const h=hanja.value.trim();
-  const r=reading.value.trim();
-
-  if(!h||!r) return alert("입력");
-
-  await setDoc(doc(db,"words",h),{
-    hanja:h,
-    reading:r
-  });
-
-  alert("저장 완료");
-  loadList();
 }
 
 /* 조회 */
 window.loadList=async()=>{
   const snap=await getDocs(collection(db,"words"));
+
   allData=[];
   snap.forEach(d=>allData.push(d.data()));
+
+  currentPage = 1;
   render(allData);
 }
 
@@ -139,15 +123,21 @@ window.searchList=()=>{
     d.hanja.includes(keyword) || d.reading.includes(keyword)
   );
 
+  currentPage = 1;
   render(filtered);
 }
 
 /* 렌더 */
 function render(data){
 
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+
+  const pageData = data.slice(start, end);
+
   let html="";
 
-  data.forEach(d=>{
+  pageData.forEach(d=>{
 
     html+=`
     <div class="card">
@@ -162,12 +152,53 @@ function render(data){
     `;
   });
 
-  list.innerHTML=html;
+  html += renderPagination(data.length);
+
+  list.innerHTML = html;
+}
+
+/* 페이지 버튼 */
+function renderPagination(total){
+
+  const totalPages = Math.ceil(total / pageSize);
+
+  let html = "<div style='margin-top:10px;'>";
+
+  for(let i=1;i<=totalPages;i++){
+    html += `
+      <button onclick="goPage(${i})"
+      style="${i===currentPage?'font-weight:bold':''}">
+      ${i}
+      </button>
+    `;
+  }
+
+  html += "</div>";
+
+  return html;
+}
+
+/* 페이지 이동 */
+window.goPage = function(page){
+  currentPage = page;
+  render(allData);
+}
+
+/* 추가 */
+window.addWord=async()=>{
+  if(!isAdmin()) return alert("관리자만 가능");
+
+  await setDoc(doc(db,"words",hanja.value.trim()),{
+    hanja:hanja.value.trim(),
+    reading:reading.value.trim()
+  });
+
+  loadList();
 }
 
 /* 수정 */
 window.updateWord=async(oldId)=>{
-  if(!isAdmin()) return alert("관리자만 가능");
+  if(!isAdmin()) return;
 
   const newH=document.getElementById("h_"+oldId).value.trim();
   const newR=document.getElementById("r_"+oldId).value.trim();
@@ -181,7 +212,6 @@ window.updateWord=async(oldId)=>{
     reading:newR
   });
 
-  alert("수정 완료");
   loadList();
 }
 
@@ -196,63 +226,38 @@ window.deleteWord=async(id)=>{
 }
 
 /* 전체 삭제 */
-window.deleteAll = async () => {
-  if (!isAdmin()) {
-    alert("관리자만 가능");
-    return;
-  }
+window.deleteAll=async()=>{
+  if(!isAdmin()) return;
 
-  const ok = confirm("전체 삭제하시겠습니까?");
-  if (!ok) return;
+  if(!confirm("전체 삭제하시겠습니까?")) return;
 
-  try {
-    const snap = await getDocs(collection(db, "words"));
+  const snap=await getDocs(collection(db,"words"));
 
-    if (snap.empty) {
-      alert("삭제할 데이터가 없습니다.");
-      return;
-    }
+  let batch = writeBatch(db);
+  let count = 0;
 
-    let deletedCount = 0;
-    let batch = writeBatch(db);
-    let opCount = 0;
+  for(const d of snap.docs){
+    batch.delete(d.ref);
+    count++;
 
-    progress.innerText = "전체 삭제 진행 중...";
-
-    for (const d of snap.docs) {
-      batch.delete(d.ref);
-      opCount++;
-      deletedCount++;
-
-      // Firestore batch는 최대 500건 권장
-      if (opCount === 450) {
-        await batch.commit();
-        batch = writeBatch(db);
-        opCount = 0;
-        progress.innerText = `전체 삭제 진행 중... ${deletedCount}개 삭제`;
-      }
-    }
-
-    if (opCount > 0) {
+    if(count % 400 === 0){
       await batch.commit();
+      batch = writeBatch(db);
     }
-
-    progress.innerText = `전체 삭제 완료: ${deletedCount}개`;
-    alert(`전체 삭제 완료: ${deletedCount}개`);
-
-    await loadList();
-  } catch (error) {
-    console.error("전체 삭제 오류:", error);
-    alert("전체 삭제 중 오류가 발생했습니다.");
   }
-};
+
+  await batch.commit();
+
+  alert(`삭제 완료: ${count}`);
+  loadList();
+}
 
 /* CSV 업로드 */
 window.uploadCSV=()=>{
   if(!isAdmin()) return;
 
   const file=csvFile.files[0];
-  if(!file) return alert("파일 선택");
+  if(!file) return;
 
   const reader=new FileReader();
 
