@@ -19,13 +19,20 @@ input {
 
 button {
   padding: 10px 20px;
+  margin: 5px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>📌 사자성어 등록</h2>
+<h2>📌 사자성어 등록 (관리자 전용)</h2>
+
+<button onclick="login()">🔐 로그인</button>
+
+<p id="userInfo"></p>
+
+<hr>
 
 <input id="hanja" placeholder="한자 (예: 四面楚歌)">
 <br>
@@ -38,10 +45,50 @@ button {
 
 <script type="module">
 
+// 🔥 Firebase import
 import { db } from "./firebase.js";
-import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth, provider, signInWithPopup } from "./firebase.js";
+import { collection, addDoc } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// 🔥 로그인 사용자
+let user = null;
+
+// 🔥 관리자 목록 (여기 수정하세요)
+const admins = [
+  "anghks12@gmail.com",
+  "partner@gmail.com"
+];
+
+// 🔐 로그인 함수
+window.login = async function() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    user = result.user;
+
+    document.getElementById("userInfo").innerText =
+      "로그인됨: " + user.email;
+
+  } catch (error) {
+    alert("로그인 실패");
+    console.error(error);
+  }
+}
+
+// 🔥 단어 추가 (관리자만 가능)
 window.addWord = async function() {
+
+  // 로그인 체크
+  if(!user){
+    alert("로그인 먼저 하세요");
+    return;
+  }
+
+  // 관리자 체크
+  if(!admins.includes(user.email)){
+    alert("관리자만 등록 가능");
+    return;
+  }
 
   const hanja = document.getElementById("hanja").value.trim();
   const reading = document.getElementById("reading").value.trim();
@@ -51,15 +98,21 @@ window.addWord = async function() {
     return;
   }
 
-  await addDoc(collection(db, "words"), {
-    hanja,
-    reading
-  });
+  try {
+    await addDoc(collection(db, "words"), {
+      hanja,
+      reading
+    });
 
-  document.getElementById("result").innerText = "✅ 저장 완료";
+    document.getElementById("result").innerText = "✅ 저장 완료";
 
-  document.getElementById("hanja").value = "";
-  document.getElementById("reading").value = "";
+    document.getElementById("hanja").value = "";
+    document.getElementById("reading").value = "";
+
+  } catch (error) {
+    alert("저장 실패");
+    console.error(error);
+  }
 }
 
 </script>
