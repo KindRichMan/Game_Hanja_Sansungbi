@@ -1,104 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>4자성어 산성비</title>
-
-<style>
-body {
-  background: linear-gradient(#001f3f, #0074D9);
-  color: white;
-  text-align: center;
-  font-family: "HYhaeseo", "한양해서체", "궁서", serif;
-}
-
-#game {
-  position: relative;
-  width: 90vw;
-  max-width: 900px;
-  height: 70vh;
-  margin: 20px auto;
-  border: 3px solid white;
-  overflow: hidden;
-}
-
-.word {
-  position: absolute;
-  font-size: clamp(22px, 4vw, 36px);
-  font-weight: bold;
-}
-
-.bar {
-  width: 60vw;
-  max-width: 400px;
-  height: 20px;
-  border: 1px solid white;
-  margin: auto;
-}
-
-#hpBar {
-  height: 100%;
-  background: red;
-}
-
-#keyboardInput {
-  margin-top: 15px;
-  padding: 12px;
-  font-size: 18px;
-  width: 80vw;
-  max-width: 400px;
-}
-
-#display {
-  font-size: clamp(18px, 3vw, 24px);
-  margin: 10px;
-}
-
-button {
-  margin: 5px;
-  padding: 8px 12px;
-  font-size: 14px;
-}
-</style>
-</head>
-
-<body>
-
-<h2>🌧️ 4자성어 산성비</h2>
-
-<div>
-점수: <span id="score">0</span> |
-콤보: <span id="combo">0</span>
-</div>
-
-<div class="bar"><div id="hpBar"></div></div>
-
-<div>
-난이도:
-<select id="level">
-  <option value="1">1 (매우 쉬움)</option>
-  <option value="2">2</option>
-  <option value="3" selected>3</option>
-  <option value="4">4</option>
-  <option value="5">5 (어려움)</option>
-</select>
-
-<button onclick="startGame()">START</button>
-<button onclick="stopGame()">STOP</button>
-<button onclick="resetGame()">CLEAN</button>
-</div>
-
-<div id="game"></div>
-
-<div id="display"></div>
-
-<input type="text" id="keyboardInput" placeholder="사자성어 입력 후 Enter">
-
-<!-- 🔥 핵심: module script -->
 <script type="module">
 
-import { loadWords } from "./firebase.js";
+import { loadWords, saveScore, loadRanking } from "./firebase.js";
 
 let words = [];
 let activeWords = [];
@@ -109,23 +11,32 @@ let hp = 100;
 
 let gameInterval, spawnInterval;
 let speed = 1;
+let nickname = "";
 
-/* 🔥 Firebase에서 데이터 로드 */
+/* 🔥 초기 데이터 로드 */
 async function init() {
   words = await loadWords();
-  console.log("words loaded:", words);
 }
 
 init();
 
-/* 난이도 */
+/* 🔥 난이도 */
 function setSpeed() {
   const level = document.getElementById("level").value;
-  speed = level * 0.5;
+  speed = level * 0.3;
 }
 
-/* 시작 */
+/* 🔥 시작 */
 window.startGame = function() {
+  nickname = document.getElementById("nickname").value.trim();
+
+  if (!nickname) {
+    alert("닉네임 입력하세요");
+    return;
+  }
+
+  document.getElementById("rankingBox").style.display = "none";
+
   stopGame();
   setSpeed();
 
@@ -133,13 +44,13 @@ window.startGame = function() {
   gameInterval = setInterval(update, 20);
 }
 
-/* 정지 */
+/* 🔥 정지 */
 window.stopGame = function() {
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
 }
 
-/* 초기화 */
+/* 🔥 초기화 */
 window.resetGame = function() {
   stopGame();
 
@@ -159,7 +70,7 @@ window.resetGame = function() {
   updateHP();
 }
 
-/* 단어 생성 */
+/* 🔥 단어 생성 */
 function spawnWord() {
   if(words.length === 0) return;
 
@@ -176,7 +87,7 @@ function spawnWord() {
   activeWords.push({el,data,y:0});
 }
 
-/* 업데이트 */
+/* 🔥 업데이트 */
 function update() {
   activeWords.forEach((w,i)=>{
     w.y += speed;
@@ -193,19 +104,52 @@ function update() {
       activeWords.splice(i,1);
 
       if(hp <= 0){
-        alert("게임 오버! 점수: " + score);
-        resetGame();
+        gameOver();
       }
     }
   });
 }
 
-/* HP */
+/* 🔥 게임 종료 */
+async function gameOver() {
+  stopGame();
+
+  await saveScore(nickname, score);
+  const ranking = await loadRanking();
+
+  showRanking(ranking);
+}
+
+/* 🔥 랭킹 표시 */
+function showRanking(ranking) {
+  const box = document.getElementById("rankingBox");
+  const list = document.getElementById("rankingList");
+
+  list.innerHTML = "";
+
+  ranking.forEach((r, i) => {
+    const el = document.createElement("div");
+
+    if (r.nickname === nickname && r.score === score) {
+      el.innerHTML = `⭐ ${i+1}위 - ${r.nickname} (${r.score})`;
+      el.style.color = "yellow";
+      el.style.fontWeight = "bold";
+    } else {
+      el.innerText = `${i+1}위 - ${r.nickname} (${r.score})`;
+    }
+
+    list.appendChild(el);
+  });
+
+  box.style.display = "block";
+}
+
+/* 🔥 HP */
 function updateHP() {
   document.getElementById("hpBar").style.width = hp + "%";
 }
 
-/* 정답 체크 */
+/* 🔥 정답 체크 */
 function checkAnswer() {
   activeWords.forEach((w,i)=>{
     if(w.data.reading === currentInput){
@@ -224,12 +168,12 @@ function checkAnswer() {
   updateDisplay();
 }
 
-/* 표시 */
+/* 🔥 표시 */
 function updateDisplay() {
   document.getElementById("display").innerText = currentInput;
 }
 
-/* 입력 */
+/* 🔥 입력 */
 document.getElementById("keyboardInput").addEventListener("keydown", e=>{
   if(e.key === "Enter"){
     currentInput = e.target.value.trim();
@@ -241,6 +185,3 @@ document.getElementById("keyboardInput").addEventListener("keydown", e=>{
 updateHP();
 
 </script>
-
-</body>
-</html>

@@ -5,10 +5,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { 
   getFirestore, 
   collection, 
-  getDocs 
+  getDocs,
+  addDoc,
+  query,
+  orderBy,
+  limit
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 🔥 Auth (로그인용)
+// 🔥 Auth
 import { 
   getAuth, 
   GoogleAuthProvider, 
@@ -38,13 +42,34 @@ export const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// 🔥 export (admin에서 사용)
 export { auth, provider, signInWithPopup };
 
 
-// 🔥 words 불러오기 (게임에서 사용)
+// 🔥 words 불러오기
 export async function loadWords() {
   const snapshot = await getDocs(collection(db, "words"));
+  return snapshot.docs.map(doc => doc.data());
+}
 
+
+// 🔥 랭킹 저장
+export async function saveScore(nickname, score) {
+  await addDoc(collection(db, "ranking"), {
+    nickname,
+    score,
+    createdAt: Date.now()
+  });
+}
+
+
+// 🔥 랭킹 불러오기
+export async function loadRanking() {
+  const q = query(
+    collection(db, "ranking"),
+    orderBy("score", "desc"),
+    limit(10)
+  );
+
+  const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => doc.data());
 }
