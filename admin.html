@@ -83,24 +83,40 @@ function isAdmin(){
 }
 
 /* 로그인 */
-window.login=async()=>{
+window.login = async () => {
 
-  const res=await signInWithPopup(auth,provider);
-  user=res.user;
+  console.log("로그인 클릭됨");
 
-  // 🔥 로그인 로그
-  await saveLog("login", user);
+  // 👉 1. 로그인 시도 로그
+  await saveLog("login_attempt");
 
-  result.innerText=user.email;
+  try {
+    const res = await signInWithPopup(auth, provider);
+    user = res.user;
 
-  loginBtn.style.display="none";
-  logoutBtn.style.display="inline";
+    // 👉 2. 로그인 성공 로그
+    await saveLog("login_success", user);
 
-  if(isAdmin()){
-    adminArea.style.display="block";
-    deleteAllBtn.style.display="inline";
+    result.innerText = user.email;
+
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline";
+
+    if (isAdmin()) {
+      adminArea.style.display = "block";
+      deleteAllBtn.style.display = "inline";
+    }
+
+  } catch (err) {
+
+    console.error("로그인 실패:", err);
+
+    // 👉 3. 로그인 실패 로그
+    await saveLog("login_fail", null, err.message);
+
+    alert("로그인 실패");
   }
-}
+};
 
 async function getClientInfo(){
   try{
