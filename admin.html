@@ -18,7 +18,6 @@ button { margin:3px; padding:5px 10px; cursor:pointer; }
 }
 
 input { padding:5px; margin:3px; }
-
 #progress { margin:10px; font-weight:bold; }
 </style>
 </head>
@@ -61,11 +60,16 @@ input { padding:5px; margin:3px; }
 
 <script type="module">
 
-import { auth, provider, signInWithPopup } from "./firebase.js";
+import { auth, provider } from "./firebase.js";
+import { 
+  signInWithRedirect, getRedirectResult, signOut 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import { 
+  doc, setDoc, getDocs, deleteDoc, collection, writeBatch 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 import { db } from "./firebase.js";
-import { doc, setDoc, getDocs, deleteDoc, collection, writeBatch } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 /* 관리자 */
 const admins = ["anghks12@gmail.com","dolsaen@gmail.com"];
@@ -82,15 +86,33 @@ function isAdmin(){
   return user && admins.includes(user.email);
 }
 
-/* 로그인 */
-window.login=async()=>{
-  const res=await signInWithPopup(auth,provider);
-  user=res.user;
+/* 🔥 로그인 (redirect 방식) */
+window.login = async () => {
+  await signInWithRedirect(auth, provider);
+};
 
-  result.innerText=user.email;
+/* 🔥 로그인 결과 처리 */
+getRedirectResult(auth).then((result) => {
+  if (result?.user) {
+    user = result.user;
+    afterLogin();
+  }
+});
 
-  loginBtn.style.display="none";
-  logoutBtn.style.display="inline";
+/* 기존 로그인 상태 유지 */
+auth.onAuthStateChanged((u)=>{
+  if(u){
+    user = u;
+    afterLogin();
+  }
+});
+
+/* 로그인 후 UI */
+function afterLogin(){
+  result.innerText = user.email;
+
+  loginBtn.style.display = "none";
+  logoutBtn.style.display = "inline";
 
   if(isAdmin()){
     adminArea.style.display="block";
@@ -99,33 +121,33 @@ window.login=async()=>{
 }
 
 /* 로그아웃 */
-window.logout=async()=>{
+window.logout = async () => {
   await signOut(auth);
   location.reload();
-}
+};
 
 /* 조회 */
-window.loadList=async()=>{
-  const snap=await getDocs(collection(db,"words"));
+window.loadList = async () => {
+  const snap = await getDocs(collection(db,"words"));
 
-  allData=[];
+  allData = [];
   snap.forEach(d=>allData.push(d.data()));
 
   currentPage = 1;
   render(allData);
-}
+};
 
 /* 검색 */
-window.searchList=()=>{
-  const keyword=search.value.trim();
+window.searchList = () => {
+  const keyword = search.value.trim();
 
-  const filtered=allData.filter(d=>
+  const filtered = allData.filter(d =>
     d.hanja.includes(keyword) || d.reading.includes(keyword)
   );
 
   currentPage = 1;
   render(filtered);
-}
+};
 
 /* 렌더 */
 function render(data){
@@ -139,7 +161,7 @@ function render(data){
 
   pageData.forEach(d=>{
 
-    html+=`
+    html += `
     <div class="card">
       <input value="${d.hanja}" id="h_${d.hanja}" ${!isAdmin()?"readonly":""}>
       <input value="${d.reading}" id="r_${d.hanja}" ${!isAdmin()?"readonly":""}>
@@ -157,35 +179,30 @@ function render(data){
   list.innerHTML = html;
 }
 
-/* 페이지 버튼 */
+/* 페이지 */
 function renderPagination(total){
 
   const totalPages = Math.ceil(total / pageSize);
 
-  let html = "<div style='margin-top:10px;'>";
+  let html = "<div>";
 
   for(let i=1;i<=totalPages;i++){
-    html += `
-      <button onclick="goPage(${i})"
-      style="${i===currentPage?'font-weight:bold':''}">
-      ${i}
-      </button>
-    `;
+    html += `<button onclick="goPage(${i})"
+    style="${i===currentPage?'font-weight:bold':''}">
+    ${i}</button>`;
   }
 
   html += "</div>";
-
   return html;
 }
 
-/* 페이지 이동 */
-window.goPage = function(page){
-  currentPage = page;
+window.goPage = (p)=>{
+  currentPage = p;
   render(allData);
-}
+};
 
 /* 추가 */
-window.addWord=async()=>{
+window.addWord = async ()=>{
   if(!isAdmin()) return alert("관리자만 가능");
 
   await setDoc(doc(db,"words",hanja.value.trim()),{
@@ -194,16 +211,16 @@ window.addWord=async()=>{
   });
 
   loadList();
-}
+};
 
 /* 수정 */
-window.updateWord=async(oldId)=>{
+window.updateWord = async (oldId)=>{
   if(!isAdmin()) return;
 
-  const newH=document.getElementById("h_"+oldId).value.trim();
-  const newR=document.getElementById("r_"+oldId).value.trim();
+  const newH = document.getElementById("h_"+oldId).value.trim();
+  const newR = document.getElementById("r_"+oldId).value.trim();
 
-  if(oldId!==newH){
+  if(oldId !== newH){
     await deleteDoc(doc(db,"words",oldId));
   }
 
@@ -213,25 +230,25 @@ window.updateWord=async(oldId)=>{
   });
 
   loadList();
-}
+};
 
-/* 개별 삭제 */
-window.deleteWord=async(id)=>{
+/* 삭제 */
+window.deleteWord = async (id)=>{
   if(!isAdmin()) return;
 
   if(!confirm("삭제하시겠습니까?")) return;
 
   await deleteDoc(doc(db,"words",id));
   loadList();
-}
+};
 
 /* 전체 삭제 */
-window.deleteAll=async()=>{
+window.deleteAll = async ()=>{
   if(!isAdmin()) return;
 
   if(!confirm("전체 삭제하시겠습니까?")) return;
 
-  const snap=await getDocs(collection(db,"words"));
+  const snap = await getDocs(collection(db,"words"));
 
   let batch = writeBatch(db);
   let count = 0;
@@ -250,27 +267,26 @@ window.deleteAll=async()=>{
 
   alert(`삭제 완료: ${count}`);
   loadList();
-}
+};
 
-/* CSV 업로드 */
-window.uploadCSV=()=>{
+/* CSV */
+window.uploadCSV = ()=>{
   if(!isAdmin()) return;
 
-  const file=csvFile.files[0];
+  const file = csvFile.files[0];
   if(!file) return;
 
-  const reader=new FileReader();
+  const reader = new FileReader();
 
-  reader.onload=async(e)=>{
+  reader.onload = async (e)=>{
 
-    const lines=e.target.result.split("\n");
+    const lines = e.target.result.split("\n");
 
-    let total=lines.length-1;
-    let done=0;
+    let total = lines.length - 1;
+    let done = 0;
 
     for(let i=1;i<lines.length;i++){
-
-      const [h,r]=lines[i].split(",");
+      const [h,r] = lines[i].split(",");
       if(!h||!r) continue;
 
       await setDoc(doc(db,"words",h.trim()),{
@@ -279,7 +295,7 @@ window.uploadCSV=()=>{
       });
 
       done++;
-      progress.innerText=`${Math.floor(done/total*100)}%`;
+      progress.innerText = `${Math.floor(done/total*100)}%`;
     }
 
     progress.innerText="완료";
@@ -287,7 +303,7 @@ window.uploadCSV=()=>{
   };
 
   reader.readAsText(file,"utf-8");
-}
+};
 
 </script>
 
