@@ -88,14 +88,14 @@ window.login = async () => {
   console.log("로그인 클릭됨");
 
   // 👉 1. 로그인 시도 로그
-  await saveLog("login_attempt");
+  await saveLog("로그인 시도");
 
   try {
     const res = await signInWithPopup(auth, provider);
     user = res.user;
 
     // 👉 2. 로그인 성공 로그
-    await saveLog("login_success", user);
+    await saveLog("로그인 성공", user);
 
     result.innerText = user.email;
 
