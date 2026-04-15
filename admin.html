@@ -61,9 +61,8 @@ input { padding:5px; margin:3px; }
 <script type="module">
 
 import { auth, provider } from "./firebase.js";
-import { 
-  signInWithRedirect, getRedirectResult, signOut 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { signInWithRedirect, signOut, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import { 
   doc, setDoc, getDocs, deleteDoc, collection, writeBatch 
@@ -86,21 +85,13 @@ function isAdmin(){
   return user && admins.includes(user.email);
 }
 
-/* 🔥 로그인 (redirect 방식) */
+/* 로그인 */
 window.login = async () => {
   await signInWithRedirect(auth, provider);
 };
 
-/* 🔥 로그인 결과 처리 */
-getRedirectResult(auth).then((result) => {
-  if (result?.user) {
-    user = result.user;
-    afterLogin();
-  }
-});
-
-/* 기존 로그인 상태 유지 */
-auth.onAuthStateChanged((u)=>{
+/* 🔥 로그인 상태 감지 (이것만 사용!) */
+onAuthStateChanged(auth, (u)=>{
   if(u){
     user = u;
     afterLogin();
@@ -175,7 +166,6 @@ function render(data){
   });
 
   html += renderPagination(data.length);
-
   list.innerHTML = html;
 }
 
