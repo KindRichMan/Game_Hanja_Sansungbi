@@ -18,7 +18,6 @@ button { margin:3px; padding:5px 10px; cursor:pointer; }
 }
 
 input { padding:5px; margin:3px; }
-
 #progress { margin:10px; font-weight:bold; }
 </style>
 </head>
@@ -61,11 +60,21 @@ input { padding:5px; margin:3px; }
 
 <script type="module">
 
-import { auth, provider, signInWithPopup } from "./firebase.js";
+import { auth, provider } from "./firebase.js";
 import { db } from "./firebase.js";
-import { doc, setDoc, getDocs, deleteDoc, collection, writeBatch } 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import { 
+  signInWithRedirect,
+  getRedirectResult,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import { 
+  doc, setDoc, getDocs, deleteDoc, collection, writeBatch 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* 관리자 */
 const admins = ["anghks12@gmail.com","dolsaen@gmail.com"];
@@ -83,11 +92,36 @@ function isAdmin(){
 }
 
 /* 로그인 */
-window.login=async()=>{
-  const res=await signInWithPopup(auth,provider);
-  user=res.user;
+window.login = async () => {
+  await setPersistence(auth, browserLocalPersistence);
+  await signInWithRedirect(auth, provider);
+};
 
-  result.innerText=user.email;
+/* 로그아웃 */
+window.logout=async()=>{
+  await signOut(auth);
+  location.reload();
+}
+
+/* 🔥 로그인 결과 처리 */
+getRedirectResult(auth).then((resultData)=>{
+  if(resultData && resultData.user){
+    user = resultData.user;
+    applyLoginUI();
+  }
+});
+
+/* 🔥 로그인 유지 */
+onAuthStateChanged(auth,(u)=>{
+  if(u){
+    user = u;
+    applyLoginUI();
+  }
+});
+
+/* 로그인 UI */
+function applyLoginUI(){
+  result.innerText = user.email;
 
   loginBtn.style.display="none";
   logoutBtn.style.display="inline";
@@ -96,12 +130,6 @@ window.login=async()=>{
     adminArea.style.display="block";
     deleteAllBtn.style.display="inline";
   }
-}
-
-/* 로그아웃 */
-window.logout=async()=>{
-  await signOut(auth);
-  location.reload();
 }
 
 /* 조회 */
@@ -138,12 +166,10 @@ function render(data){
   let html="";
 
   pageData.forEach(d=>{
-
     html+=`
     <div class="card">
       <input value="${d.hanja}" id="h_${d.hanja}" ${!isAdmin()?"readonly":""}>
       <input value="${d.reading}" id="r_${d.hanja}" ${!isAdmin()?"readonly":""}>
-      
       ${isAdmin()?`
         <button onclick="updateWord('${d.hanja}')">수정</button>
         <button onclick="deleteWord('${d.hanja}')">삭제</button>
@@ -153,40 +179,30 @@ function render(data){
   });
 
   html += renderPagination(data.length);
-
   list.innerHTML = html;
 }
 
-/* 페이지 버튼 */
+/* 페이지 */
 function renderPagination(total){
-
   const totalPages = Math.ceil(total / pageSize);
-
-  let html = "<div style='margin-top:10px;'>";
+  let html = "<div>";
 
   for(let i=1;i<=totalPages;i++){
-    html += `
-      <button onclick="goPage(${i})"
-      style="${i===currentPage?'font-weight:bold':''}">
-      ${i}
-      </button>
-    `;
+    html += `<button onclick="goPage(${i})">${i}</button>`;
   }
 
   html += "</div>";
-
   return html;
 }
 
-/* 페이지 이동 */
-window.goPage = function(page){
-  currentPage = page;
+window.goPage=(p)=>{
+  currentPage=p;
   render(allData);
 }
 
 /* 추가 */
 window.addWord=async()=>{
-  if(!isAdmin()) return alert("관리자만 가능");
+  if(!isAdmin()) return;
 
   await setDoc(doc(db,"words",hanja.value.trim()),{
     hanja:hanja.value.trim(),
@@ -200,7 +216,7 @@ window.addWord=async()=>{
 window.updateWord=async(oldId)=>{
   if(!isAdmin()) return;
 
-  const newH=document.getElementById("h_"+oldId).value.trim();
+  const newH=h_"+oldId).value.trim();
   const newR=document.getElementById("r_"+oldId).value.trim();
 
   if(oldId!==newH){
@@ -215,7 +231,7 @@ window.updateWord=async(oldId)=>{
   loadList();
 }
 
-/* 개별 삭제 */
+/* 삭제 */
 window.deleteWord=async(id)=>{
   if(!isAdmin()) return;
 
@@ -252,7 +268,7 @@ window.deleteAll=async()=>{
   loadList();
 }
 
-/* CSV 업로드 */
+/* CSV */
 window.uploadCSV=()=>{
   if(!isAdmin()) return;
 
@@ -262,14 +278,12 @@ window.uploadCSV=()=>{
   const reader=new FileReader();
 
   reader.onload=async(e)=>{
-
     const lines=e.target.result.split("\n");
 
     let total=lines.length-1;
     let done=0;
 
     for(let i=1;i<lines.length;i++){
-
       const [h,r]=lines[i].split(",");
       if(!h||!r) continue;
 
