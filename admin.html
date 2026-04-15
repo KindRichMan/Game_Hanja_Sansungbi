@@ -31,6 +31,7 @@ input { padding:5px; margin:3px; }
   <button id="loginBtn" onclick="login()">로그인</button>
   <button id="logoutBtn" onclick="logout()" style="display:none;">로그아웃</button>
   <button onclick="loadList()">조회</button>
+  <button id="deleteLogsBtn" onclick="deleteAllLogs()" style="display:none;">로그 전체 삭제</button>
   <button id="deleteAllBtn" onclick="deleteAll()" style="display:none;">전체삭제</button>
 </div>
 
@@ -69,6 +70,7 @@ import { signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-aut
 
 /* 관리자 */
 const admins = ["anghks12@gmail.com","dolsaen@gmail.com"];
+const superAdmin = "anghks12@gmail.com";
 
 let user=null;
 let allData=[];
@@ -93,24 +95,18 @@ window.login = async () => {
     const res = await signInWithPopup(auth, provider);
     user = res.user;
 
-    // 🔥 허용된 관리자 계정인지 체크
-    const admins = ["anghks12@gmail.com","dolsaen@gmail.com"];
-
     if(!admins.includes(user.email)){
 
-      // 👉 로그 남기기
       await saveLog("허용되지 않은 로그인", user);
 
       alert("허용된 계정만 접근 가능합니다");
 
-      // 👉 즉시 로그아웃
       await signOut(auth);
-
       user = null;
       return;
     }
 
-    // 👉 관리자만 여기 도달
+    // 👉 관리자 로그인
     await saveLog("로그인 성공", user);
 
     result.innerText = user.email;
@@ -121,11 +117,16 @@ window.login = async () => {
     adminArea.style.display = "block";
     deleteAllBtn.style.display = "inline";
 
+    // 🔥 슈퍼 관리자만 버튼 표시
+    if (user.email === superAdmin) {
+      deleteLogsBtn.style.display = "inline";
+    }
+
   } catch (err) {
 
     console.error("로그인 실패:", err);
 
-    await saveLog("로그인 실패", null, err.message);
+    await saveLog("로그인 실패", null);
 
     alert("로그인 실패");
   }
@@ -165,7 +166,7 @@ async function saveLog(type, userData=null){
 }
 
 window.addEventListener("load", ()=>{
-  saveLog("방문");
+ // saveLog("방문");
 });
 
 /* 로그아웃 */
@@ -173,6 +174,42 @@ window.logout=async()=>{
   await signOut(auth);
   location.reload();
 }
+
+
+/* 로그 전체 삭제 함수 추가 */
+
+window.deleteAllLogs = async () => {
+
+  // 🔥 나만 가능
+  if(user?.email !== superAdmin){
+    alert("권한 없음");
+    return;
+  }
+
+  if(!confirm("전체 로그를 삭제하시겠습니까?")) return;
+
+  const snap = await getDocs(collection(db, "logs"));
+
+  let batch = writeBatch(db);
+  let count = 0;
+
+  for(const d of snap.docs){
+
+    batch.delete(d.ref);
+    count++;
+
+    // 🔥 400개씩 끊어서 삭제
+    if(count % 400 === 0){
+      await batch.commit();
+      batch = writeBatch(db);
+    }
+  }
+
+  await batch.commit();
+
+  alert(`로그 삭제 완료: ${count}개`);
+};
+
 
 /* 조회 */
 window.loadList=async()=>{
