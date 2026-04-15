@@ -87,14 +87,30 @@ window.login = async () => {
 
   console.log("로그인 클릭됨");
 
-  // 👉 1. 로그인 시도 로그
   await saveLog("로그인 시도");
 
   try {
     const res = await signInWithPopup(auth, provider);
     user = res.user;
 
-    // 👉 2. 로그인 성공 로그
+    // 🔥 허용된 관리자 계정인지 체크
+    const admins = ["anghks12@gmail.com","dolsaen@gmail.com"];
+
+    if(!admins.includes(user.email)){
+
+      // 👉 로그 남기기
+      await saveLog("허용되지 않은 로그인", user);
+
+      alert("허용된 계정만 접근 가능합니다");
+
+      // 👉 즉시 로그아웃
+      await signOut(auth);
+
+      user = null;
+      return;
+    }
+
+    // 👉 관리자만 여기 도달
     await saveLog("로그인 성공", user);
 
     result.innerText = user.email;
@@ -102,17 +118,14 @@ window.login = async () => {
     loginBtn.style.display = "none";
     logoutBtn.style.display = "inline";
 
-    if (isAdmin()) {
-      adminArea.style.display = "block";
-      deleteAllBtn.style.display = "inline";
-    }
+    adminArea.style.display = "block";
+    deleteAllBtn.style.display = "inline";
 
   } catch (err) {
 
     console.error("로그인 실패:", err);
 
-    // 👉 3. 로그인 실패 로그
-    await saveLog("login_fail", null, err.message);
+    await saveLog("로그인 실패", null, err.message);
 
     alert("로그인 실패");
   }
@@ -152,7 +165,7 @@ async function saveLog(type, userData=null){
 }
 
 window.addEventListener("load", ()=>{
-  saveLog("visit");
+  saveLog("방문");
 });
 
 /* 로그아웃 */
