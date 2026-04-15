@@ -63,7 +63,7 @@ input { padding:5px; margin:3px; }
 
 import { auth, provider, signInWithPopup } from "./firebase.js";
 import { db } from "./firebase.js";
-import { doc, setDoc, getDocs, deleteDoc, collection, writeBatch } 
+import { doc, setDoc, getDocs, deleteDoc, collection, writeBatch, addDoc  } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -84,8 +84,12 @@ function isAdmin(){
 
 /* 로그인 */
 window.login=async()=>{
+
   const res=await signInWithPopup(auth,provider);
   user=res.user;
+
+  // 🔥 로그인 로그
+  await saveLog("login", user);
 
   result.innerText=user.email;
 
@@ -97,6 +101,43 @@ window.login=async()=>{
     deleteAllBtn.style.display="inline";
   }
 }
+
+async function getClientInfo(){
+  try{
+    const res = await fetch("https://ipapi.co/json/");
+    return await res.json();
+  }catch(e){
+    console.log("IP 조회 실패", e);
+    return {};
+  }
+}
+
+/* 로그 저장 함수 추가 */
+
+
+async function saveLog(type, userData=null){
+
+  const info = await getClientInfo();
+
+  await addDoc(collection(db, "logs"), {
+    type, // visit / login
+
+    email: userData?.email || null,
+    uid: userData?.uid || null,
+
+    ip: info.ip || null,
+    country: info.country_name || null,
+    city: info.city || null,
+
+    userAgent: navigator.userAgent,
+
+    time: new Date()
+  });
+}
+
+window.addEventListener("load", ()=>{
+  saveLog("visit");
+});
 
 /* 로그아웃 */
 window.logout=async()=>{
