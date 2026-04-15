@@ -87,28 +87,50 @@ window.login = async () => {
 
   console.log("로그인 클릭됨");
 
+  // 👉 로그인 시도
   await saveLog("로그인 시도");
 
   try {
     const res = await signInWithPopup(auth, provider);
     user = res.user;
 
-    // 🔥 허용된 관리자 계정인지 체크
     const admins = ["anghks12@gmail.com","dolsaen@gmail.com"];
 
+    // 🔥 1. 관리자 체크 먼저
     if(!admins.includes(user.email)){
 
-      // 👉 로그 남기기
-      await saveLog("허용되지 않은 로그인", user);
+      // 👉 비정상 사용자 로그
+      await saveLog("비정상 사용자", user);
 
-      alert("허용된 계정만 접근 가능합니다");
+      alert("허용되지 않은 계정입니다");
 
-      // 👉 즉시 로그아웃
+      // 👉 강제 로그아웃
       await signOut(auth);
-
       user = null;
+
       return;
     }
+
+    // 🔥 2. 관리자만 여기 들어옴
+    await saveLog("관리자 로그인", user);
+
+    result.innerText = user.email;
+
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline";
+
+    adminArea.style.display = "block";
+    deleteAllBtn.style.display = "inline";
+
+  } catch (err) {
+
+    console.error("로그인 실패:", err);
+
+    await saveLog("로그인 실패", null);
+
+    alert("로그인 실패");
+  }
+};
 
     // 👉 관리자만 여기 도달
     await saveLog("로그인 성공", user);
