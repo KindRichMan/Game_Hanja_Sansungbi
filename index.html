@@ -39,13 +39,14 @@ body {
   width: 100%;
 }
 
+#timer {
+  font-size: 20px;
+  margin: 10px;
+}
+
 #rankingBox {
   display: none;
   margin-top: 20px;
-}
-
-#rankingList div {
-  margin: 5px;
 }
 </style>
 </head>
@@ -61,17 +62,27 @@ body {
 콤보: <span id="combo">0</span>
 </div>
 
+<div id="timer"></div>
+
 <div class="bar"><div id="hpBar"></div></div>
 
 <div>
 난이도:
 <select id="level">
   <option value="1">1 (매우 쉬움)</option>
-  <option value="2">2</option>
-  <option value="3" selected>3</option>
-  <option value="4">4</option>
-  <option value="5">5 (어려움)</option>
+  <option value="2">2 (쉬움)</option>
+  <option value="3" selected>3 (보통)</option>
+  <option value="4">4 (어려움)</option>
+  <option value="5">5 (매우 어려움)</option>
 </select>
+
+<br><br>
+
+시간 설정:
+<label><input type="radio" name="time" value="60"> 1분</label>
+<label><input type="radio" name="time" value="0" checked> 무제한</label>
+
+<br><br>
 
 <button onclick="startGame()">START</button>
 <button onclick="resetGame()">RESET</button>
@@ -98,38 +109,36 @@ let hp = 100;
 let speed = 1;
 let nickname = "";
 
-let gameInterval, spawnInterval;
-
-/* 🔥 DOM 로딩 */
-document.addEventListener("DOMContentLoaded", () => {
-
-  const input = document.getElementById("keyboardInput");
-
-  if(input){
-    input.addEventListener("keydown", e=>{
-      if(e.key==="Enter"){
-        checkAnswer(e.target.value.trim());
-        e.target.value="";
-      }
-    });
-  }
-
-  updateHP();
-});
+let gameInterval, spawnInterval, timerInterval;
+let remainingTime = 0;
 
 /* 🔥 단어 로드 */
 loadWords().then(w => words = w);
 
-/* 🔥 생성 속도 */
+/* 🔥 입력 */
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("keyboardInput").addEventListener("keydown", e=>{
+    if(e.key==="Enter"){
+      checkAnswer(e.target.value.trim());
+      e.target.value="";
+    }
+  });
+});
+
+/* 🔥 생성 속도 (느린 단계 추가) */
 function getSpawnDelay(level){
-  return [3000,2500,2000,1500,1200][level-1];
+  return [4000, 3200, 2500, 1800, 1200][level-1];
+}
+
+/* 🔥 속도 조정 (핵심 수정) */
+function getSpeed(level){
+  return [0.2, 0.35, 0.5, 0.7, 1][level-1];
 }
 
 /* 🔥 시작 */
 window.startGame = function(){
 
   nickname = document.getElementById("nickname").value.trim().toLowerCase();
-
   if(!nickname) return alert("닉네임 입력");
 
   stopGame();
@@ -143,11 +152,28 @@ window.startGame = function(){
   document.getElementById("combo").innerText = 0;
 
   const level = Number(document.getElementById("level").value);
-
-  speed = level * 0.3;
+  speed = getSpeed(level);
 
   spawnInterval = setInterval(spawnWord, getSpawnDelay(level));
   gameInterval = setInterval(update, 20);
+
+  // 🔥 시간 설정
+  const timeOption = document.querySelector('input[name="time"]:checked').value;
+
+  if(timeOption > 0){
+    remainingTime = Number(timeOption);
+
+    timerInterval = setInterval(()=>{
+      remainingTime--;
+      document.getElementById("timer").innerText = `⏱️ ${remainingTime}초`;
+
+      if(remainingTime <= 0){
+        gameOver();
+      }
+    },1000);
+  }else{
+    document.getElementById("timer").innerText = "♾️ 무제한";
+  }
 
   document.getElementById("rankingBox").style.display="none";
 }
@@ -156,6 +182,7 @@ window.startGame = function(){
 function stopGame(){
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
+  clearInterval(timerInterval);
 }
 
 /* 🔥 단어 생성 */
@@ -192,14 +219,7 @@ function update(){
     }
   });
 
-  updateHP();
-}
-
-/* 🔥 HP */
-function updateHP(){
-  const bar = document.getElementById("hpBar");
-  if(!bar) return;
-  bar.style.width = hp + "%";
+  document.getElementById("hpBar").style.width = hp + "%";
 }
 
 /* 🔥 정답 */
@@ -220,7 +240,6 @@ function checkAnswer(input){
 
 /* 🔥 게임 종료 */
 async function gameOver(){
-
   stopGame();
 
   await saveScore(nickname, score);
@@ -229,30 +248,14 @@ async function gameOver(){
   showRanking(ranking);
 }
 
-/* 🔥 랭킹 UI */
+/* 🔥 랭킹 */
 function showRanking(ranking){
-
   const list = document.getElementById("rankingList");
   list.innerHTML = "";
 
   ranking.forEach((r,i)=>{
-
     const el = document.createElement("div");
-
-    if(i===0){
-      el.innerHTML=`👑 1위 - ${r.nickname} (${r.score})`;
-      el.style.color="gold";
-      el.style.fontSize="20px";
-    }
-    else if(r.nickname===nickname){
-      el.innerHTML=`⭐ ${i+1}위 - ${r.nickname} (${r.score})`;
-      el.style.color="yellow";
-      el.style.fontWeight="bold";
-    }
-    else{
-      el.innerText=`${i+1}위 - ${r.nickname} (${r.score})`;
-    }
-
+    el.innerText = `${i+1}위 - ${r.nickname} (${r.score})`;
     list.appendChild(el);
   });
 
