@@ -2,10 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-
-<!-- 🔥 모바일 핵심 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>성어 타자 게임</title>
 
 <style>
@@ -15,30 +12,29 @@ body {
   text-align: center;
   font-family: "궁서", serif;
   margin: 0;
-  padding: 10px;
+  padding-bottom: 90px; /* 입력창 공간 확보 */
 }
 
-/* 🔥 게임 영역 */
+/* 게임 영역 */
 #game {
   position: relative;
   width: 95vw;
-  height: 55vh;
+  height: 55dvh; /* 🔥 핵심 (vh → dvh) */
   margin: 10px auto;
   border: 3px solid white;
   overflow: hidden;
 }
 
-/* 🔥 글자 (반응형 핵심) */
+/* 단어 */
 .word {
   position: absolute;
   font-size: clamp(18px, 5vw, 40px);
   font-weight: bold;
 }
 
-/* 🔥 HP */
+/* HP 바 */
 .bar {
   width: 80%;
-  max-width: 300px;
   height: 20px;
   border: 1px solid white;
   margin: 10px auto;
@@ -50,37 +46,41 @@ body {
   width: 100%;
 }
 
-/* 🔥 타이머 */
-#timer {
-  font-size: 18px;
-  margin: 5px;
-}
-
-/* 🔥 입력창 (핵심 개선) */
-#keyboardInput {
-  position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 85%;
-  max-width: 400px;
-  padding: 12px;
-  font-size: 16px;
-  border-radius: 10px;
-  border: none;
-}
-
-/* 🔥 버튼 */
+/* 버튼 */
 button {
   padding: 10px 15px;
-  font-size: 14px;
   margin: 5px;
+  font-size: 14px;
 }
 
-/* 🔥 랭킹 */
+/* 입력창 (🔥 핵심) */
+#keyboardInput {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  z-index: 999;
+}
+
+/* 닉네임 */
+#nickname {
+  padding: 10px;
+  width: 60%;
+  max-width: 300px;
+}
+
+/* 랭킹 */
 #rankingBox {
   display: none;
-  margin-top: 20px;
+  margin-top: 10px;
+}
+
+#rankingList div {
+  margin: 5px;
 }
 </style>
 </head>
@@ -96,27 +96,17 @@ button {
 콤보: <span id="combo">0</span>
 </div>
 
-<div id="timer"></div>
-
 <div class="bar"><div id="hpBar"></div></div>
 
 <div>
 난이도:
 <select id="level">
   <option value="1">1 (매우 쉬움)</option>
-  <option value="2">2 (쉬움)</option>
-  <option value="3" selected>3 (보통)</option>
-  <option value="4">4 (어려움)</option>
-  <option value="5">5 (매우 어려움)</option>
+  <option value="2">2</option>
+  <option value="3" selected>3</option>
+  <option value="4">4</option>
+  <option value="5">5 (어려움)</option>
 </select>
-
-<br><br>
-
-시간 설정:
-<label><input type="radio" name="time" value="60"> 1분</label>
-<label><input type="radio" name="time" value="0" checked> 무제한</label>
-
-<br><br>
 
 <button onclick="startGame()">START</button>
 <button onclick="resetGame()">RESET</button>
@@ -124,15 +114,14 @@ button {
 
 <div id="game"></div>
 
-<input id="keyboardInput" placeholder="뜻 입력 후 Enter">
-
 <div id="rankingBox">
   <h3>🏆 TOP 10</h3>
   <div id="rankingList"></div>
 </div>
 
-<script type="module">
+<input id="keyboardInput" placeholder="뜻 입력 후 Enter">
 
+<script type="module">
 import { loadWords, saveScore, loadRanking } from "./firebase.js";
 
 let words = [];
@@ -143,14 +132,11 @@ let hp = 100;
 let speed = 1;
 let nickname = "";
 
-let gameInterval, spawnInterval, timerInterval;
-let remainingTime = 0;
+let gameInterval, spawnInterval;
 
-/* 🔥 단어 로드 */
-loadWords().then(w => words = w);
-
-/* 🔥 입력 + 모바일 자동 포커스 */
+/* 🔥 초기 설정 */
 document.addEventListener("DOMContentLoaded", () => {
+
   const input = document.getElementById("keyboardInput");
 
   input.addEventListener("keydown", e=>{
@@ -160,23 +146,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  input.focus(); // 🔥 모바일 UX 개선
+  /* 🔥 모바일 입력 UX 개선 */
+  input.addEventListener("focus", () => {
+    setTimeout(() => {
+      input.scrollIntoView({ behavior: "smooth" });
+    }, 300);
+  });
+
+  updateHP();
 });
 
-/* 🔥 생성 속도 */
+/* 단어 로드 */
+loadWords().then(w => words = w);
+
+/* 생성 속도 */
 function getSpawnDelay(level){
-  return [4000, 3200, 2500, 1800, 1200][level-1];
+  return [3000,2500,2000,1500,1200][level-1];
 }
 
-/* 🔥 속도 */
-function getSpeed(level){
-  return [0.2, 0.35, 0.5, 0.7, 1][level-1];
-}
-
-/* 🔥 시작 */
+/* 시작 */
 window.startGame = function(){
 
   nickname = document.getElementById("nickname").value.trim().toLowerCase();
+
   if(!nickname) return alert("닉네임 입력");
 
   stopGame();
@@ -190,39 +182,24 @@ window.startGame = function(){
   document.getElementById("combo").innerText = 0;
 
   const level = Number(document.getElementById("level").value);
-  speed = getSpeed(level);
+
+  speed = level * 0.3;
 
   spawnInterval = setInterval(spawnWord, getSpawnDelay(level));
   gameInterval = setInterval(update, 20);
 
-  const timeOption = document.querySelector('input[name="time"]:checked').value;
-
-  if(timeOption > 0){
-    remainingTime = Number(timeOption);
-
-    timerInterval = setInterval(()=>{
-      remainingTime--;
-      document.getElementById("timer").innerText = `⏱️ ${remainingTime}초`;
-
-      if(remainingTime <= 0){
-        gameOver();
-      }
-    },1000);
-  }else{
-    document.getElementById("timer").innerText = "♾️ 무제한";
-  }
-
   document.getElementById("rankingBox").style.display="none";
+
+  document.getElementById("keyboardInput").focus();
 }
 
-/* 🔥 정지 */
+/* 정지 */
 function stopGame(){
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
-  clearInterval(timerInterval);
 }
 
-/* 🔥 단어 생성 */
+/* 단어 생성 */
 function spawnWord(){
   if(words.length===0) return;
 
@@ -239,7 +216,7 @@ function spawnWord(){
   activeWords.push({el,data,y:0});
 }
 
-/* 🔥 업데이트 */
+/* 업데이트 */
 function update(){
   activeWords.forEach((w,i)=>{
     w.y+=speed;
@@ -256,10 +233,16 @@ function update(){
     }
   });
 
-  document.getElementById("hpBar").style.width = hp + "%";
+  updateHP();
 }
 
-/* 🔥 정답 */
+/* HP */
+function updateHP(){
+  const bar = document.getElementById("hpBar");
+  bar.style.width = hp + "%";
+}
+
+/* 정답 체크 */
 function checkAnswer(input){
   activeWords.forEach((w,i)=>{
     if(w.data.reading===input){
@@ -275,8 +258,9 @@ function checkAnswer(input){
   document.getElementById("combo").innerText = combo;
 }
 
-/* 🔥 종료 */
+/* 게임 종료 */
 async function gameOver(){
+
   stopGame();
 
   await saveScore(nickname, score);
@@ -285,25 +269,38 @@ async function gameOver(){
   showRanking(ranking);
 }
 
-/* 🔥 랭킹 */
+/* 랭킹 표시 */
 function showRanking(ranking){
+
   const list = document.getElementById("rankingList");
   list.innerHTML = "";
 
   ranking.forEach((r,i)=>{
+
     const el = document.createElement("div");
-    el.innerText = `${i+1}위 - ${r.nickname} (${r.score})`;
+
+    if(i===0){
+      el.innerHTML=`👑 1위 - ${r.nickname} (${r.score})`;
+      el.style.color="gold";
+    }
+    else if(r.nickname===nickname){
+      el.innerHTML=`⭐ ${i+1}위 - ${r.nickname} (${r.score})`;
+      el.style.color="yellow";
+    }
+    else{
+      el.innerText=`${i+1}위 - ${r.nickname} (${r.score})`;
+    }
+
     list.appendChild(el);
   });
 
   document.getElementById("rankingBox").style.display="block";
 }
 
-/* 🔥 리셋 */
+/* 리셋 */
 window.resetGame = function(){
   location.reload();
 }
-
 </script>
 
 </body>
