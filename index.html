@@ -2,6 +2,10 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+
+<!-- 🔥 모바일 핵심 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>성어 타자 게임</title>
 
 <style>
@@ -10,27 +14,34 @@ body {
   color: white;
   text-align: center;
   font-family: "궁서", serif;
+  margin: 0;
+  padding: 10px;
 }
 
+/* 🔥 게임 영역 */
 #game {
   position: relative;
-  width: 90vw;
-  height: 70vh;
-  margin: 20px auto;
+  width: 95vw;
+  height: 55vh;
+  margin: 10px auto;
   border: 3px solid white;
   overflow: hidden;
 }
 
+/* 🔥 글자 (반응형 핵심) */
 .word {
   position: absolute;
-  font-size: 40px;
+  font-size: clamp(18px, 5vw, 40px);
+  font-weight: bold;
 }
 
+/* 🔥 HP */
 .bar {
-  width: 300px;
+  width: 80%;
+  max-width: 300px;
   height: 20px;
   border: 1px solid white;
-  margin: auto;
+  margin: 10px auto;
 }
 
 #hpBar {
@@ -39,11 +50,34 @@ body {
   width: 100%;
 }
 
+/* 🔥 타이머 */
 #timer {
-  font-size: 20px;
-  margin: 10px;
+  font-size: 18px;
+  margin: 5px;
 }
 
+/* 🔥 입력창 (핵심 개선) */
+#keyboardInput {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85%;
+  max-width: 400px;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+}
+
+/* 🔥 버튼 */
+button {
+  padding: 10px 15px;
+  font-size: 14px;
+  margin: 5px;
+}
+
+/* 🔥 랭킹 */
 #rankingBox {
   display: none;
   margin-top: 20px;
@@ -115,22 +149,26 @@ let remainingTime = 0;
 /* 🔥 단어 로드 */
 loadWords().then(w => words = w);
 
-/* 🔥 입력 */
+/* 🔥 입력 + 모바일 자동 포커스 */
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("keyboardInput").addEventListener("keydown", e=>{
+  const input = document.getElementById("keyboardInput");
+
+  input.addEventListener("keydown", e=>{
     if(e.key==="Enter"){
       checkAnswer(e.target.value.trim());
       e.target.value="";
     }
   });
+
+  input.focus(); // 🔥 모바일 UX 개선
 });
 
-/* 🔥 생성 속도 (느린 단계 추가) */
+/* 🔥 생성 속도 */
 function getSpawnDelay(level){
   return [4000, 3200, 2500, 1800, 1200][level-1];
 }
 
-/* 🔥 속도 조정 (핵심 수정) */
+/* 🔥 속도 */
 function getSpeed(level){
   return [0.2, 0.35, 0.5, 0.7, 1][level-1];
 }
@@ -157,7 +195,6 @@ window.startGame = function(){
   spawnInterval = setInterval(spawnWord, getSpawnDelay(level));
   gameInterval = setInterval(update, 20);
 
-  // 🔥 시간 설정
   const timeOption = document.querySelector('input[name="time"]:checked').value;
 
   if(timeOption > 0){
@@ -238,7 +275,7 @@ function checkAnswer(input){
   document.getElementById("combo").innerText = combo;
 }
 
-/* 🔥 게임 종료 */
+/* 🔥 종료 */
 async function gameOver(){
   stopGame();
 
