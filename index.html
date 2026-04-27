@@ -158,28 +158,28 @@ select {
   <input id="nickname" placeholder="닉네임" autocomplete="nickname">
 
   <div id="status">
-  점수: <span id="score">0</span> |
-  콤보: <span id="combo">0</span> |
-  시간: <span id="timeLabel">무한</span>
+    점수: <span id="score">0</span> |
+    콤보: <span id="combo">0</span> |
+    시간: <span id="timeLabel">무한</span>
   </div>
 
   <div class="bar"><div id="hpBar"></div></div>
 
   <div id="controls">
-  시간제한:
-  <label><input type="radio" name="timeMode" value="timed"> 1분</label>
-  <label><input type="radio" name="timeMode" value="infinite" checked> 무한시간</label>
-  난이도:
-  <select id="level">
-    <option value="1">1 (매우 쉬움)</option>
-    <option value="2">2</option>
-    <option value="3" selected>3</option>
-    <option value="4">4</option>
-    <option value="5">5 (어려움)</option>
-  </select>
+    시간제한:
+    <label><input type="radio" name="timeMode" value="timed"> 1분</label>
+    <label><input type="radio" name="timeMode" value="infinite" checked> 무한시간</label>
+    난이도:
+    <select id="level">
+      <option value="1">1 (매우 쉬움)</option>
+      <option value="2">2</option>
+      <option value="3" selected>3</option>
+      <option value="4">4</option>
+      <option value="5">5 (어려움)</option>
+    </select>
 
-  <button onclick="startGame()">START</button>
-  <button onclick="resetGame()">RESET</button>
+    <button onclick="startGame()">START</button>
+    <button onclick="resetGame()">RESET</button>
   </div>
 
   <div id="game"></div>
@@ -210,13 +210,12 @@ let timeLeft = 60;
 
 /* 초기 설정 */
 document.addEventListener("DOMContentLoaded", async () => {
-
   const input = document.getElementById("keyboardInput");
 
-  input.addEventListener("keydown", e=>{
-    if(e.key==="Enter"){
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
       checkAnswer(e.target.value.trim());
-      e.target.value="";
+      e.target.value = "";
     }
   });
 
@@ -253,16 +252,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 loadWords().then(w => words = w);
 
 /* 생성 속도 */
-function getSpawnDelay(level){
-  return [3000,2500,2000,1500,1200][level-1];
+function getSpawnDelay(level) {
+  return [3000, 2500, 2000, 1500, 1200][level - 1];
 }
 
 /* 시작 */
-window.startGame = function(){
-
+window.startGame = function () {
   nickname = document.getElementById("nickname").value.trim().toLowerCase();
 
-  if(!nickname) return alert("닉네임 입력");
+  if (!nickname) return alert("닉네임 입력");
 
   stopGame();
   clearWords();
@@ -300,54 +298,53 @@ window.startGame = function(){
   spawnInterval = setInterval(spawnWord, getSpawnDelay(level));
   gameInterval = setInterval(update, 20);
 
-  document.getElementById("rankingBox").style.display="none";
-
+  document.getElementById("rankingBox").style.display = "none";
   document.getElementById("keyboardInput").focus();
-}
+};
 
 /* 정지 */
-function stopGame(){
+function stopGame() {
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
   clearInterval(timerInterval);
   isGameRunning = false;
 }
 
-function clearWords(){
+function clearWords() {
   document.querySelectorAll("#game .word").forEach(el => el.remove());
 }
 
 /* 단어 생성 */
-function spawnWord(){
-  if(words.length===0) return;
+function spawnWord() {
+  if (words.length === 0) return;
 
-  const data = words[Math.floor(Math.random()*words.length)];
+  const data = words[Math.floor(Math.random() * words.length)];
 
   const el = document.createElement("div");
-  el.className="word";
-  el.innerText=data.hanja;
+  el.className = "word";
+  el.innerText = data.hanja;
 
-  el.style.left=Math.random()*80+"%";
-  el.style.top="0px";
+  el.style.left = Math.random() * 80 + "%";
+  el.style.top = "0px";
 
   document.getElementById("game").appendChild(el);
-  activeWords.push({el,data,y:0});
+  activeWords.push({ el, data, y: 0 });
 }
 
 /* 업데이트 */
-function update(){
-  activeWords.forEach((w,i)=>{
-    w.y+=speed;
-    w.el.style.top=w.y+"px";
+function update() {
+  activeWords.forEach((w, i) => {
+    w.y += speed;
+    w.el.style.top = w.y + "px";
 
-    if(w.y > document.getElementById("game").offsetHeight - 50){
+    if (w.y > document.getElementById("game").offsetHeight - 50) {
       hp -= 10;
       combo = 0;
 
       w.el.remove();
-      activeWords.splice(i,1);
+      activeWords.splice(i, 1);
 
-      if(hp <= 0) gameOver();
+      if (hp <= 0) gameOver();
     }
   });
 
@@ -355,12 +352,12 @@ function update(){
 }
 
 /* HP */
-function updateHP(){
+function updateHP() {
   const bar = document.getElementById("hpBar");
   bar.style.width = hp + "%";
 }
 
-function updateTimeLabel(){
+function updateTimeLabel() {
   const label = document.getElementById("timeLabel");
   if (!label) return;
 
@@ -374,14 +371,14 @@ function updateTimeLabel(){
 }
 
 /* 정답 체크 */
-function checkAnswer(input){
-  activeWords.forEach((w,i)=>{
-    if(w.data.reading===input){
+function checkAnswer(input) {
+  activeWords.forEach((w, i) => {
+    if (w.data.reading === input) {
       score += 10;
       combo++;
 
       w.el.remove();
-      activeWords.splice(i,1);
+      activeWords.splice(i, 1);
     }
   });
 
@@ -390,8 +387,7 @@ function checkAnswer(input){
 }
 
 /* 게임 종료 */
-async function gameOver(){
-
+async function gameOver() {
   if (!isGameRunning) return;
   stopGame();
 
@@ -402,37 +398,33 @@ async function gameOver(){
 }
 
 /* 랭킹 표시 */
-function showRanking(ranking){
-
+function showRanking(ranking) {
   const list = document.getElementById("rankingList");
   list.innerHTML = "";
 
-  ranking.forEach((r,i)=>{
-
+  ranking.forEach((r, i) => {
     const el = document.createElement("div");
 
-    if(i===0){
-      el.innerHTML=`👑 1위 - ${r.nickname} (${r.score})`;
-      el.style.color="gold";
-    }
-    else if(r.nickname===nickname){
-      el.innerHTML=`⭐ ${i+1}위 - ${r.nickname} (${r.score})`;
-      el.style.color="yellow";
-    }
-    else{
-      el.innerText=`${i+1}위 - ${r.nickname} (${r.score})`;
+    if (i === 0) {
+      el.innerHTML = `👑 1위 - ${r.nickname} (${r.score})`;
+      el.style.color = "gold";
+    } else if (r.nickname === nickname) {
+      el.innerHTML = `⭐ ${i + 1}위 - ${r.nickname} (${r.score})`;
+      el.style.color = "yellow";
+    } else {
+      el.innerText = `${i + 1}위 - ${r.nickname} (${r.score})`;
     }
 
     list.appendChild(el);
   });
 
-  document.getElementById("rankingBox").style.display="block";
+  document.getElementById("rankingBox").style.display = "block";
 }
 
 /* 리셋 */
-window.resetGame = function(){
+window.resetGame = function () {
   location.reload();
-}
+};
 </script>
 
 </body>
