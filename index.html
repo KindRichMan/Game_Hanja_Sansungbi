@@ -2,42 +2,69 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>성어 타자 게임</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#003b73">
 
 <style>
+:root {
+  --bg-top: #001f3f;
+  --bg-bottom: #0074D9;
+  --card: rgba(0, 0, 0, 0.25);
+  --text: #fff;
+}
+
+* { box-sizing: border-box; }
+
 body {
-  background: linear-gradient(#001f3f, #0074D9);
-  color: white;
+  background: linear-gradient(var(--bg-top), var(--bg-bottom));
+  color: var(--text);
   text-align: center;
   font-family: "궁서", serif;
   margin: 0;
-  padding-bottom: 90px; /* 입력창 공간 확보 */
+  min-height: 100dvh;
+  padding: max(12px, env(safe-area-inset-top)) 12px calc(90px + env(safe-area-inset-bottom));
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+h2 {
+  margin: 6px 0 12px;
 }
 
 /* 게임 영역 */
 #game {
   position: relative;
-  width: 95vw;
-  height: 55dvh; /* 🔥 핵심 (vh → dvh) */
+  width: 100%;
+  height: min(58dvh, 520px);
   margin: 10px auto;
   border: 3px solid white;
+  border-radius: 10px;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* 단어 */
 .word {
   position: absolute;
-  font-size: clamp(18px, 5vw, 40px);
+  font-size: clamp(20px, 6.5vw, 40px);
   font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
 /* HP 바 */
 .bar {
-  width: 80%;
+  width: 100%;
+  max-width: 500px;
   height: 20px;
   border: 1px solid white;
   margin: 10px auto;
+  border-radius: 999px;
+  overflow: hidden;
 }
 
 #hpBar {
@@ -46,22 +73,50 @@ body {
   width: 100%;
 }
 
+#status {
+  margin: 8px 0;
+  font-size: clamp(15px, 4vw, 18px);
+}
+
+#controls {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 10px;
+  margin: 0 auto 10px;
+}
+
 /* 버튼 */
+button,
+select,
+input {
+  min-height: 44px;
+}
+
 button {
   padding: 10px 15px;
   margin: 5px;
-  font-size: 14px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
-/* 입력창 (🔥 핵심) */
+select {
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* 입력창 */
 #keyboardInput {
   position: fixed;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom);
   left: 0;
   width: 100%;
-  padding: 15px;
+  padding: 14px 16px;
   font-size: 16px;
   border: none;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
   outline: none;
   z-index: 999;
 }
@@ -69,8 +124,9 @@ button {
 /* 닉네임 */
 #nickname {
   padding: 10px;
-  width: 60%;
-  max-width: 300px;
+  width: min(90%, 300px);
+  border-radius: 8px;
+  border: none;
 }
 
 /* 랭킹 */
@@ -82,44 +138,59 @@ button {
 #rankingList div {
   margin: 5px;
 }
+
+@media (min-width: 768px) {
+  #controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
 </style>
 </head>
 
 <body>
+<div class="container">
+  <h2>🌧️ 성어 타자 게임</h2>
 
-<h2>🌧️ 성어 타자 게임</h2>
+  <input id="nickname" placeholder="닉네임" autocomplete="nickname">
 
-<input id="nickname" placeholder="닉네임">
+  <div id="status">
+  점수: <span id="score">0</span> |
+  콤보: <span id="combo">0</span> |
+  시간: <span id="timeLabel">무한</span>
+  </div>
 
-<div>
-점수: <span id="score">0</span> |
-콤보: <span id="combo">0</span>
+  <div class="bar"><div id="hpBar"></div></div>
+
+  <div id="controls">
+  시간제한:
+  <label><input type="radio" name="timeMode" value="timed"> 1분</label>
+  <label><input type="radio" name="timeMode" value="infinite" checked> 무한시간</label>
+  난이도:
+  <select id="level">
+    <option value="1">1 (매우 쉬움)</option>
+    <option value="2">2</option>
+    <option value="3" selected>3</option>
+    <option value="4">4</option>
+    <option value="5">5 (어려움)</option>
+  </select>
+
+  <button onclick="startGame()">START</button>
+  <button onclick="resetGame()">RESET</button>
+  </div>
+
+  <div id="game"></div>
+
+  <div id="rankingBox">
+    <h3>🏆 TOP 10</h3>
+    <div id="rankingList"></div>
+  </div>
 </div>
 
-<div class="bar"><div id="hpBar"></div></div>
-
-<div>
-난이도:
-<select id="level">
-  <option value="1">1 (매우 쉬움)</option>
-  <option value="2">2</option>
-  <option value="3" selected>3</option>
-  <option value="4">4</option>
-  <option value="5">5 (어려움)</option>
-</select>
-
-<button onclick="startGame()">START</button>
-<button onclick="resetGame()">RESET</button>
-</div>
-
-<div id="game"></div>
-
-<div id="rankingBox">
-  <h3>🏆 TOP 10</h3>
-  <div id="rankingList"></div>
-</div>
-
-<input id="keyboardInput" placeholder="뜻 입력 후 Enter">
+<input id="keyboardInput" placeholder="뜻 입력 후 Enter" inputmode="text" enterkeyhint="done">
 
 <script type="module">
 import { loadWords, saveScore, loadRanking } from "./firebase.js";
@@ -132,10 +203,13 @@ let hp = 100;
 let speed = 1;
 let nickname = "";
 
-let gameInterval, spawnInterval;
+let gameInterval, spawnInterval, timerInterval;
+let isGameRunning = false;
+let timeMode = "infinite";
+let timeLeft = 60;
 
-/* 🔥 초기 설정 */
-document.addEventListener("DOMContentLoaded", () => {
+/* 초기 설정 */
+document.addEventListener("DOMContentLoaded", async () => {
 
   const input = document.getElementById("keyboardInput");
 
@@ -146,13 +220,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  /* 🔥 모바일 입력 UX 개선 */
+  /* 모바일 입력 UX 개선 */
   input.addEventListener("focus", () => {
     setTimeout(() => {
-      input.scrollIntoView({ behavior: "smooth" });
-    }, 300);
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 260);
   });
 
+  if ("serviceWorker" in navigator) {
+    try {
+      await navigator.serviceWorker.register("./sw.js");
+    } catch (err) {
+      console.log("SW 등록 실패", err);
+    }
+  }
+
+  document.querySelectorAll("input[name='timeMode']").forEach(radio => {
+    radio.addEventListener("change", () => {
+      if (radio.checked) {
+        timeMode = radio.value;
+        timeLeft = 60;
+        updateTimeLabel();
+      }
+    });
+  });
+
+  updateTimeLabel();
   updateHP();
 });
 
@@ -172,7 +265,9 @@ window.startGame = function(){
   if(!nickname) return alert("닉네임 입력");
 
   stopGame();
+  clearWords();
 
+  isGameRunning = true;
   score = 0;
   combo = 0;
   hp = 100;
@@ -182,6 +277,23 @@ window.startGame = function(){
   document.getElementById("combo").innerText = 0;
 
   const level = Number(document.getElementById("level").value);
+
+  const selectedTimeMode = document.querySelector("input[name='timeMode']:checked");
+  timeMode = selectedTimeMode ? selectedTimeMode.value : "infinite";
+  timeLeft = 60;
+  updateTimeLabel();
+
+  if (timeMode === "timed") {
+    timerInterval = setInterval(() => {
+      if (!isGameRunning) return;
+      timeLeft -= 1;
+      updateTimeLabel();
+
+      if (timeLeft <= 0) {
+        gameOver();
+      }
+    }, 1000);
+  }
 
   speed = level * 0.3;
 
@@ -197,6 +309,12 @@ window.startGame = function(){
 function stopGame(){
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
+  clearInterval(timerInterval);
+  isGameRunning = false;
+}
+
+function clearWords(){
+  document.querySelectorAll("#game .word").forEach(el => el.remove());
 }
 
 /* 단어 생성 */
@@ -242,6 +360,19 @@ function updateHP(){
   bar.style.width = hp + "%";
 }
 
+function updateTimeLabel(){
+  const label = document.getElementById("timeLabel");
+  if (!label) return;
+
+  if (timeMode === "timed") {
+    const m = Math.floor(timeLeft / 60);
+    const s = String(timeLeft % 60).padStart(2, "0");
+    label.innerText = `${m}:${s}`;
+  } else {
+    label.innerText = "무한";
+  }
+}
+
 /* 정답 체크 */
 function checkAnswer(input){
   activeWords.forEach((w,i)=>{
@@ -261,6 +392,7 @@ function checkAnswer(input){
 /* 게임 종료 */
 async function gameOver(){
 
+  if (!isGameRunning) return;
   stopGame();
 
   await saveScore(nickname, score);
