@@ -488,6 +488,7 @@ let pendingLevel = null;
 let pendingGameOverScore = null;
 let wordsLoadError = null;
 let isWordsLoading = true;
+let spawnLaneIndex = 0;
 
 const levelSettings = [
   { speed: 0.05, spawnDelay: 4300, clearTarget: 10 },
@@ -645,6 +646,7 @@ window.startGame = async function() {
   combo = 0;
   hp = 100;
   activeWords = [];
+  spawnLaneIndex = 0;
   isStagePaused = false;
   pendingLevel = null;
   pendingGameOverScore = null;
@@ -711,15 +713,21 @@ function spawnWord() {
   el.className = isBonus ? "word bonus" : "word";
   el.innerText = data.hanja;
 
-  const playWidth = game.clientWidth;
-  const wordWidth = 56;
-  const fallWidth = Math.min(playWidth * 0.62, 430);
-  const fallStart = (playWidth - fallWidth) / 2;
-  const maxLeft = Math.max(fallStart, fallStart + fallWidth - wordWidth);
-  el.style.left = `${fallStart + Math.random() * (maxLeft - fallStart)}px`;
   el.style.top = "0px";
 
   game.appendChild(el);
+  const playWidth = game.clientWidth;
+  const wordWidth = Math.max(el.offsetWidth, 56);
+  const fallWidth = Math.min(playWidth * 0.72, 520);
+  const fallStart = (playWidth - fallWidth) / 2;
+  const laneRatios = [0.18, 0.82, 0.5];
+  const laneRatio = laneRatios[spawnLaneIndex % laneRatios.length];
+  const rawLeft = fallStart + fallWidth * laneRatio - wordWidth / 2;
+  const minLeft = 6;
+  const maxLeft = Math.max(minLeft, playWidth - wordWidth - 6);
+
+  el.style.left = `${Math.min(Math.max(rawLeft, minLeft), maxLeft)}px`;
+  spawnLaneIndex += 1;
   activeWords.push({ el, data, y: 0, isBonus });
 }
 
@@ -870,6 +878,7 @@ function startPendingLevel() {
   stageCorrectCount = 0;
   timeLeft = STAGE_TIME_LIMIT;
   activeWords = [];
+  spawnLaneIndex = 0;
 
   document.getElementById("combo").innerText = combo;
   updateScore();
