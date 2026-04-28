@@ -415,7 +415,7 @@ body.playing #keyboardInput {
 
   <div id="controls">
     시간제한:
-    <label><input type="radio" name="timeMode" value="timed"> 1분</label>
+    <label><input type="radio" name="timeMode" value="timed"> 2분</label>
     <label><input type="radio" name="timeMode" value="infinite" checked> 무제한</label>
     단계:
     <select id="level" disabled>
@@ -478,7 +478,8 @@ let nickname = "";
 let gameInterval, spawnInterval, timerInterval;
 let isGameRunning = false;
 let timeMode = "infinite";
-let timeLeft = 60;
+const STAGE_TIME_LIMIT = 120;
+let timeLeft = STAGE_TIME_LIMIT;
 let currentLevel = 1;
 let bonusNoticeTimer;
 let hiddenWordsTimer;
@@ -489,16 +490,16 @@ let wordsLoadError = null;
 let isWordsLoading = true;
 
 const levelSettings = [
-  { speed: 0.05, spawnDelay: 3000, clearTarget: 10 },
-  { speed: 0.1, spawnDelay: 2600, clearTarget: 12 },
-  { speed: 0.15, spawnDelay: 2300, clearTarget: 14 },
-  { speed: 0.23, spawnDelay: 2000, clearTarget: 16 },
-  { speed: 0.34, spawnDelay: 1800, clearTarget: 18 },
-  { speed: 0.47, spawnDelay: 1600, clearTarget: 20 },
-  { speed: 0.6, spawnDelay: 1450, clearTarget: 22 },
-  { speed: 0.76, spawnDelay: 1300, clearTarget: 24 },
-  { speed: 0.94, spawnDelay: 1900, clearTarget: 16 },
-  { speed: 1.13, spawnDelay: 3000, clearTarget: 8 },
+  { speed: 0.05, spawnDelay: 4300, clearTarget: 10 },
+  { speed: 0.1, spawnDelay: 3600, clearTarget: 12 },
+  { speed: 0.15, spawnDelay: 3100, clearTarget: 14 },
+  { speed: 0.23, spawnDelay: 2700, clearTarget: 16 },
+  { speed: 0.34, spawnDelay: 2350, clearTarget: 18 },
+  { speed: 0.47, spawnDelay: 2050, clearTarget: 20 },
+  { speed: 0.6, spawnDelay: 1800, clearTarget: 22 },
+  { speed: 0.76, spawnDelay: 1600, clearTarget: 24 },
+  { speed: 0.94, spawnDelay: 2400, clearTarget: 16 },
+  { speed: 1.13, spawnDelay: 4300, clearTarget: 8 },
 ];
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -541,7 +542,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!radio.checked) return;
 
       timeMode = radio.value;
-      timeLeft = 60;
+      timeLeft = STAGE_TIME_LIMIT;
       levelSelect.disabled = true;
       levelSelect.value = "1";
       updateTimeLabel();
@@ -656,7 +657,7 @@ window.startGame = async function() {
 
   const selectedTimeMode = document.querySelector("input[name='timeMode']:checked");
   timeMode = selectedTimeMode ? selectedTimeMode.value : "infinite";
-  timeLeft = 60;
+  timeLeft = STAGE_TIME_LIMIT;
   updateTimeLabel();
 
   setCurrentLevel(1);
@@ -867,7 +868,7 @@ function startPendingLevel() {
   hp = 100;
   combo = 0;
   stageCorrectCount = 0;
-  timeLeft = 60;
+  timeLeft = STAGE_TIME_LIMIT;
   activeWords = [];
 
   document.getElementById("combo").innerText = combo;
