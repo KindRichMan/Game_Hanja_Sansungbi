@@ -489,16 +489,16 @@ let wordsLoadError = null;
 let isWordsLoading = true;
 
 const levelSettings = [
-  { speed: 0.05, spawnDelay: 4300, clearTarget: 10 },
-  { speed: 0.1, spawnDelay: 3600, clearTarget: 12 },
-  { speed: 0.15, spawnDelay: 3100, clearTarget: 14 },
-  { speed: 0.23, spawnDelay: 2700, clearTarget: 16 },
-  { speed: 0.34, spawnDelay: 2350, clearTarget: 18 },
-  { speed: 0.47, spawnDelay: 2050, clearTarget: 20 },
-  { speed: 0.6, spawnDelay: 1800, clearTarget: 22 },
-  { speed: 0.76, spawnDelay: 1600, clearTarget: 24 },
-  { speed: 0.94, spawnDelay: 2400, clearTarget: 16 },
-  { speed: 1.13, spawnDelay: 4300, clearTarget: 8 },
+  { speed: 0.05, spawnDelay: 3000, clearTarget: 10 },
+  { speed: 0.1, spawnDelay: 2600, clearTarget: 12 },
+  { speed: 0.15, spawnDelay: 2300, clearTarget: 14 },
+  { speed: 0.23, spawnDelay: 2000, clearTarget: 16 },
+  { speed: 0.34, spawnDelay: 1800, clearTarget: 18 },
+  { speed: 0.47, spawnDelay: 1600, clearTarget: 20 },
+  { speed: 0.6, spawnDelay: 1450, clearTarget: 22 },
+  { speed: 0.76, spawnDelay: 1300, clearTarget: 24 },
+  { speed: 0.94, spawnDelay: 1900, clearTarget: 16 },
+  { speed: 1.13, spawnDelay: 3000, clearTarget: 8 },
 ];
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -817,14 +817,14 @@ function runBonusEffect() {
     updateScore();
     clearWords();
     activeWords = [];
-    showBonusNotice("행운! 모든 한자가 사라졌어요");
+    showBonusNotice("🍀 행운! 모든 한자가 사라졌어요");
     return;
   }
 
   if (effect === "levelUp") {
     score += 100;
     updateScore();
-    showBonusNotice("복권 당첨! 100점 추가, 다음 단계로 이동");
+    showBonusNotice("🍀 행운! 100점 추가, 다음 단계로 이동");
     showLevelTransition(currentLevel, currentLevel + 1);
     return;
   }
@@ -834,7 +834,7 @@ function runBonusEffect() {
   hiddenWordsTimer = setTimeout(() => {
     document.body.classList.remove("words-hidden");
   }, 5000);
-  showBonusNotice("행운 복권! 5초 동안 한자가 가려져요");
+  showBonusNotice("💥 꽝! 5초 동안 한자가 가려져요");
 }
 
 function showLevelTransition(fromLevel, nextLevel) {
