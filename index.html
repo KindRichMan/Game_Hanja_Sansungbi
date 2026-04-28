@@ -489,16 +489,16 @@ let wordsLoadError = null;
 let isWordsLoading = true;
 
 const levelSettings = [
-  { speed: 0.06, spawnDelay: 9000, clearTarget: 30 },
-  { speed: 0.13, spawnDelay: 8200, clearTarget: 29 },
-  { speed: 0.18, spawnDelay: 7000, clearTarget: 28 },
-  { speed: 0.28, spawnDelay: 5800, clearTarget: 27 },
-  { speed: 0.41, spawnDelay: 4700, clearTarget: 26 },
-  { speed: 0.56, spawnDelay: 3800, clearTarget: 25 },
-  { speed: 0.72, spawnDelay: 3050, clearTarget: 24 },
-  { speed: 0.91, spawnDelay: 2450, clearTarget: 23 },
-  { speed: 1.13, spawnDelay: 2000, clearTarget: 22 },
-  { speed: 1.38, spawnDelay: 1600, clearTarget: 21 },
+  { speed: 0.05, spawnDelay: 4300, clearTarget: 10 },
+  { speed: 0.1, spawnDelay: 3600, clearTarget: 12 },
+  { speed: 0.15, spawnDelay: 3100, clearTarget: 14 },
+  { speed: 0.23, spawnDelay: 2700, clearTarget: 16 },
+  { speed: 0.34, spawnDelay: 2350, clearTarget: 18 },
+  { speed: 0.47, spawnDelay: 2050, clearTarget: 20 },
+  { speed: 0.6, spawnDelay: 1800, clearTarget: 22 },
+  { speed: 0.76, spawnDelay: 1600, clearTarget: 24 },
+  { speed: 0.94, spawnDelay: 2400, clearTarget: 16 },
+  { speed: 1.13, spawnDelay: 4300, clearTarget: 8 },
 ];
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -914,8 +914,8 @@ async function showGameOverRanking() {
   button.innerText = "저장중...";
 
   try {
-    await saveScore(nickname, pendingGameOverScore);
-    const ranking = await loadRanking();
+    const scoreChanged = await saveScore(nickname, pendingGameOverScore);
+    const ranking = await loadRanking(scoreChanged);
 
     pendingGameOverScore = null;
     document.body.classList.remove("game-over");

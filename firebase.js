@@ -46,11 +46,83 @@ const provider = new GoogleAuthProvider();
 
 export { auth, provider, signInWithPopup };
 
+const WORDS_CACHE_KEY = "hanjaWordsCache.v1";
+const WORDS_CACHE_TTL = 24 * 60 * 60 * 1000;
+const RANKING_CACHE_KEY = "hanjaRankingCache.v1";
+const RANKING_CACHE_TTL = 5 * 60 * 1000;
+
+function readWordsCache() {
+  try {
+    const raw = localStorage.getItem(WORDS_CACHE_KEY);
+    if (!raw) return null;
+
+    const cached = JSON.parse(raw);
+    if (!cached || !Array.isArray(cached.words)) return null;
+    if (Date.now() - cached.savedAt > WORDS_CACHE_TTL) return null;
+
+    return cached.words;
+  } catch (err) {
+    console.warn("단어 캐시 읽기 실패", err);
+    return null;
+  }
+}
+
+function writeWordsCache(words) {
+  try {
+    localStorage.setItem(WORDS_CACHE_KEY, JSON.stringify({
+      savedAt: Date.now(),
+      words
+    }));
+  } catch (err) {
+    console.warn("단어 캐시 저장 실패", err);
+  }
+}
+
+function readRankingCache() {
+  try {
+    const raw = localStorage.getItem(RANKING_CACHE_KEY);
+    if (!raw) return null;
+
+    const cached = JSON.parse(raw);
+    if (!cached || !Array.isArray(cached.ranking)) return null;
+    if (Date.now() - cached.savedAt > RANKING_CACHE_TTL) return null;
+
+    return cached.ranking;
+  } catch (err) {
+    console.warn("랭킹 캐시 읽기 실패", err);
+    return null;
+  }
+}
+
+function writeRankingCache(ranking) {
+  try {
+    localStorage.setItem(RANKING_CACHE_KEY, JSON.stringify({
+      savedAt: Date.now(),
+      ranking
+    }));
+  } catch (err) {
+    console.warn("랭킹 캐시 저장 실패", err);
+  }
+}
+
+function clearRankingCache() {
+  try {
+    localStorage.removeItem(RANKING_CACHE_KEY);
+  } catch (err) {
+    console.warn("랭킹 캐시 삭제 실패", err);
+  }
+}
+
 
 // 🔥 단어 로드
 export async function loadWords() {
+  const cachedWords = readWordsCache();
+  if (cachedWords) return cachedWords;
+
   const snapshot = await getDocs(collection(db, "words"));
-  return snapshot.docs.map(doc => doc.data());
+  const words = snapshot.docs.map(doc => doc.data());
+  writeWordsCache(words);
+  return words;
 }
 
 
@@ -59,6 +131,10 @@ export async function saveScore(nickname, score) {
 
   // 🔥 핵심: 닉네임 정규화
   nickname = nickname.toLowerCase();
+  const localBestKey = `hanjaBestScore.${nickname}`;
+  const localBest = Number(localStorage.getItem(localBestKey) || 0);
+
+  if (localBest >= score) return false;
 
   const ref = doc(db, "ranking", nickname);
   const snap = await getDoc(ref);
@@ -69,6 +145,9 @@ export async function saveScore(nickname, score) {
       score,
       updatedAt: Date.now()
     });
+    localStorage.setItem(localBestKey, String(score));
+    clearRankingCache();
+    return true;
   } else {
     const old = snap.data().score;
 
@@ -78,13 +157,24 @@ export async function saveScore(nickname, score) {
         score,
         updatedAt: Date.now()
       });
+      localStorage.setItem(localBestKey, String(score));
+      clearRankingCache();
+      return true;
     }
+
+    localStorage.setItem(localBestKey, String(old));
   }
+
+  return false;
 }
 
 
 // 🔥 랭킹 불러오기
-export async function loadRanking() {
+export async function loadRanking(forceRefresh = false) {
+  if (!forceRefresh) {
+    const cachedRanking = readRankingCache();
+    if (cachedRanking) return cachedRanking;
+  }
 
   const q = query(
     collection(db, "ranking"),
@@ -93,5 +183,7 @@ export async function loadRanking() {
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => doc.data());
+  const ranking = snapshot.docs.map(doc => doc.data());
+  writeRankingCache(ranking);
+  return ranking;
 }
