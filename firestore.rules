@@ -1,0 +1,49 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in [
+          "anghks12@gmail.com",
+          "dolsaen@gmail.com"
+        ];
+    }
+
+    function hasOnlyRankingFields() {
+      return request.resource.data.keys().hasOnly(["nickname", "score", "updatedAt"]);
+    }
+
+    match /words/{wordId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /ranking/{nickname} {
+      allow read: if true;
+      allow create: if hasOnlyRankingFields()
+        && request.resource.data.nickname == nickname
+        && request.resource.data.score is number
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 1000000
+        && request.resource.data.updatedAt is number;
+      allow update: if hasOnlyRankingFields()
+        && resource.data.nickname == nickname
+        && request.resource.data.nickname == nickname
+        && request.resource.data.score is number
+        && request.resource.data.score > resource.data.score
+        && request.resource.data.score <= 1000000
+        && request.resource.data.updatedAt is number;
+      allow delete: if isAdmin();
+    }
+
+    match /logs/{logId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

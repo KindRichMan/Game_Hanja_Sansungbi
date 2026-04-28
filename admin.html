@@ -74,6 +74,7 @@ const superAdmin = "anghks12@gmail.com";
 
 let user=null;
 let allData=[];
+let currentViewData=[];
 
 /* 페이징 */
 let currentPage = 1;
@@ -146,6 +147,7 @@ async function getClientInfo(){
 
 
 async function saveLog(type, userData=null){
+  if (!userData) return;
 
   const info = await getClientInfo();
 
@@ -249,59 +251,74 @@ window.searchList=()=>{
 
 /* 렌더 */
 function render(data){
+  currentViewData = data;
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
 
   const pageData = data.slice(start, end);
 
-  let html="";
+  list.textContent = "";
 
   pageData.forEach(d=>{
+    const card = document.createElement("div");
+    card.className = "card";
 
-    html+=`
-    <div class="card">
-      <input value="${d.hanja}" id="h_${d.hanja}" ${!isAdmin()?"readonly":""}>
-      <input value="${d.reading}" id="r_${d.hanja}" ${!isAdmin()?"readonly":""}>
-      
-      ${isAdmin()?`
-        <button onclick="updateWord('${d.hanja}')">수정</button>
-        <button onclick="deleteWord('${d.hanja}')">삭제</button>
-      `:""}
-    </div>
-    `;
+    const hanjaInput = document.createElement("input");
+    hanjaInput.value = d.hanja || "";
+    hanjaInput.readOnly = !isAdmin();
+
+    const readingInput = document.createElement("input");
+    readingInput.value = d.reading || "";
+    readingInput.readOnly = !isAdmin();
+
+    card.appendChild(hanjaInput);
+    card.appendChild(readingInput);
+
+    if (isAdmin()) {
+      const updateButton = document.createElement("button");
+      updateButton.type = "button";
+      updateButton.textContent = "수정";
+      updateButton.addEventListener("click", () => updateWord(d.hanja, hanjaInput.value, readingInput.value));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.textContent = "삭제";
+      deleteButton.addEventListener("click", () => deleteWord(d.hanja));
+
+      card.appendChild(updateButton);
+      card.appendChild(deleteButton);
+    }
+
+    list.appendChild(card);
   });
 
-  html += renderPagination(data.length);
-
-  list.innerHTML = html;
+  list.appendChild(renderPagination(data.length));
 }
 
 /* 페이지 버튼 */
 function renderPagination(total){
 
   const totalPages = Math.ceil(total / pageSize);
-
-  let html = "<div style='margin-top:10px;'>";
+  const wrap = document.createElement("div");
+  wrap.style.marginTop = "10px";
 
   for(let i=1;i<=totalPages;i++){
-    html += `
-      <button onclick="goPage(${i})"
-      style="${i===currentPage?'font-weight:bold':''}">
-      ${i}
-      </button>
-    `;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = i;
+    if (i === currentPage) button.style.fontWeight = "bold";
+    button.addEventListener("click", () => goPage(i));
+    wrap.appendChild(button);
   }
 
-  html += "</div>";
-
-  return html;
+  return wrap;
 }
 
 /* 페이지 이동 */
 window.goPage = function(page){
   currentPage = page;
-  render(allData);
+  render(currentViewData);
 }
 
 /* 추가 */
@@ -317,11 +334,11 @@ window.addWord=async()=>{
 }
 
 /* 수정 */
-window.updateWord=async(oldId)=>{
+window.updateWord=async(oldId, hanjaValue, readingValue)=>{
   if(!isAdmin()) return;
 
-  const newH=document.getElementById("h_"+oldId).value.trim();
-  const newR=document.getElementById("r_"+oldId).value.trim();
+  const newH=hanjaValue.trim();
+  const newR=readingValue.trim();
 
   if(oldId!==newH){
     await deleteDoc(doc(db,"words",oldId));

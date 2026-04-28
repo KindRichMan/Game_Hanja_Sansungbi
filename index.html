@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>성어 타자 게임</title>
+<title>한자 산성비 게임</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#003b73">
 
@@ -23,12 +23,13 @@ body {
   background: linear-gradient(var(--bg-top), var(--bg-bottom));
   color: var(--text);
   text-align: center;
-  font-family: "궁서", serif;
+  font-family: "Gungsuh", "Batang", serif;
   margin: 0;
   min-height: var(--vvh);
   height: var(--vvh);
   overflow: hidden;
   padding: max(10px, env(safe-area-inset-top)) 10px 0;
+  overscroll-behavior: none;
 }
 
 .container {
@@ -43,7 +44,6 @@ h2 {
   margin: 6px 0 12px;
 }
 
-/* 게임 영역 */
 #game {
   position: relative;
   width: 100%;
@@ -56,15 +56,53 @@ h2 {
   background: rgba(255, 255, 255, 0.06);
 }
 
-/* 단어 */
 .word {
   position: absolute;
   font-size: clamp(20px, 6.5vw, 40px);
-  font-weight: bold;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  font-weight: 900;
+  color: #000;
+  padding: 0 3px;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  will-change: top;
 }
 
-/* HP 바 */
+#missLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 34px;
+  z-index: 2;
+  height: 2px;
+  background: rgba(255, 80, 80, 0.92);
+  box-shadow: 0 0 10px rgba(255, 80, 80, 0.8);
+  pointer-events: none;
+}
+
+#missLine::before {
+  content: "감점선";
+  position: absolute;
+  right: 8px;
+  bottom: 5px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 11px;
+}
+
+.word.bonus {
+  color: #ffd400;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+body.words-hidden .word:not(.bonus) {
+  color: transparent;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.7);
+}
+
 .bar {
   width: 100%;
   max-width: 500px;
@@ -86,6 +124,66 @@ h2 {
   font-size: clamp(15px, 4vw, 18px);
 }
 
+#bonusNotice {
+  position: fixed;
+  top: max(54px, calc(env(safe-area-inset-top) + 54px));
+  right: 10px;
+  z-index: 20;
+  display: none;
+  max-width: min(72vw, 320px);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.58);
+  color: #ffd400;
+  font-size: 14px;
+  text-align: right;
+  pointer-events: none;
+}
+
+#levelModal,
+#gameOverModal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+#levelModalContent,
+#gameOverModalContent {
+  width: min(92vw, 340px);
+  padding: 22px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  background: rgba(0, 31, 63, 0.94);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+}
+
+#levelModalTitle,
+#gameOverModalTitle {
+  margin-bottom: 12px;
+  color: #ffd400;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+#levelModalText,
+#gameOverModalText {
+  margin-bottom: 14px;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+#levelStartButton,
+#gameOverOkButton {
+  min-width: 120px;
+  background: rgba(255, 212, 0, 0.22);
+  border-color: rgba(255, 212, 0, 0.75);
+}
+
 #controls {
   background: var(--card);
   border-radius: 12px;
@@ -93,7 +191,6 @@ h2 {
   margin: 0 auto 8px;
 }
 
-/* 버튼 */
 button,
 select,
 input {
@@ -115,7 +212,6 @@ select {
   border-radius: 8px;
 }
 
-/* 입력창 */
 #keyboardInput {
   position: fixed;
   bottom: env(safe-area-inset-bottom);
@@ -130,15 +226,16 @@ select {
   z-index: 999;
 }
 
-/* 닉네임 */
 #nickname {
+  display: block;
   padding: 10px;
   width: min(90%, 300px);
+  margin: 0 auto 12px;
   border-radius: 8px;
   border: none;
+  text-align: center;
 }
 
-/* 랭킹 */
 #rankingBox {
   display: none;
   margin-top: 10px;
@@ -146,6 +243,135 @@ select {
 
 #rankingList div {
   margin: 5px;
+}
+
+body.game-over h2,
+body.game-over #nickname,
+body.game-over #status,
+body.game-over .bar,
+body.game-over #controls,
+body.game-over #game,
+body.game-over #rankingBox,
+body.game-over #bonusNotice,
+body.game-over #keyboardInput,
+body.ranking-visible h2,
+body.ranking-visible #nickname,
+body.ranking-visible #status,
+body.ranking-visible .bar,
+body.ranking-visible #controls,
+body.ranking-visible #game,
+body.ranking-visible #bonusNotice,
+body.ranking-visible #levelModal,
+body.ranking-visible #gameOverModal,
+body.ranking-visible #keyboardInput {
+  display: none;
+}
+
+body.ranking-visible {
+  height: auto;
+  min-height: var(--vvh);
+  overflow: auto;
+  padding: max(10px, env(safe-area-inset-top)) 10px max(18px, env(safe-area-inset-bottom));
+}
+
+body.ranking-visible .container {
+  min-height: calc(var(--vvh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 28px);
+  height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+body.ranking-visible #rankingBox {
+  display: block;
+  width: min(100%, 420px);
+  margin: 0 auto;
+  padding: 12px;
+}
+
+body.ranking-visible #rankingBox h3 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 7vw, 30px);
+}
+
+body.ranking-visible #rankingList div {
+  margin: 7px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: clamp(15px, 4.5vw, 18px);
+  line-height: 1.25;
+}
+
+body.ranking-visible #rankingRestartButton {
+  display: inline-block;
+  width: min(100%, 260px);
+  margin-top: 14px;
+  background: rgba(255, 212, 0, 0.22);
+  border-color: rgba(255, 212, 0, 0.75);
+}
+
+body.playing {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: var(--vvh);
+  background: #0074d9;
+  padding: 0;
+  overflow: hidden;
+}
+
+body.playing .container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--input-h) + env(safe-area-inset-bottom));
+  max-width: none;
+  width: 100%;
+  height: auto;
+}
+
+body.playing h2,
+body.playing #nickname,
+body.playing .bar,
+body.playing #controls,
+body.playing #rankingBox {
+  display: none;
+}
+
+body.playing #status {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  right: 8px;
+  z-index: 20;
+  display: block;
+  max-width: min(78vw, 260px);
+  margin: 0;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.48);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: right;
+  pointer-events: none;
+}
+
+body.playing #status .comboStatus {
+  display: none;
+}
+
+body.playing #game {
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #0074d9;
+}
+
+body.playing #keyboardInput {
+  bottom: 0;
 }
 
 @media (min-width: 768px) {
@@ -173,40 +399,65 @@ select {
 
 <body>
 <div class="container">
-  <h2>🌧️ 성어 타자 게임</h2>
+  <h2>한자 산성비 게임</h2>
 
   <input id="nickname" placeholder="닉네임" autocomplete="nickname">
 
   <div id="status">
-  점수: <span id="score">0</span> |
-  콤보: <span id="combo">0</span> |
-  시간: <span id="timeLabel">무한</span>
+    점수: <span id="score">0</span> |
+    <span class="comboStatus">콤보: <span id="combo">0</span> |</span>
+    시간: <span id="timeLabel">무제한</span> |
+    단계: <span id="levelLabel">1</span> |
+    에너지: <span id="hpLabel">100</span>
   </div>
 
   <div class="bar"><div id="hpBar"></div></div>
 
   <div id="controls">
-  시간제한:
-  <label><input type="radio" name="timeMode" value="timed"> 1분</label>
-  <label><input type="radio" name="timeMode" value="infinite" checked> 무한시간</label>
-  난이도:
-  <select id="level">
-    <option value="1">1 (매우 쉬움)</option>
-    <option value="2">2</option>
-    <option value="3" selected>3</option>
-    <option value="4">4</option>
-    <option value="5">5 (어려움)</option>
-  </select>
+    시간제한:
+    <label><input type="radio" name="timeMode" value="timed"> 1분</label>
+    <label><input type="radio" name="timeMode" value="infinite" checked> 무제한</label>
+    단계:
+    <select id="level" disabled>
+      <option value="1" selected>1 (연습)</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10 (최고)</option>
+    </select>
 
-  <button onclick="startGame()">START</button>
-  <button onclick="resetGame()">RESET</button>
+    <button onclick="startGame()">START</button>
+    <button onclick="resetGame()">RESET</button>
   </div>
 
-  <div id="game"></div>
+  <div id="game">
+    <div id="missLine"></div>
+  </div>
+  <div id="bonusNotice"></div>
+  <div id="levelModal" role="dialog" aria-modal="true">
+    <div id="levelModalContent">
+      <div id="levelModalTitle">단계 통과</div>
+      <div id="levelModalText"></div>
+      <button id="levelStartButton" type="button">시작</button>
+    </div>
+  </div>
+  <div id="gameOverModal" role="dialog" aria-modal="true">
+    <div id="gameOverModalContent">
+      <div id="gameOverModalTitle">게임오버</div>
+      <div id="gameOverModalText"></div>
+      <button id="gameOverOkButton" type="button">확인</button>
+    </div>
+  </div>
 
   <div id="rankingBox">
-    <h3>🏆 TOP 10</h3>
+    <h3>TOP 10</h3>
     <div id="rankingList"></div>
+    <button id="rankingRestartButton" type="button" onclick="resetGame()">다시 시작</button>
   </div>
 </div>
 
@@ -218,6 +469,7 @@ import { loadWords, saveScore, loadRanking } from "./firebase.js";
 let words = [];
 let activeWords = [];
 let score = 0;
+let stageCorrectCount = 0;
 let combo = 0;
 let hp = 100;
 let speed = 1;
@@ -227,24 +479,52 @@ let gameInterval, spawnInterval, timerInterval;
 let isGameRunning = false;
 let timeMode = "infinite";
 let timeLeft = 60;
+let currentLevel = 1;
+let bonusNoticeTimer;
+let hiddenWordsTimer;
+let isStagePaused = false;
+let pendingLevel = null;
+let pendingGameOverScore = null;
+let wordsLoadError = null;
+let isWordsLoading = true;
 
-/* 초기 설정 */
+const levelSettings = [
+  { speed: 0.08, spawnDelay: 7600, clearTarget: 5 },
+  { speed: 0.2, spawnDelay: 5400, clearTarget: 6 },
+  { speed: 0.28, spawnDelay: 4600, clearTarget: 7 },
+  { speed: 0.42, spawnDelay: 3800, clearTarget: 8 },
+  { speed: 0.62, spawnDelay: 3100, clearTarget: 9 },
+  { speed: 0.85, spawnDelay: 2500, clearTarget: 10 },
+  { speed: 1.1, spawnDelay: 2000, clearTarget: 11 },
+  { speed: 1.38, spawnDelay: 1600, clearTarget: 12 },
+  { speed: 1.72, spawnDelay: 1300, clearTarget: 13 },
+  { speed: 2.1, spawnDelay: 1050, clearTarget: 15 },
+];
+
 document.addEventListener("DOMContentLoaded", async () => {
   syncViewportHeight();
 
   const input = document.getElementById("keyboardInput");
+  const levelSelect = document.getElementById("level");
 
-  input.addEventListener("keydown", e=>{
-    if(e.key==="Enter"){
+  if ("virtualKeyboard" in navigator) {
+    navigator.virtualKeyboard.overlaysContent = false;
+  }
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
       checkAnswer(e.target.value.trim());
-      e.target.value="";
+      e.target.value = "";
     }
   });
 
-  /* 모바일 입력 UX 개선 */
+  document.getElementById("levelStartButton").addEventListener("click", startPendingLevel);
+  document.getElementById("gameOverOkButton").addEventListener("click", showGameOverRanking);
+
   input.addEventListener("focus", () => {
     setTimeout(() => {
-      input.scrollIntoView({ behavior: "smooth", block: "center" });
+      syncViewportHeight();
+      lockGameScroll();
     }, 260);
   });
 
@@ -258,21 +538,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.querySelectorAll("input[name='timeMode']").forEach(radio => {
     radio.addEventListener("change", () => {
-      if (radio.checked) {
-        timeMode = radio.value;
-        timeLeft = 60;
-        updateTimeLabel();
-      }
+      if (!radio.checked) return;
+
+      timeMode = radio.value;
+      timeLeft = 60;
+      levelSelect.disabled = true;
+      levelSelect.value = "1";
+      updateTimeLabel();
     });
   });
 
+  levelSelect.disabled = true;
+  levelSelect.value = "1";
   updateTimeLabel();
   updateHP();
+  updateScore();
 });
 
 function syncViewportHeight() {
   const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty("--vvh", `${h}px`);
+  lockGameScroll();
+}
+
+function lockGameScroll() {
+  if (!document.body.classList.contains("playing")) return;
+
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
 }
 
 window.addEventListener("resize", syncViewportHeight);
@@ -281,118 +575,190 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener("scroll", syncViewportHeight);
 }
 
-/* 단어 로드 */
-loadWords().then(w => words = w);
+const wordsLoadPromise = loadWords()
+  .then(w => {
+    words = w.filter(item => item && item.hanja && item.reading);
+  })
+  .catch(err => {
+    wordsLoadError = err;
+    console.error("단어 불러오기 실패", err);
+  })
+  .finally(() => {
+    isWordsLoading = false;
+  });
 
-/* 생성 속도 */
-function getSpawnDelay(level){
-  return [3000,2500,2000,1500,1200][level-1];
+function getLevelSettings(level) {
+  return levelSettings[Math.max(1, Math.min(10, level)) - 1];
 }
 
-/* 시작 */
-window.startGame = function(){
+function setCurrentLevel(level) {
+  currentLevel = Math.max(1, Math.min(10, level));
+  const settings = getLevelSettings(currentLevel);
+  const label = document.getElementById("levelLabel");
 
+  speed = settings.speed;
+  if (label) label.innerText = currentLevel;
+  updateScore();
+
+  if (isGameRunning && !isStagePaused) {
+    clearInterval(spawnInterval);
+    spawnInterval = setInterval(spawnWord, settings.spawnDelay);
+  }
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  if (timeMode !== "timed") return;
+
+  timerInterval = setInterval(() => {
+    if (!isGameRunning || isStagePaused) return;
+    timeLeft -= 1;
+    updateTimeLabel();
+
+    if (timeLeft <= 0) gameOver();
+  }, 1000);
+}
+
+window.startGame = async function() {
   nickname = document.getElementById("nickname").value.trim().toLowerCase();
 
-  if(!nickname) return alert("닉네임 입력");
+  if (!nickname) return alert("닉네임 입력");
+  if (isWordsLoading) {
+    await wordsLoadPromise;
+  }
+  if (wordsLoadError) {
+    alert("단어를 불러오지 못했습니다. 인터넷 연결과 Firebase 권한을 확인해주세요.");
+    return;
+  }
+  if (words.length === 0) {
+    alert("등록된 한자 단어가 없습니다. 관리자 페이지에서 단어를 먼저 등록해주세요.");
+    return;
+  }
 
   stopGame();
   clearWords();
 
   isGameRunning = true;
   score = 0;
+  stageCorrectCount = 0;
   combo = 0;
   hp = 100;
   activeWords = [];
+  isStagePaused = false;
+  pendingLevel = null;
+  pendingGameOverScore = null;
+  document.body.classList.remove("game-over", "ranking-visible");
 
-  document.getElementById("score").innerText = 0;
   document.getElementById("combo").innerText = 0;
-
-  const level = Number(document.getElementById("level").value);
+  updateHP();
+  document.getElementById("levelModal").style.display = "none";
+  document.getElementById("gameOverModal").style.display = "none";
 
   const selectedTimeMode = document.querySelector("input[name='timeMode']:checked");
   timeMode = selectedTimeMode ? selectedTimeMode.value : "infinite";
   timeLeft = 60;
   updateTimeLabel();
 
-  if (timeMode === "timed") {
-    timerInterval = setInterval(() => {
-      if (!isGameRunning) return;
-      timeLeft -= 1;
-      updateTimeLabel();
+  setCurrentLevel(1);
 
-      if (timeLeft <= 0) {
-        gameOver();
-      }
-    }, 1000);
-  }
+  startTimer();
 
-  speed = level * 0.3;
-
-  spawnInterval = setInterval(spawnWord, getSpawnDelay(level));
+  document.body.classList.add("playing");
+  syncViewportHeight();
+  spawnWord();
   gameInterval = setInterval(update, 20);
 
-  document.getElementById("rankingBox").style.display="none";
-
+  document.getElementById("rankingBox").style.display = "none";
   document.getElementById("keyboardInput").focus();
-}
+};
 
-/* 정지 */
-function stopGame(){
+function stopGame() {
   clearInterval(spawnInterval);
   clearInterval(gameInterval);
   clearInterval(timerInterval);
+  clearTimeout(bonusNoticeTimer);
+  clearTimeout(hiddenWordsTimer);
   isGameRunning = false;
+  isStagePaused = false;
+  pendingLevel = null;
+  document.body.classList.remove("words-hidden");
+  document.getElementById("levelModal").style.display = "none";
 }
 
-function clearWords(){
+function clearWords() {
   document.querySelectorAll("#game .word").forEach(el => el.remove());
 }
 
-/* 단어 생성 */
-function spawnWord(){
-  if(words.length===0) return;
+function updateScore() {
+  const label = document.getElementById("score");
+  if (!label) return;
 
-  const data = words[Math.floor(Math.random()*words.length)];
-
-  const el = document.createElement("div");
-  el.className="word";
-  el.innerText=data.hanja;
-
-  el.style.left=Math.random()*80+"%";
-  el.style.top="0px";
-
-  document.getElementById("game").appendChild(el);
-  activeWords.push({el,data,y:0});
+  const target = getLevelSettings(currentLevel).clearTarget;
+  label.innerText = `${currentLevel}단계 ${stageCorrectCount}/${target}개 / 총 ${score}점`;
 }
 
-/* 업데이트 */
-function update(){
-  activeWords.forEach((w,i)=>{
-    w.y+=speed;
-    w.el.style.top=w.y+"px";
+function spawnWord() {
+  if (isStagePaused) return;
+  if (words.length === 0) return;
 
-    if(w.y > document.getElementById("game").offsetHeight - 50){
+  const data = words[Math.floor(Math.random() * words.length)];
+  const game = document.getElementById("game");
+  const el = document.createElement("div");
+  const hasActiveBonus = activeWords.some(w => w.isBonus);
+  const isBonus = !hasActiveBonus && Math.random() < 0.12;
+
+  el.className = isBonus ? "word bonus" : "word";
+  el.innerText = data.hanja;
+
+  const playWidth = game.clientWidth;
+  const wordWidth = 56;
+  const fallWidth = Math.min(playWidth * 0.62, 430);
+  const fallStart = (playWidth - fallWidth) / 2;
+  const maxLeft = Math.max(fallStart, fallStart + fallWidth - wordWidth);
+  el.style.left = `${fallStart + Math.random() * (maxLeft - fallStart)}px`;
+  el.style.top = "0px";
+
+  game.appendChild(el);
+  activeWords.push({ el, data, y: 0, isBonus });
+}
+
+function update() {
+  if (isStagePaused) return;
+
+  const game = document.getElementById("game");
+  const missLine = document.getElementById("missLine");
+  const missLineY = missLine ? missLine.offsetTop : game.offsetHeight - 50;
+
+  for (let i = activeWords.length - 1; i >= 0; i -= 1) {
+    const w = activeWords[i];
+    w.y += speed;
+    w.el.style.top = `${w.y}px`;
+
+    if (w.y + w.el.offsetHeight >= missLineY) {
       hp -= 10;
       combo = 0;
 
       w.el.remove();
-      activeWords.splice(i,1);
+      activeWords.splice(i, 1);
+      document.getElementById("combo").innerText = combo;
 
-      if(hp <= 0) gameOver();
+      if (hp <= 0) gameOver();
     }
-  });
+  }
 
   updateHP();
 }
 
-/* HP */
-function updateHP(){
+function updateHP() {
   const bar = document.getElementById("hpBar");
-  bar.style.width = hp + "%";
+  const label = document.getElementById("hpLabel");
+  const value = Math.max(0, hp);
+
+  bar.style.width = `${value}%`;
+  if (label) label.innerText = value;
 }
 
-function updateTimeLabel(){
+function updateTimeLabel() {
   const label = document.getElementById("timeLabel");
   if (!label) return;
 
@@ -401,70 +767,181 @@ function updateTimeLabel(){
     const s = String(timeLeft % 60).padStart(2, "0");
     label.innerText = `${m}:${s}`;
   } else {
-    label.innerText = "무한";
+    label.innerText = "무제한";
   }
 }
 
-/* 정답 체크 */
-function checkAnswer(input){
-  activeWords.forEach((w,i)=>{
-    if(w.data.reading===input){
+function checkAnswer(input) {
+  if (isStagePaused) return;
+
+  for (let i = activeWords.length - 1; i >= 0; i -= 1) {
+    const w = activeWords[i];
+    if (w.data.reading === input) {
       score += 10;
-      combo++;
+      stageCorrectCount += 1;
+      combo += 1;
 
       w.el.remove();
-      activeWords.splice(i,1);
+      activeWords.splice(i, 1);
+
+      if (w.isBonus) {
+        runBonusEffect();
+      }
     }
-  });
+  }
 
-  document.getElementById("score").innerText = score;
+  updateScore();
   document.getElementById("combo").innerText = combo;
+
+  if (timeMode === "timed" && stageCorrectCount >= getLevelSettings(currentLevel).clearTarget) {
+    if (currentLevel < 10) {
+      showLevelTransition(currentLevel, currentLevel + 1);
+    } else {
+      gameOver();
+    }
+  }
 }
 
-/* 게임 종료 */
-async function gameOver(){
+function runBonusEffect() {
+  const effects = ["clear", "hide"];
+  const effect = effects[Math.floor(Math.random() * effects.length)];
 
+  if (effect === "clear") {
+    score += 20;
+    updateScore();
+    clearWords();
+    activeWords = [];
+    showBonusNotice("행운! 모든 한자가 사라졌어요");
+    return;
+  }
+
+  document.body.classList.add("words-hidden");
+  clearTimeout(hiddenWordsTimer);
+  hiddenWordsTimer = setTimeout(() => {
+    document.body.classList.remove("words-hidden");
+  }, 5000);
+  showBonusNotice("행운 복권! 5초 동안 한자가 가려져요");
+}
+
+function showLevelTransition(fromLevel, nextLevel) {
+  isStagePaused = true;
+  pendingLevel = nextLevel;
+
+  clearInterval(spawnInterval);
+  clearInterval(gameInterval);
+  clearInterval(timerInterval);
+  clearTimeout(hiddenWordsTimer);
+  document.body.classList.remove("words-hidden");
+  clearWords();
+  activeWords = [];
+
+  document.getElementById("levelModalTitle").innerText = `${fromLevel}단계 통과`;
+  document.getElementById("levelModalText").innerText = `${nextLevel}단계 시작`;
+  document.getElementById("levelModal").style.display = "flex";
+  document.getElementById("keyboardInput").blur();
+}
+
+function startPendingLevel() {
+  if (!pendingLevel || !isGameRunning) return;
+
+  document.getElementById("levelModal").style.display = "none";
+  setCurrentLevel(pendingLevel);
+  document.getElementById("level").value = String(currentLevel);
+
+  pendingLevel = null;
+  isStagePaused = false;
+  hp = 100;
+  combo = 0;
+  stageCorrectCount = 0;
+  timeLeft = 60;
+  activeWords = [];
+
+  document.getElementById("combo").innerText = combo;
+  updateScore();
+  updateHP();
+  updateTimeLabel();
+  startTimer();
+  spawnWord();
+  spawnInterval = setInterval(spawnWord, getLevelSettings(currentLevel).spawnDelay);
+  gameInterval = setInterval(update, 20);
+  document.getElementById("keyboardInput").focus();
+}
+
+function showBonusNotice(message) {
+  const notice = document.getElementById("bonusNotice");
+  if (!notice) return;
+
+  notice.innerText = message;
+  notice.style.display = "block";
+  clearTimeout(bonusNoticeTimer);
+  bonusNoticeTimer = setTimeout(() => {
+    notice.style.display = "none";
+  }, 1800);
+}
+
+async function gameOver() {
   if (!isGameRunning) return;
+  pendingGameOverScore = score;
   stopGame();
-
-  await saveScore(nickname, score);
-  const ranking = await loadRanking();
-
-  showRanking(ranking);
+  document.body.classList.remove("playing", "ranking-visible");
+  document.body.classList.add("game-over");
+  document.getElementById("gameOverModalText").innerText = `점수: ${pendingGameOverScore}`;
+  document.getElementById("gameOverOkButton").disabled = false;
+  document.getElementById("gameOverOkButton").innerText = "확인";
+  document.getElementById("gameOverModal").style.display = "flex";
+  document.getElementById("keyboardInput").blur();
 }
 
-/* 랭킹 표시 */
-function showRanking(ranking){
+async function showGameOverRanking() {
+  if (pendingGameOverScore === null) return;
 
+  const button = document.getElementById("gameOverOkButton");
+  button.disabled = true;
+  button.innerText = "저장중...";
+
+  try {
+    await saveScore(nickname, pendingGameOverScore);
+    const ranking = await loadRanking();
+
+    pendingGameOverScore = null;
+    document.body.classList.remove("game-over");
+    document.body.classList.add("ranking-visible");
+    document.getElementById("gameOverModal").style.display = "none";
+    showRanking(ranking);
+  } catch (err) {
+    console.error("점수 저장 또는 랭킹 불러오기 실패", err);
+    alert("점수 저장 또는 랭킹 불러오기에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    button.disabled = false;
+    button.innerText = "다시 시도";
+  }
+}
+
+function showRanking(ranking) {
   const list = document.getElementById("rankingList");
   list.innerHTML = "";
 
-  ranking.forEach((r,i)=>{
-
+  ranking.forEach((r, i) => {
     const el = document.createElement("div");
 
-    if(i===0){
-      el.innerHTML=`👑 1위 - ${r.nickname} (${r.score})`;
-      el.style.color="gold";
-    }
-    else if(r.nickname===nickname){
-      el.innerHTML=`⭐ ${i+1}위 - ${r.nickname} (${r.score})`;
-      el.style.color="yellow";
-    }
-    else{
-      el.innerText=`${i+1}위 - ${r.nickname} (${r.score})`;
+    if (i === 0) {
+      el.textContent = `1위 - ${r.nickname} (${r.score})`;
+      el.style.color = "gold";
+    } else if (r.nickname === nickname) {
+      el.textContent = `${i + 1}위 - ${r.nickname} (${r.score})`;
+      el.style.color = "yellow";
+    } else {
+      el.innerText = `${i + 1}위 - ${r.nickname} (${r.score})`;
     }
 
     list.appendChild(el);
   });
 
-  document.getElementById("rankingBox").style.display="block";
+  document.getElementById("rankingBox").style.display = "block";
 }
 
-/* 리셋 */
-window.resetGame = function(){
+window.resetGame = function() {
   location.reload();
-}
+};
 </script>
 
 </body>
