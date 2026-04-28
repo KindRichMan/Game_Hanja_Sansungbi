@@ -489,16 +489,16 @@ let wordsLoadError = null;
 let isWordsLoading = true;
 
 const levelSettings = [
-  { speed: 0.08, spawnDelay: 7600, clearTarget: 5 },
-  { speed: 0.2, spawnDelay: 5400, clearTarget: 6 },
-  { speed: 0.28, spawnDelay: 4600, clearTarget: 7 },
-  { speed: 0.42, spawnDelay: 3800, clearTarget: 8 },
-  { speed: 0.62, spawnDelay: 3100, clearTarget: 9 },
-  { speed: 0.85, spawnDelay: 2500, clearTarget: 10 },
-  { speed: 1.1, spawnDelay: 2000, clearTarget: 11 },
-  { speed: 1.38, spawnDelay: 1600, clearTarget: 12 },
-  { speed: 1.72, spawnDelay: 1300, clearTarget: 13 },
-  { speed: 2.1, spawnDelay: 1050, clearTarget: 15 },
+  { speed: 0.08, spawnDelay: 7600, clearTarget: 30 },
+  { speed: 0.2, spawnDelay: 5400, clearTarget: 29 },
+  { speed: 0.28, spawnDelay: 4600, clearTarget: 28 },
+  { speed: 0.42, spawnDelay: 3800, clearTarget: 27 },
+  { speed: 0.62, spawnDelay: 3100, clearTarget: 26 },
+  { speed: 0.85, spawnDelay: 2500, clearTarget: 25 },
+  { speed: 1.1, spawnDelay: 2000, clearTarget: 24 },
+  { speed: 1.38, spawnDelay: 1600, clearTarget: 23 },
+  { speed: 1.72, spawnDelay: 1300, clearTarget: 22 },
+  { speed: 2.1, spawnDelay: 1050, clearTarget: 21 },
 ];
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -793,6 +793,8 @@ function checkAnswer(input) {
   updateScore();
   document.getElementById("combo").innerText = combo;
 
+  if (isStagePaused) return;
+
   if (timeMode === "timed" && stageCorrectCount >= getLevelSettings(currentLevel).clearTarget) {
     if (currentLevel < 10) {
       showLevelTransition(currentLevel, currentLevel + 1);
@@ -804,6 +806,10 @@ function checkAnswer(input) {
 
 function runBonusEffect() {
   const effects = ["clear", "hide"];
+  if (timeMode === "timed" && currentLevel < 10) {
+    effects.push("levelUp");
+  }
+
   const effect = effects[Math.floor(Math.random() * effects.length)];
 
   if (effect === "clear") {
@@ -812,6 +818,14 @@ function runBonusEffect() {
     clearWords();
     activeWords = [];
     showBonusNotice("행운! 모든 한자가 사라졌어요");
+    return;
+  }
+
+  if (effect === "levelUp") {
+    score += 100;
+    updateScore();
+    showBonusNotice("복권 당첨! 100점 추가, 다음 단계로 이동");
+    showLevelTransition(currentLevel, currentLevel + 1);
     return;
   }
 
