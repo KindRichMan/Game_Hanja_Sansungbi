@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>한자 산성비 게임</title>
+<title>한자성어 산성비</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#003b73">
 
@@ -399,7 +399,7 @@ body.playing #keyboardInput {
 
 <body>
 <div class="container">
-  <h2>한자 산성비 게임</h2>
+  <h2>한자성어 산성비</h2>
 
   <input id="nickname" placeholder="닉네임" autocomplete="nickname">
 
@@ -593,6 +593,21 @@ function getLevelSettings(level) {
   return levelSettings[Math.max(1, Math.min(10, level)) - 1];
 }
 
+function getStageGroup(level) {
+  if (level <= 2) return "level12";
+  if (level <= 4) return "level34";
+  if (level <= 7) return "level567";
+  return "all";
+}
+
+function getPlayableWords() {
+  const group = getStageGroup(currentLevel);
+  if (group === "all") return words;
+
+  const groupedWords = words.filter(word => word.stageGroup === group);
+  return groupedWords.length > 0 ? groupedWords : words;
+}
+
 function setCurrentLevel(level) {
   currentLevel = Math.max(1, Math.min(10, level));
   const settings = getLevelSettings(currentLevel);
@@ -702,9 +717,10 @@ function updateScore() {
 
 function spawnWord() {
   if (isStagePaused) return;
-  if (words.length === 0) return;
+  const playableWords = getPlayableWords();
+  if (playableWords.length === 0) return;
 
-  const data = words[Math.floor(Math.random() * words.length)];
+  const data = playableWords[Math.floor(Math.random() * playableWords.length)];
   const game = document.getElementById("game");
   const el = document.createElement("div");
   const hasActiveBonus = activeWords.some(w => w.isBonus);

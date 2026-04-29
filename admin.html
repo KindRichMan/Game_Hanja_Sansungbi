@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>관리자</title>
+<title>한자성어 산성비 관리자</title>
 
 <style>
 body { font-family: sans-serif; text-align:center; padding:20px; }
@@ -17,7 +17,7 @@ button { margin:3px; padding:5px 10px; cursor:pointer; }
   text-align:left;
 }
 
-input { padding:5px; margin:3px; }
+input, select { padding:5px; margin:3px; }
 
 #progress { margin:10px; font-weight:bold; }
 </style>
@@ -25,7 +25,7 @@ input { padding:5px; margin:3px; }
 
 <body>
 
-<h2>📌관리자 사이트 </h2>
+<h2>한자성어 산성비 관리자</h2>
 
 <div>
   <button id="loginBtn" onclick="login()">로그인</button>
@@ -46,13 +46,24 @@ input { padding:5px; margin:3px; }
 
 <div id="adminArea" style="display:none;">
   <input type="file" id="csvFile">
+  <select id="csvStageGroup">
+    <option value="level12">1, 2단계 묶음</option>
+    <option value="level34">3, 4단계 묶음</option>
+    <option value="level567">5, 6, 7단계 묶음</option>
+  </select>
   <button onclick="uploadCSV()">CSV 업로드</button>
+  <div>CSV 형식: 한자성어,뜻 또는 한자성어,뜻,level12</div>
   <div id="progress"></div>
 
   <hr>
 
   <input id="hanja" placeholder="한자">
   <input id="reading" placeholder="뜻">
+  <select id="stageGroup">
+    <option value="level12">1, 2단계 묶음</option>
+    <option value="level34">3, 4단계 묶음</option>
+    <option value="level567">5, 6, 7단계 묶음</option>
+  </select>
   <button onclick="addWord()">추가</button>
 </div>
 
@@ -79,10 +90,38 @@ let currentViewData=[];
 /* 페이징 */
 let currentPage = 1;
 const pageSize = 20;
+const stageGroupLabels = {
+  level12: "1, 2단계",
+  level34: "3, 4단계",
+  level567: "5, 6, 7단계"
+};
+const WORDS_CACHE_KEY = "hanjaWordsCache.v2";
 
 /* 관리자 체크 */
 function isAdmin(){
   return user && admins.includes(user.email);
+}
+
+function normalizeStageGroup(value){
+  return stageGroupLabels[value] ? value : "level12";
+}
+
+function createStageGroupSelect(value){
+  const select = document.createElement("select");
+
+  Object.entries(stageGroupLabels).forEach(([key, label]) => {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = label;
+    option.selected = key === normalizeStageGroup(value);
+    select.appendChild(option);
+  });
+
+  return select;
+}
+
+function clearGameWordCache(){
+  localStorage.removeItem(WORDS_CACHE_KEY);
 }
 
 /* 로그인 */
@@ -242,7 +281,9 @@ window.searchList=()=>{
   const keyword=search.value.trim();
 
   const filtered=allData.filter(d=>
-    d.hanja.includes(keyword) || d.reading.includes(keyword)
+    d.hanja.includes(keyword) ||
+    d.reading.includes(keyword) ||
+    stageGroupLabels[d.stageGroup]?.includes(keyword)
   );
 
   currentPage = 1;
@@ -272,14 +313,18 @@ function render(data){
     readingInput.value = d.reading || "";
     readingInput.readOnly = !isAdmin();
 
+    const groupSelect = createStageGroupSelect(d.stageGroup);
+    groupSelect.disabled = !isAdmin();
+
     card.appendChild(hanjaInput);
     card.appendChild(readingInput);
+    card.appendChild(groupSelect);
 
     if (isAdmin()) {
       const updateButton = document.createElement("button");
       updateButton.type = "button";
       updateButton.textContent = "수정";
-      updateButton.addEventListener("click", () => updateWord(d.hanja, hanjaInput.value, readingInput.value));
+      updateButton.addEventListener("click", () => updateWord(d.hanja, hanjaInput.value, readingInput.value, groupSelect.value));
 
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
@@ -327,14 +372,16 @@ window.addWord=async()=>{
 
   await setDoc(doc(db,"words",hanja.value.trim()),{
     hanja:hanja.value.trim(),
-    reading:reading.value.trim()
+    reading:reading.value.trim(),
+    stageGroup: normalizeStageGroup(stageGroup.value)
   });
 
+  clearGameWordCache();
   loadList();
 }
 
 /* 수정 */
-window.updateWord=async(oldId, hanjaValue, readingValue)=>{
+window.updateWord=async(oldId, hanjaValue, readingValue, stageGroupValue)=>{
   if(!isAdmin()) return;
 
   const newH=hanjaValue.trim();
@@ -346,9 +393,11 @@ window.updateWord=async(oldId, hanjaValue, readingValue)=>{
 
   await setDoc(doc(db,"words",newH),{
     hanja:newH,
-    reading:newR
+    reading:newR,
+    stageGroup: normalizeStageGroup(stageGroupValue)
   });
 
+  clearGameWordCache();
   loadList();
 }
 
@@ -359,6 +408,7 @@ window.deleteWord=async(id)=>{
   if(!confirm("삭제하시겠습니까?")) return;
 
   await deleteDoc(doc(db,"words",id));
+  clearGameWordCache();
   loadList();
 }
 
@@ -386,6 +436,7 @@ window.deleteAll=async()=>{
   await batch.commit();
 
   alert(`삭제 완료: ${count}`);
+  clearGameWordCache();
   loadList();
 }
 
@@ -407,12 +458,13 @@ window.uploadCSV=()=>{
 
     for(let i=1;i<lines.length;i++){
 
-      const [h,r]=lines[i].split(",");
+      const [h,r,g]=lines[i].split(",");
       if(!h||!r) continue;
 
       await setDoc(doc(db,"words",h.trim()),{
         hanja:h.trim(),
-        reading:r.trim()
+        reading:r.trim(),
+        stageGroup: normalizeStageGroup(g?.trim() || csvStageGroup.value)
       });
 
       done++;
@@ -420,6 +472,7 @@ window.uploadCSV=()=>{
     }
 
     progress.innerText="완료";
+    clearGameWordCache();
     loadList();
   };
 

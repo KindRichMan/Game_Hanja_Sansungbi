@@ -1,10 +1,10 @@
 {
-  "name": "성어 타자 게임",
-  "short_name": "성어게임",
+  "name": "한자성어 산성비",
+  "short_name": "한자성어",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#001f3f",
   "theme_color": "#003b73",
   "lang": "ko",
-  "description": "모바일에서도 플레이 가능한 성어 타자 게임"
+  "description": "모바일에서도 플레이 가능한 한자성어 산성비 게임"
 }

@@ -46,7 +46,7 @@ const provider = new GoogleAuthProvider();
 
 export { auth, provider, signInWithPopup };
 
-const WORDS_CACHE_KEY = "hanjaWordsCache.v1";
+const WORDS_CACHE_KEY = "hanjaWordsCache.v2";
 const WORDS_CACHE_TTL = 24 * 60 * 60 * 1000;
 const RANKING_CACHE_KEY = "hanjaRankingCache.v1";
 const RANKING_CACHE_TTL = 5 * 60 * 1000;
