@@ -734,9 +734,9 @@ function spawnWord() {
   game.appendChild(el);
   const playWidth = game.clientWidth;
   const wordWidth = Math.max(el.offsetWidth, 56);
-  const fallWidth = Math.min(playWidth * 0.72, 520);
+  const fallWidth = Math.min(playWidth * 0.92, 640);
   const fallStart = (playWidth - fallWidth) / 2;
-  const laneRatios = [0.18, 0.82, 0.5];
+  const laneRatios = [0, 1, 0.5];
   const laneRatio = laneRatios[spawnLaneIndex % laneRatios.length];
   const rawLeft = fallStart + fallWidth * laneRatio - wordWidth / 2;
   const minLeft = 6;
