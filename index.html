@@ -340,20 +340,24 @@ body.playing #rankingBox {
 }
 
 body.playing #status {
-  position: fixed;
-  top: max(8px, env(safe-area-inset-top));
+  position: absolute;
+  left: 8px;
   right: 8px;
+  bottom: 8px;
   z-index: 20;
-  display: block;
-  max-width: min(78vw, 260px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: none;
   margin: 0;
-  padding: 7px 9px;
+  padding: 6px 8px;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.48);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 12px;
-  line-height: 1.35;
-  text-align: right;
+  font-size: clamp(11px, 3vw, 13px);
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
   pointer-events: none;
 }
 
