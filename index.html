@@ -566,6 +566,7 @@ let pendingGameOverScore = null;
 let wordsLoadError = null;
 let isWordsLoading = true;
 let spawnLaneIndex = 0;
+let gameOverButtonAction = "ranking";
 
 const levelSettings = [
   { speed: 0.05, spawnDelay: 4300, clearTarget: 10 },
@@ -598,7 +599,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.getElementById("levelStartButton").addEventListener("click", startPendingLevel);
-  document.getElementById("gameOverOkButton").addEventListener("click", showGameOverRanking);
+  document.getElementById("gameOverOkButton").addEventListener("click", handleGameOverModalButton);
 
   input.addEventListener("focus", () => {
     setTimeout(() => {
@@ -653,6 +654,16 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener("resize", syncViewportHeight);
   window.visualViewport.addEventListener("scroll", syncViewportHeight);
 }
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") endGameByScreenLeave();
+});
+
+window.addEventListener("blur", () => {
+  if (document.visibilityState !== "hidden") endGameByScreenLeave();
+});
+
+window.addEventListener("pagehide", endGameByScreenLeave);
 
 const wordsLoadPromise = loadWords()
   .then(w => {
@@ -742,6 +753,7 @@ window.startGame = async function() {
   isStagePaused = false;
   pendingLevel = null;
   pendingGameOverScore = null;
+  gameOverButtonAction = "ranking";
   document.body.classList.remove("game-over", "ranking-visible");
 
   document.getElementById("combo").innerText = 0;
@@ -1028,6 +1040,7 @@ function showBonusNotice(message) {
 async function gameOver() {
   if (!isGameRunning) return;
   pendingGameOverScore = score;
+  gameOverButtonAction = "ranking";
   stopGame();
   document.body.classList.remove("playing", "ranking-visible");
   document.body.classList.add("game-over");
@@ -1036,6 +1049,33 @@ async function gameOver() {
   document.getElementById("gameOverOkButton").innerText = "확인";
   document.getElementById("gameOverModal").style.display = "flex";
   document.getElementById("keyboardInput").blur();
+}
+
+function endGameByScreenLeave() {
+  if (!isGameRunning) return;
+
+  pendingGameOverScore = null;
+  gameOverButtonAction = "restart";
+  stopGame();
+  clearWords();
+  activeWords = [];
+  document.body.classList.remove("playing", "ranking-visible");
+  document.body.classList.add("game-over");
+  document.getElementById("gameOverModalTitle").innerText = "\uAC8C\uC784 \uC885\uB8CC";
+  document.getElementById("gameOverModalText").innerText = "\uAC8C\uC784 \uD654\uBA74\uC744 \uC774\uD0C8\uD558\uC5EC \uAC8C\uC784\uC774 \uC885\uB8CC\uB418\uC5C8\uC2B5\uB2C8\uB2E4.";
+  document.getElementById("gameOverOkButton").disabled = false;
+  document.getElementById("gameOverOkButton").innerText = "\uB2E4\uC2DC \uC2DC\uC791";
+  document.getElementById("gameOverModal").style.display = "flex";
+  document.getElementById("keyboardInput").blur();
+}
+
+function handleGameOverModalButton() {
+  if (gameOverButtonAction === "restart") {
+    window.resetGame();
+    return;
+  }
+
+  showGameOverRanking();
 }
 
 async function showGameOverRanking() {
