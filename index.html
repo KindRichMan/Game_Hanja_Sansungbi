@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>한자성어 산성비</title>
+<title>한자성어 별똥별</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<meta name="theme-color" content="#003b73">
+<meta name="theme-color" content="#020617">
 
 <style>
 :root {
-  --bg-top: #001f3f;
-  --bg-bottom: #0074D9;
+  --bg-top: #020617;
+  --bg-bottom: #0f1b3d;
   --card: rgba(0, 0, 0, 0.25);
   --text: #fff;
   --vvh: 100dvh;
@@ -20,7 +20,12 @@
 * { box-sizing: border-box; }
 
 body {
-  background: linear-gradient(var(--bg-top), var(--bg-bottom));
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.42) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 16%, rgba(255, 255, 255, 0.35) 0 1px, transparent 2px),
+    radial-gradient(circle at 84% 64%, rgba(255, 255, 255, 0.28) 0 1px, transparent 2px),
+    radial-gradient(circle at 34% 78%, rgba(255, 255, 255, 0.32) 0 1px, transparent 2px),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
   color: var(--text);
   text-align: center;
   font-family: "Gungsuh", "Batang", serif;
@@ -53,17 +58,22 @@ h2 {
   border: 3px solid white;
   border-radius: 10px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
+  background:
+    radial-gradient(circle at 10% 18%, rgba(255, 255, 255, 0.42) 0 1px, transparent 2px),
+    radial-gradient(circle at 28% 62%, rgba(255, 255, 255, 0.22) 0 1px, transparent 2px),
+    radial-gradient(circle at 66% 30%, rgba(255, 255, 255, 0.34) 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 76%, rgba(255, 255, 255, 0.26) 0 1px, transparent 2px),
+    rgba(2, 6, 23, 0.56);
 }
 
 .word {
   position: absolute;
   font-size: clamp(20px, 6.5vw, 40px);
   font-weight: 900;
-  color: #000;
+  color: #fff;
   padding: 0 3px;
   -webkit-text-stroke: 0;
-  text-shadow: none;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.55), 0 2px 4px rgba(0, 0, 0, 0.55);
   will-change: top;
 }
 
@@ -95,7 +105,60 @@ h2 {
 .word.bonus {
   color: #ffd400;
   -webkit-text-stroke: 0;
-  text-shadow: none;
+  text-shadow: 0 0 12px rgba(255, 212, 0, 0.85), 0 2px 5px rgba(0, 0, 0, 0.55);
+}
+
+.meteor,
+.bombDrop {
+  position: fixed;
+  z-index: 45;
+  pointer-events: none;
+}
+
+.meteor {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff7ad;
+  box-shadow:
+    0 0 8px #fff7ad,
+    0 0 18px rgba(255, 212, 0, 0.9),
+    -42px -18px 16px rgba(255, 255, 255, 0.36);
+  animation: meteorFall 900ms linear forwards;
+}
+
+.bombDrop {
+  font-size: 28px;
+  filter: drop-shadow(0 0 8px rgba(255, 80, 80, 0.72));
+  animation: bombFall 1100ms ease-in forwards;
+}
+
+@keyframes meteorFall {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(-24deg) scale(0.8);
+  }
+  12% { opacity: 1; }
+  to {
+    opacity: 0;
+    transform: translate3d(-150px, 320px, 0) rotate(-24deg) scale(1.25);
+  }
+}
+
+@keyframes bombFall {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -40px, 0) rotate(-8deg) scale(0.85);
+  }
+  15% { opacity: 1; }
+  78% {
+    opacity: 1;
+    transform: translate3d(18px, 52vh, 0) rotate(16deg) scale(1.05);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(26px, 58vh, 0) rotate(28deg) scale(1.6);
+  }
 }
 
 body.words-hidden .word:not(.bonus) {
@@ -315,7 +378,12 @@ body.playing {
   inset: 0;
   width: 100%;
   height: var(--vvh);
-  background: #0074d9;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.42) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 16%, rgba(255, 255, 255, 0.35) 0 1px, transparent 2px),
+    radial-gradient(circle at 84% 64%, rgba(255, 255, 255, 0.28) 0 1px, transparent 2px),
+    radial-gradient(circle at 34% 78%, rgba(255, 255, 255, 0.32) 0 1px, transparent 2px),
+    linear-gradient(180deg, #020617, #0f1b3d);
   padding: 0;
   overflow: hidden;
 }
@@ -371,7 +439,12 @@ body.playing #game {
   margin: 0;
   border: 0;
   border-radius: 0;
-  background: #0074d9;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.48) 0 1px, transparent 2px),
+    radial-gradient(circle at 33% 72%, rgba(255, 255, 255, 0.26) 0 1px, transparent 2px),
+    radial-gradient(circle at 68% 28%, rgba(255, 255, 255, 0.38) 0 1px, transparent 2px),
+    radial-gradient(circle at 90% 82%, rgba(255, 255, 255, 0.28) 0 1px, transparent 2px),
+    linear-gradient(180deg, #020617, #0f1b3d);
 }
 
 body.playing #keyboardInput {
@@ -403,7 +476,7 @@ body.playing #keyboardInput {
 
 <body>
 <div class="container">
-  <h2>한자성어 산성비</h2>
+  <h2>한자성어 별똥별</h2>
 
   <input id="nickname" placeholder="닉네임" autocomplete="nickname">
 
@@ -846,6 +919,7 @@ function runBonusEffect() {
     updateScore();
     clearWords();
     activeWords = [];
+    playLuckyMeteorEffect();
     showBonusNotice("🍀 행운! 모든 한자가 사라졌어요");
     return;
   }
@@ -853,17 +927,45 @@ function runBonusEffect() {
   if (effect === "levelUp") {
     score += 100;
     updateScore();
+    playLuckyMeteorEffect();
     showBonusNotice("🍀 행운! 100점 추가, 다음 단계로 이동");
     showLevelTransition(currentLevel, currentLevel + 1);
     return;
   }
 
+  playBombEffect();
   document.body.classList.add("words-hidden");
   clearTimeout(hiddenWordsTimer);
   hiddenWordsTimer = setTimeout(() => {
     document.body.classList.remove("words-hidden");
   }, 5000);
   showBonusNotice("💥 꽝! 5초 동안 한자가 가려져요");
+}
+
+function playLuckyMeteorEffect() {
+  for (let i = 0; i < 22; i += 1) {
+    const meteor = document.createElement("span");
+    meteor.className = "meteor";
+    meteor.style.left = `${22 + Math.random() * 76}vw`;
+    meteor.style.top = `${-8 + Math.random() * 34}vh`;
+    meteor.style.animationDelay = `${Math.random() * 420}ms`;
+    meteor.style.animationDuration = `${720 + Math.random() * 620}ms`;
+    document.body.appendChild(meteor);
+    meteor.addEventListener("animationend", () => meteor.remove(), { once: true });
+  }
+}
+
+function playBombEffect() {
+  for (let i = 0; i < 7; i += 1) {
+    const bomb = document.createElement("span");
+    bomb.className = "bombDrop";
+    bomb.textContent = "💣";
+    bomb.style.left = `${8 + Math.random() * 84}vw`;
+    bomb.style.top = `${-12 - Math.random() * 14}vh`;
+    bomb.style.animationDelay = `${i * 120 + Math.random() * 120}ms`;
+    document.body.appendChild(bomb);
+    bomb.addEventListener("animationend", () => bomb.remove(), { once: true });
+  }
 }
 
 function showLevelTransition(fromLevel, nextLevel) {

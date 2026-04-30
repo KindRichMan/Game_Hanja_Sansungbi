@@ -1,10 +1,10 @@
 {
-  "name": "한자성어 산성비",
-  "short_name": "한자성어",
+  "name": "한자성어 별똥별",
+  "short_name": "한자별똥별",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#001f3f",
-  "theme_color": "#003b73",
+  "background_color": "#020617",
+  "theme_color": "#020617",
   "lang": "ko",
-  "description": "모바일에서도 플레이 가능한 한자성어 산성비 게임"
+  "description": "모바일에서도 플레이 가능한 한자성어 별똥별 게임"
 }
