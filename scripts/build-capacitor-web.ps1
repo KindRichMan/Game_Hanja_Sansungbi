@@ -11,6 +11,8 @@ New-Item -ItemType Directory -Force -Path $www | Out-Null
 
 $files = @(
   "index.html",
+  "admin.html",
+  "access.js",
   "firebase.js",
   "manifest.webmanifest",
   "sw.js",

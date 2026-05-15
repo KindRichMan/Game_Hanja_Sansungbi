@@ -42,6 +42,12 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    match /userRoles/{userId} {
+      allow read: if isAdmin()
+        || (request.auth != null && request.auth.token.email == userId);
+      allow create, update, delete: if isAdmin();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

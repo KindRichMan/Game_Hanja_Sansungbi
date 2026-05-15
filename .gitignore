@@ -70,6 +70,7 @@ node_modules/
 *.keystore
 android/keystore.properties
 android/app/upload-keystore.jks
+upload_certificate.pem
 
 # dataconnect generated files
 .dataconnect

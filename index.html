@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>한자성어 별똥별</title>
+<title>?쒖옄?깆뼱 蹂꾨삦蹂?/title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 
@@ -91,7 +91,7 @@ h2 {
 }
 
 #missLine::before {
-  content: "감점선";
+  content: "媛먯젏??;
   position: absolute;
   right: 8px;
   bottom: 5px;
@@ -308,6 +308,32 @@ body.words-hidden .word:not(.bonus) {
   margin: 0 auto;
   background: rgba(255, 212, 0, 0.22);
   border-color: rgba(255, 212, 0, 0.75);
+}
+
+#adminMenuBox {
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#adminMenuBox .menuRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+#adminMenuBox button {
+  min-width: 120px;
+}
+
+#adminAccessState {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.76);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  text-align: center;
 }
 
 #appVersionLabel,
@@ -588,31 +614,40 @@ body.playing #keyboardInput {
         <li>&#50640;&#45320;&#51648;&#44032; 0&#51060; &#46104;&#44144;&#45208; 2&#48516; &#47784;&#46300;&#51032; &#49884;&#44036;&#51060; &#45149;&#45208;&#47732; &#44172;&#51076;&#51060; &#51333;&#47308;&#46121;&#45768;&#45796;.</li>
       </ul>
     </div>
+    <div class="introSection" id="adminMenuBox">
+      <h3>&#44288;&#47532; &#47700;&#45684;</h3>
+      <div class="menuRow">
+        <button type="button" id="openWordAdminButton">&#45824;&#51109; &#44288;&#47532;</button>
+        <button type="button" id="openUserAdminButton">&#49324;&#50857;&#51088; &#44428;&#54620;</button>
+        <button type="button" id="openLogAdminButton">&#47196;&#44536; &#51312;&#54924;</button>
+      </div>
+      <div id="adminAccessState">&#44428;&#54620; &#44032;&#51076; &#50630;&#51020;</div>
+    </div>
     <button id="introStartButton" type="button" onclick="showGameSetup()">&#44172;&#51076; &#49444;&#51221;&#54616;&#44592;</button>
-    <span id="appVersionLabel">앱버전 1.0.10</span>
+    <span id="appVersionLabel">?깅쾭??1.0.10</span>
   </section>
 
-  <h2>한자성어 별똥별</h2>
+  <h2>?쒖옄?깆뼱 蹂꾨삦蹂?/h2>
 
-  <input id="nickname" placeholder="닉네임" autocomplete="nickname">
+  <input id="nickname" placeholder="?됰꽕?? autocomplete="nickname">
 
   <div id="status">
-    점수: <span id="score">0</span> |
-    <span class="comboStatus">콤보: <span id="combo">0</span> |</span>
-    시간: <span id="timeLabel">무제한</span> |
-    단계: <span id="levelLabel">1</span> |
-    에너지: <span id="hpLabel">100</span>
+    ?먯닔: <span id="score">0</span> |
+    <span class="comboStatus">肄ㅻ낫: <span id="combo">0</span> |</span>
+    ?쒓컙: <span id="timeLabel">臾댁젣??/span> |
+    ?④퀎: <span id="levelLabel">1</span> |
+    ?먮꼫吏: <span id="hpLabel">100</span>
   </div>
 
   <div class="bar"><div id="hpBar"></div></div>
 
   <div id="controls">
-    시간제한:
-    <label><input type="radio" name="timeMode" value="timed"> 2분</label>
-    <label><input type="radio" name="timeMode" value="infinite" checked> 무제한</label>
-    단계:
+    ?쒓컙?쒗븳:
+    <label><input type="radio" name="timeMode" value="timed"> 2遺?/label>
+    <label><input type="radio" name="timeMode" value="infinite" checked> 臾댁젣??/label>
+    ?④퀎:
     <select id="level" disabled>
-      <option value="1" selected>1 (연습)</option>
+      <option value="1" selected>1 (?곗뒿)</option>
       <option value="2">2</option>
       <option value="3">3</option>
       <option value="4">4</option>
@@ -621,12 +656,12 @@ body.playing #keyboardInput {
       <option value="7">7</option>
       <option value="8">8</option>
       <option value="9">9</option>
-      <option value="10">10 (최고)</option>
+      <option value="10">10 (理쒓퀬)</option>
     </select>
 
     <button onclick="startGame()">START</button>
     <button onclick="resetGame()">RESET</button>
-    <span id="setupVersionLabel">앱버전 1.0.10</span>
+    <span id="setupVersionLabel">?깅쾭??1.0.10</span>
   </div>
 
   <div id="game">
@@ -635,30 +670,31 @@ body.playing #keyboardInput {
   <div id="bonusNotice"></div>
   <div id="levelModal" role="dialog" aria-modal="true">
     <div id="levelModalContent">
-      <div id="levelModalTitle">단계 통과</div>
+      <div id="levelModalTitle">?④퀎 ?듦낵</div>
       <div id="levelModalText"></div>
-      <button id="levelStartButton" type="button">시작</button>
+      <button id="levelStartButton" type="button">?쒖옉</button>
     </div>
   </div>
   <div id="gameOverModal" role="dialog" aria-modal="true">
     <div id="gameOverModalContent">
-      <div id="gameOverModalTitle">게임오버</div>
+      <div id="gameOverModalTitle">寃뚯엫?ㅻ쾭</div>
       <div id="gameOverModalText"></div>
-      <button id="gameOverOkButton" type="button">확인</button>
+      <button id="gameOverOkButton" type="button">?뺤씤</button>
     </div>
   </div>
 
   <div id="rankingBox">
     <h3>TOP 10</h3>
     <div id="rankingList"></div>
-    <button id="rankingRestartButton" type="button" onclick="resetGame()">다시 시작</button>
+    <button id="rankingRestartButton" type="button" onclick="resetGame()">?ㅼ떆 ?쒖옉</button>
   </div>
 </div>
 
-<input id="keyboardInput" placeholder="뜻 입력 후 Enter" inputmode="text" enterkeyhint="done">
+<input id="keyboardInput" placeholder="???낅젰 ??Enter" inputmode="text" enterkeyhint="done">
 
 <script type="module">
-import { loadWords, saveScore, loadRanking } from "./firebase.js";
+import { loadWords, saveScore, loadRanking, auth, provider, signInWithPopup } from "./firebase.js";
+import { getAccessRecord, canUseFeature, isSuperAdmin } from "./access.js";
 
 let words = [];
 let activeWords = [];
@@ -687,6 +723,8 @@ let gameOverButtonAction = "ranking";
 let audioContext = null;
 let speechVoice = null;
 let keyboardOffsetTimer = null;
+let currentUser = null;
+let currentAccess = null;
 
 const levelSettings = [
   { speed: 0.05, spawnDelay: 4300, clearTarget: 10 },
@@ -738,7 +776,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await navigator.serviceWorker.register("./sw.js");
     } catch (err) {
-      console.log("SW 등록 실패", err);
+      console.log("SW ?깅줉 ?ㅽ뙣", err);
     }
   }
 
@@ -760,7 +798,77 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateHP();
   updateScore();
   loadSpeechVoice();
+
+  document.getElementById("openWordAdminButton").addEventListener("click", () => openProtectedAdmin("manageWords", "words"));
+  document.getElementById("openUserAdminButton").addEventListener("click", () => openProtectedAdmin("manageUsers", "users"));
+  document.getElementById("openLogAdminButton").addEventListener("click", () => openProtectedAdmin("viewLogs", "logs"));
+  await refreshHomepageAccess();
 });
+
+function updateAdminAccessStateLabel() {
+  const label = document.getElementById("adminAccessState");
+  if (!label) return;
+
+  if (!currentUser) {
+    label.textContent = "濡쒓렇????沅뚰븳???뺤씤?????덉뒿?덈떎.";
+    return;
+  }
+
+  if (!currentAccess) {
+    label.textContent = `${currentUser.email} - 沅뚰븳 ?놁쓬`;
+    return;
+  }
+
+  const summary = [];
+  if (currentAccess.permissions.manageWords) summary.push("words");
+  if (currentAccess.permissions.manageUsers) summary.push("users");
+  if (currentAccess.permissions.viewLogs) summary.push("logs");
+
+  label.textContent = `${currentUser.email} - ${currentAccess.role}${summary.length ? ` (${summary.join(", ")})` : ""}`;
+}
+
+async function ensureSignedInForAdmin() {
+  if (currentUser) return currentUser;
+
+  const result = await signInWithPopup(auth, provider);
+  currentUser = result.user;
+  return currentUser;
+}
+
+async function refreshHomepageAccess() {
+  if (!auth.currentUser) {
+    currentUser = null;
+    currentAccess = null;
+    updateAdminAccessStateLabel();
+    return null;
+  }
+
+  currentUser = auth.currentUser;
+  currentAccess = await getAccessRecord(currentUser.email);
+  if (!currentAccess && isSuperAdmin(currentUser.email)) {
+    currentAccess = await getAccessRecord(currentUser.email);
+  }
+
+  updateAdminAccessStateLabel();
+  return currentAccess;
+}
+
+async function openProtectedAdmin(featureKey, section) {
+  try {
+    const user = await ensureSignedInForAdmin();
+    await refreshHomepageAccess();
+
+    if (!canUseFeature(currentAccess, featureKey)) {
+      alert("沅뚰븳???놁뒿?덈떎.");
+      return;
+    }
+
+    location.href = `./admin.html?section=${encodeURIComponent(section)}&email=${encodeURIComponent(user.email)}`;
+  } catch (err) {
+    console.error("admin access error", err);
+    alert("愿由?硫붾돱瑜??????놁뒿?덈떎.");
+  }
+}
 
 function syncViewportHeight() {
   const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
@@ -834,7 +942,7 @@ const wordsLoadPromise = loadWords()
   })
   .catch(err => {
     wordsLoadError = err;
-    console.error("단어 불러오기 실패", err);
+    console.error("?⑥뼱 遺덈윭?ㅺ린 ?ㅽ뙣", err);
   })
   .finally(() => {
     isWordsLoading = false;
@@ -892,16 +1000,16 @@ window.startGame = async function() {
   unlockAudio();
   nickname = document.getElementById("nickname").value.trim().toLowerCase();
 
-  if (!nickname) return alert("닉네임 입력");
+  if (!nickname) return alert("?됰꽕???낅젰");
   if (isWordsLoading) {
     await wordsLoadPromise;
   }
   if (wordsLoadError) {
-    alert("단어를 불러오지 못했습니다. 인터넷 연결과 Firebase 권한을 확인해주세요.");
+    alert("?⑥뼱瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲?? ?명꽣???곌껐怨?Firebase 沅뚰븳???뺤씤?댁＜?몄슂.");
     return;
   }
   if (words.length === 0) {
-    alert("등록된 한자 단어가 없습니다. 관리자 페이지에서 단어를 먼저 등록해주세요.");
+    alert("?깅줉???쒖옄 ?⑥뼱媛 ?놁뒿?덈떎. 愿由ъ옄 ?섏씠吏?먯꽌 ?⑥뼱瑜?癒쇱? ?깅줉?댁＜?몄슂.");
     return;
   }
 
@@ -976,7 +1084,7 @@ function updateScore() {
   if (!label) return;
 
   const target = getLevelSettings(currentLevel).clearTarget;
-  label.innerText = `${currentLevel}단계 ${stageCorrectCount}/${target}개 / 총 ${score}점`;
+  label.innerText = `${currentLevel} level ${stageCorrectCount}/${target} cleared / total ${score} points`;
 }
 
 function spawnWord() {
@@ -1056,7 +1164,7 @@ function updateTimeLabel() {
     const s = String(timeLeft % 60).padStart(2, "0");
     label.innerText = `${m}:${s}`;
   } else {
-    label.innerText = "무제한";
+    label.innerText = "unlimited";
   }
 }
 
@@ -1292,7 +1400,7 @@ function runBonusEffect() {
     activeWords = [];
     playMagicSound();
     playLuckyMeteorEffect();
-    showBonusNotice("🍀 행운! 모든 한자가 사라졌어요");
+    showBonusNotice("Bonus! All hanja cleared.");
     return;
   }
 
@@ -1301,7 +1409,7 @@ function runBonusEffect() {
     updateScore();
     playMagicSound();
     playLuckyMeteorEffect();
-    showBonusNotice("🍀 행운! 100점 추가, 다음 단계로 이동");
+  showBonusNotice("Bomb! Bonus words hidden for 5 seconds.");
     showLevelTransition(currentLevel, currentLevel + 1);
     return;
   }
@@ -1313,7 +1421,7 @@ function runBonusEffect() {
   hiddenWordsTimer = setTimeout(() => {
     document.body.classList.remove("words-hidden");
   }, 5000);
-  showBonusNotice("💥 꽝! 5초 동안 한자가 가려져요");
+  showBonusNotice("Bomb! Bonus words hidden for 5 seconds.");
 }
 
 function playLuckyMeteorEffect() {
@@ -1333,7 +1441,7 @@ function playBombEffect() {
   for (let i = 0; i < 7; i += 1) {
     const bomb = document.createElement("span");
     bomb.className = "bombDrop";
-    bomb.textContent = "💣";
+    bomb.textContent = "?뮗";
     bomb.style.left = `${8 + Math.random() * 84}vw`;
     bomb.style.top = `${-12 - Math.random() * 14}vh`;
     bomb.style.animationDelay = `${i * 120 + Math.random() * 120}ms`;
@@ -1354,8 +1462,8 @@ function showLevelTransition(fromLevel, nextLevel) {
   clearWords();
   activeWords = [];
 
-  document.getElementById("levelModalTitle").innerText = `${fromLevel}단계 통과`;
-  document.getElementById("levelModalText").innerText = `${nextLevel}단계 시작`;
+  document.getElementById("levelModalTitle").innerText = `${fromLevel}?④퀎 ?듦낵`;
+  document.getElementById("levelModalText").innerText = `${nextLevel}?④퀎 ?쒖옉`;
   document.getElementById("levelModal").style.display = "flex";
   document.getElementById("keyboardInput").blur();
 }
@@ -1406,9 +1514,9 @@ async function gameOver() {
   stopGame();
   document.body.classList.remove("playing", "ranking-visible");
   document.body.classList.add("game-over");
-  document.getElementById("gameOverModalText").innerText = `점수: ${pendingGameOverScore}`;
+  document.getElementById("gameOverModalText").innerText = `?먯닔: ${pendingGameOverScore}`;
   document.getElementById("gameOverOkButton").disabled = false;
-  document.getElementById("gameOverOkButton").innerText = "확인";
+  document.getElementById("gameOverOkButton").innerText = "?뺤씤";
   document.getElementById("gameOverModal").style.display = "flex";
   document.getElementById("keyboardInput").blur();
 }
@@ -1445,7 +1553,7 @@ async function showGameOverRanking() {
 
   const button = document.getElementById("gameOverOkButton");
   button.disabled = true;
-  button.innerText = "저장중...";
+  button.innerText = "??μ쨷...";
 
   try {
     const scoreChanged = await saveScore(nickname, pendingGameOverScore);
@@ -1457,10 +1565,10 @@ async function showGameOverRanking() {
     document.getElementById("gameOverModal").style.display = "none";
     showRanking(ranking);
   } catch (err) {
-    console.error("점수 저장 또는 랭킹 불러오기 실패", err);
-    alert("점수 저장 또는 랭킹 불러오기에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    console.error("?먯닔 ????먮뒗 ??궧 遺덈윭?ㅺ린 ?ㅽ뙣", err);
+    alert("?먯닔 ????먮뒗 ??궧 遺덈윭?ㅺ린???ㅽ뙣?덉뒿?덈떎. ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂.");
     button.disabled = false;
-    button.innerText = "다시 시도";
+    button.innerText = "?ㅼ떆 ?쒕룄";
   }
 }
 
@@ -1472,13 +1580,13 @@ function showRanking(ranking) {
     const el = document.createElement("div");
 
     if (i === 0) {
-      el.textContent = `1위 - ${r.nickname} (${r.score})`;
+      el.textContent = `1??- ${r.nickname} (${r.score})`;
       el.style.color = "gold";
     } else if (r.nickname === nickname) {
-      el.textContent = `${i + 1}위 - ${r.nickname} (${r.score})`;
+      el.textContent = `${i + 1}??- ${r.nickname} (${r.score})`;
       el.style.color = "yellow";
     } else {
-      el.innerText = `${i + 1}위 - ${r.nickname} (${r.score})`;
+      el.innerText = `${i + 1}??- ${r.nickname} (${r.score})`;
     }
 
     list.appendChild(el);
