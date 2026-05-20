@@ -1,10 +1,10 @@
 ﻿{
-  "releaseType": "?깅쾭??,
-  "versionName": "1.0.10",
-  "versionCode": 11,
+  "releaseType": "release",
+  "versionName": "1.0.16",
+  "versionCode": 17,
   "packageName": "com.kindrich.hanja",
   "hostingUrl": "https://kindrichman-hanja-game.web.app",
-  "playStoreStatus": "Capacitor Android ?ㅻ낫????媛먯젏?좉낵 ?먯닔 ?쒖떆 媛쒖꽑"
+  "playStoreStatus": "Android app update"
 }
 
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>?쒖옄?깆뼱 蹂꾨삦蹂?愿由ъ옄</title>
+<title>한자성어 별똥별 관리자</title>
 <style>
 :root {
   --bg: #0b1020;
@@ -230,62 +230,62 @@ th { color: var(--muted); font-weight: 600; }
 </head>
 <body>
 <header>
-  <h1>?쒖옄?깆뼱 蹂꾨삦蹂?愿由ъ옄</h1>
+  <h1>한자성어 별똥별 관리자</h1>
   <div class="toolbar">
-    <button id="loginBtn" class="primary" type="button">Google 濡쒓렇??/button>
-    <button id="logoutBtn" class="ghost hidden" type="button">濡쒓렇?꾩썐</button>
-    <span id="stateLabel">濡쒓렇???꾩슂</span>
+    <button id="loginBtn" class="primary" type="button">Google 로그인</button>
+    <button id="logoutBtn" class="ghost hidden" type="button">로그아웃</button>
+    <span id="stateLabel">로그인이 필요합니다</span>
   </div>
 </header>
 
 <main>
   <div class="notice">
-    ???섏씠吏??硫붾돱??蹂댁씠?? 沅뚰븳???놁쑝硫?媛?湲곕뒫???????녾쾶 留뚮뱶??愿由ъ옄 ?붾㈃?낅땲??
+    이 페이지는 관리자만 사용할 수 있습니다. 로그인 후 권한에 따라 메뉴가 표시됩니다.
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="words" type="button">?⑥뼱 愿由?/button>
-    <button class="tab" data-tab="users" type="button">?ъ슜??沅뚰븳</button>
-    <button class="tab" data-tab="logs" type="button">濡쒓렇</button>
+    <button class="tab active" data-tab="words" type="button">단어 관리</button>
+    <button class="tab" data-tab="users" type="button">사용자 권한</button>
+    <button class="tab" data-tab="logs" type="button">로그</button>
   </div>
 
   <section class="section active" id="wordsSection">
     <div class="rowTop">
-      <h2>?⑥뼱 愿由?/h2>
-      <span class="pill" id="wordAccessPill">沅뚰븳 ?뺤씤 ??/span>
+      <h2>단어 관리</h2>
+      <span class="pill" id="wordAccessPill">권한 확인 중</span>
     </div>
     <div class="grid">
       <div class="field">
-        <label for="wordSearch">寃??/label>
-        <input id="wordSearch" placeholder="?쒖옄, ?? ?④퀎">
+        <label for="wordSearch">검색</label>
+        <input id="wordSearch" placeholder="한자, 음, 단계">
       </div>
       <div class="field">
-        <label for="csvFile">CSV ?낅줈??/label>
+        <label for="csvFile">CSV 업로드</label>
         <input id="csvFile" type="file" accept=".csv,text/csv">
       </div>
     </div>
     <div class="grid" style="margin-top:10px;">
       <div class="field">
-        <label for="wordHanja">?쒖옄?깆뼱</label>
+        <label for="wordHanja">한자성어</label>
         <input id="wordHanja">
       </div>
       <div class="field">
-        <label for="wordReading">???쎄린</label>
+        <label for="wordReading">발음</label>
         <input id="wordReading">
       </div>
       <div class="field">
-        <label for="wordStage">?④퀎</label>
+        <label for="wordStage">단계</label>
         <select id="wordStage">
-          <option value="level12">1, 2?④퀎</option>
-          <option value="level34">3, 4?④퀎</option>
-          <option value="level567">5, 6, 7?④퀎</option>
+          <option value="level12">1, 2단계</option>
+          <option value="level34">3, 4단계</option>
+          <option value="level567">5, 6, 7단계</option>
         </select>
       </div>
     </div>
     <div class="inlineButtons" style="margin-top:10px;">
-      <button id="wordSaveBtn" class="primary" type="button">???/button>
-      <button id="wordClearBtn" type="button">?낅젰 珥덇린??/button>
-      <button id="wordReloadBtn" type="button">?덈줈怨좎묠</button>
+      <button id="wordSaveBtn" class="primary" type="button">저장</button>
+      <button id="wordClearBtn" type="button">입력 초기화</button>
+      <button id="wordReloadBtn" type="button">다시 불러오기</button>
     </div>
     <div id="wordStatus"></div>
     <div class="list" id="wordList"></div>
@@ -293,20 +293,20 @@ th { color: var(--muted); font-weight: 600; }
 
   <section class="section" id="usersSection">
     <div class="rowTop">
-      <h2>?ъ슜??沅뚰븳</h2>
-      <span class="pill" id="userAccessPill">沅뚰븳 ?뺤씤 ??/span>
+      <h2>사용자 권한</h2>
+      <span class="pill" id="userAccessPill">권한 확인 중</span>
     </div>
     <div class="grid">
       <div class="field">
-        <label for="userEmail">?대찓??/label>
+        <label for="userEmail">이메일</label>
         <input id="userEmail" placeholder="user@example.com">
       </div>
       <div class="field">
-        <label for="userDisplayName">?대쫫</label>
-        <input id="userDisplayName" placeholder="?쒖떆 ?대쫫">
+        <label for="userDisplayName">표시 이름</label>
+        <input id="userDisplayName" placeholder="표시 이름">
       </div>
       <div class="field">
-        <label for="userRole">??븷</label>
+        <label for="userRole">역할</label>
         <select id="userRole">
           <option value="admin">admin</option>
           <option value="editor">editor</option>
@@ -316,19 +316,19 @@ th { color: var(--muted); font-weight: 600; }
       </div>
     </div>
     <div class="checkboxes" style="margin-top:10px;">
-      <label><input type="checkbox" id="permManageWords"> ?⑥뼱 愿由?/label>
-      <label><input type="checkbox" id="permManageUsers"> ?ъ슜??愿由?/label>
-      <label><input type="checkbox" id="permViewLogs"> 濡쒓렇 蹂닿린</label>
-      <label><input type="checkbox" id="permAccessAdminMenu" checked> 愿由?硫붾돱 ?쒖떆</label>
+      <label><input type="checkbox" id="permManageWords"> 단어 관리</label>
+      <label><input type="checkbox" id="permManageUsers"> 사용자 권한 관리</label>
+      <label><input type="checkbox" id="permViewLogs"> 로그 보기</label>
+      <label><input type="checkbox" id="permAccessAdminMenu" checked> 관리자 메뉴 표시</label>
     </div>
     <div class="field" style="margin-top:10px;">
-      <label for="userNote">硫붾え</label>
-      <input id="userNote" placeholder="沅뚰븳 ?ъ쑀 ?먮뒗 鍮꾧퀬">
+      <label for="userNote">메모</label>
+      <input id="userNote" placeholder="권한 사유 또는 메모">
     </div>
     <div class="inlineButtons" style="margin-top:10px;">
-      <button id="userSaveBtn" class="primary" type="button">???/button>
-      <button id="userDeleteBtn" type="button">??젣</button>
-      <button id="userReloadBtn" type="button">?덈줈怨좎묠</button>
+      <button id="userSaveBtn" class="primary" type="button">저장</button>
+      <button id="userDeleteBtn" type="button">삭제</button>
+      <button id="userReloadBtn" type="button">다시 불러오기</button>
     </div>
     <div id="userStatus"></div>
     <div class="list" id="userList"></div>
@@ -336,12 +336,12 @@ th { color: var(--muted); font-weight: 600; }
 
   <section class="section" id="logsSection">
     <div class="rowTop">
-      <h2>濡쒓렇</h2>
-      <span class="pill" id="logAccessPill">沅뚰븳 ?뺤씤 ??/span>
+      <h2>로그</h2>
+      <span class="pill" id="logAccessPill">권한 확인 중</span>
     </div>
     <div class="inlineButtons">
-      <button id="logReloadBtn" class="primary" type="button">?덈줈怨좎묠</button>
-      <button id="logClearBtn" type="button">?꾩껜 ??젣</button>
+      <button id="logReloadBtn" class="primary" type="button">다시 불러오기</button>
+      <button id="logClearBtn" type="button">전체 삭제</button>
     </div>
     <div id="logStatus"></div>
     <div class="list" id="logList"></div>
@@ -349,27 +349,60 @@ th { color: var(--muted); font-weight: 600; }
 </main>
 
 <script type="module">
-import { auth, provider, signInWithPopup } from "./firebase.js";
-import { db } from "./firebase.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { signInWithGoogleCredentialDirect, signInWithPopupDirect, ensureFirebase, db, getAuthInstance } from "./firebase.js";
 import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  orderBy,
-  query,
-  setDoc,
-  writeBatch,
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
+  buildAccessRecord,
   SUPER_ADMIN_EMAILS,
   canUseFeature,
   deleteAccessRecord,
   getAccessRecord,
+  isOrganizationAdmin,
+  isWordManager,
   listAccessRecords,
   saveAccessRecord,
 } from "./access.js";
+
+const FIREBASE_BASE_URL = "https://www.gstatic.com/firebasejs/10.12.0";
+let authModulePromise = null;
+let firestoreModulePromise = null;
+
+await ensureFirebase();
+
+function hasNativeAuthBridge() {
+  return Boolean(window.HanjaNativeAuth && typeof window.HanjaNativeAuth.chooseGoogleAccount === "function");
+}
+
+let nativeAuthPending = null;
+
+window.__nativeGoogleAuthResult = async (result) => {
+  if (!nativeAuthPending) return;
+
+  const pending = nativeAuthPending;
+  nativeAuthPending = null;
+
+  if (!result || !result.ok || !result.email) {
+    pending.reject(new Error(result?.error || "cancelled"));
+    return;
+  }
+
+  pending.resolve(result);
+};
+
+async function getAuthModule() {
+  await ensureFirebase();
+  if (!authModulePromise) {
+    authModulePromise = import(`${FIREBASE_BASE_URL}/firebase-auth.js`);
+  }
+  return authModulePromise;
+}
+
+async function getFirestoreModule() {
+  await ensureFirebase();
+  if (!firestoreModulePromise) {
+    firestoreModulePromise = import(`${FIREBASE_BASE_URL}/firebase-firestore.js`);
+  }
+  return firestoreModulePromise;
+}
 
 const roleToPermissions = {
   admin: { manageWords: true, manageUsers: true, viewLogs: true, accessAdminMenu: true },
@@ -399,6 +432,7 @@ const logAccessPill = document.getElementById("logAccessPill");
 
 let currentUser = null;
 let currentAccess = null;
+let authReady = false;
 let activeTab = "words";
 let wordItems = [];
 let userItems = [];
@@ -419,26 +453,102 @@ function can(feature) {
   return Boolean(currentAccess?.permissions?.[feature]);
 }
 
+function getAdminLabel() {
+  if (!currentUser) return "";
+  const email = currentUser.email || "";
+  if (isOrganizationAdmin(email)) return "조직 관리자";
+  if (isWordManager(email)) return "단어 관리자";
+  return currentAccess?.role || "unknown";
+}
+
+function canSeeTab(tabName) {
+  if (!currentUser) return false;
+  if (isOrganizationAdmin(currentUser.email || "")) return true;
+  if (tabName === "words") return can("manageWords");
+  if (tabName === "users") return can("manageUsers");
+  if (tabName === "logs") return can("viewLogs");
+  return false;
+}
+
+function resolveDefaultAccess(email) {
+  if (isOrganizationAdmin(email)) {
+    return buildAccessRecord({
+      email,
+      role: "admin",
+    });
+  }
+
+  if (isWordManager(email)) {
+    return buildAccessRecord({
+      email,
+      role: "editor",
+    });
+  }
+
+  return buildAccessRecord({
+    email,
+    role: "blocked",
+  });
+}
+
 function updateHeaderState() {
+  if (!authReady) {
+    stateLabel.textContent = "계정 확인 중...";
+    loginBtn.classList.add("hidden");
+    logoutBtn.classList.add("hidden");
+    return;
+  }
+
   if (!currentUser) {
-    stateLabel.textContent = "濡쒓렇???꾩슂";
+    stateLabel.textContent = "로그인이 필요합니다";
     loginBtn.classList.remove("hidden");
     logoutBtn.classList.add("hidden");
     return;
   }
 
-  stateLabel.textContent = `${currentUser.email} / ${currentAccess?.role || "unknown"}`;
+  stateLabel.textContent = `${currentUser.email || "(이메일 없음)"} / ${getAdminLabel()}`;
   loginBtn.classList.add("hidden");
   logoutBtn.classList.remove("hidden");
 }
 
 function updateAccessPills() {
-  wordAccessPill.textContent = can("manageWords") ? "?덉슜" : "李⑤떒";
-  userAccessPill.textContent = can("manageUsers") ? "?덉슜" : "李⑤떒";
-  logAccessPill.textContent = can("viewLogs") ? "?덉슜" : "李⑤떒";
+  wordAccessPill.textContent = can("manageWords") ? "허용" : "차단";
+  userAccessPill.textContent = can("manageUsers") ? "허용" : "차단";
+  logAccessPill.textContent = can("viewLogs") ? "허용" : "차단";
+}
+
+function updateMenuVisibility() {
+  if (!authReady) {
+    tabs.forEach((tab) => tab.classList.add("hidden"));
+    Object.values(sections).forEach((section) => section.classList.add("hidden"));
+    activeTab = "";
+    return;
+  }
+
+  const allowedTabs = [];
+
+  tabs.forEach((tab) => {
+    const visible = canSeeTab(tab.dataset.tab);
+    tab.classList.toggle("hidden", !visible);
+    if (visible) allowedTabs.push(tab.dataset.tab);
+  });
+
+  Object.entries(sections).forEach(([name, section]) => {
+    section.classList.toggle("hidden", !canSeeTab(name));
+  });
+
+  if (!currentUser) {
+    activeTab = "";
+    return;
+  }
+
+  if (!allowedTabs.includes(activeTab)) {
+    showTab(allowedTabs[0] || "words");
+  }
 }
 
 function showTab(tabName) {
+  if (!canSeeTab(tabName)) return;
   activeTab = tabName;
   tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === tabName));
   Object.entries(sections).forEach(([name, section]) => {
@@ -448,12 +558,73 @@ function showTab(tabName) {
 
 tabs.forEach((tab) => tab.addEventListener("click", () => showTab(tab.dataset.tab)));
 
+async function startAdminPopupLogin() {
+  setStatus(stateLabel, "Google 로그인 창을 여는 중입니다...");
+  try {
+    const res = await signInWithPopupDirect();
+    currentUser = res.user || null;
+    currentAccess = currentUser
+      ? (await getAccessRecord(currentUser.email)) || resolveDefaultAccess(currentUser.email)
+      : null;
+    authReady = true;
+    updateHeaderState();
+    updateAccessPills();
+    updateMenuVisibility();
+    await refreshAll();
+  } catch (err) {
+    console.error(err);
+    setStatus(stateLabel, "로그인 실패: 팝업 차단 또는 브라우저 설정을 확인하세요.", "danger");
+  }
+}
+
+async function startNativeAdminLogin() {
+  if (!hasNativeAuthBridge()) {
+    throw new Error("native auth bridge unavailable");
+  }
+
+  setStatus(stateLabel, "Google 계정을 선택하세요...");
+
+  const result = await new Promise((resolve, reject) => {
+    nativeAuthPending = { resolve, reject };
+
+    try {
+      window.HanjaNativeAuth.chooseGoogleAccount();
+    } catch (err) {
+      nativeAuthPending = null;
+      reject(err);
+    }
+  });
+
+  const email = (result.email || "").trim().toLowerCase();
+  const idToken = result.idToken || "";
+  if (!idToken) {
+    throw new Error("missing id token");
+  }
+
+  const signInResult = await signInWithGoogleCredentialDirect(idToken);
+  currentUser = signInResult.user || null;
+  currentAccess = currentUser
+    ? (await getAccessRecord(currentUser.email)) || resolveDefaultAccess(currentUser.email)
+    : null;
+  authReady = true;
+  updateHeaderState();
+  updateAccessPills();
+  updateMenuVisibility();
+  try {
+    await refreshAll();
+    setStatus(stateLabel, `${email} / ${getAdminLabel()}`);
+  } catch (err) {
+    console.warn("native admin refresh failed", err);
+    setStatus(stateLabel, `${email} / ${getAdminLabel()} / 일부 데이터 로딩 실패`, "danger");
+  }
+}
+
 document.getElementById("wordClearBtn").addEventListener("click", () => {
   editingWordId = "";
   document.getElementById("wordHanja").value = "";
   document.getElementById("wordReading").value = "";
   document.getElementById("wordStage").value = "level12";
-  setStatus(wordStatus, "?낅젰??珥덇린?붾릺?덉뒿?덈떎.");
+  setStatus(wordStatus, "입력이 초기화되었습니다.");
 });
 
 document.getElementById("wordReloadBtn").addEventListener("click", loadWords);
@@ -462,27 +633,25 @@ document.getElementById("logReloadBtn").addEventListener("click", loadLogs);
 
 loginBtn.addEventListener("click", async () => {
   try {
-    const res = await signInWithPopup(auth, provider);
-    currentUser = res.user;
-    currentAccess = (await getAccessRecord(currentUser.email)) || null;
-    if (!currentAccess) {
-      currentAccess = {
-        email: currentUser.email,
-        role: "blocked",
-        permissions: { ...roleToPermissions.blocked },
-      };
+    if (hasNativeAuthBridge()) {
+      await startNativeAdminLogin();
+      return;
     }
-    updateHeaderState();
-    updateAccessPills();
-    await refreshAll();
+
+    await startAdminPopupLogin();
   } catch (err) {
     console.error(err);
-    setStatus(stateLabel, "濡쒓렇???ㅽ뙣");
+    setStatus(stateLabel, "로그인 실패: 계정 선택을 다시 시도하세요.", "danger");
   }
 });
 
 logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
+  if (!hasNativeAuthBridge()) {
+    const { signOut } = await getAuthModule();
+    const firebaseAuth = await getAuthInstance();
+    await signOut(firebaseAuth);
+  }
+  nativeAuthPending = null;
   currentUser = null;
   currentAccess = null;
   wordItems = [];
@@ -490,6 +659,7 @@ logoutBtn.addEventListener("click", async () => {
   logItems = [];
   updateHeaderState();
   updateAccessPills();
+  updateMenuVisibility();
   renderWords();
   renderUsers();
   renderLogs();
@@ -534,12 +704,13 @@ document.getElementById("userRole").addEventListener("change", (event) => {
 });
 
 document.getElementById("csvFile").addEventListener("change", async (event) => {
-  if (!can("manageWords")) return setStatus(wordStatus, "沅뚰븳???놁뒿?덈떎.", "danger");
+  if (!can("manageWords")) return setStatus(wordStatus, "권한이 없습니다.", "danger");
   const file = event.target.files?.[0];
   if (!file) return;
 
   const text = await file.text();
   const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const { doc, writeBatch } = await getFirestoreModule();
   const batch = writeBatch(db);
   let count = 0;
 
@@ -555,28 +726,32 @@ document.getElementById("csvFile").addEventListener("change", async (event) => {
   }
 
   await batch.commit();
-  setStatus(wordStatus, `CSV upload complete: ${count}`, "ok");
+  setStatus(wordStatus, `CSV 업로드 완료: ${count}개`, "ok");
   await loadWords();
 });
 
 async function refreshAll() {
-  await loadWords();
-  await loadUsers();
-  await loadLogs();
+  const tasks = [loadWords(), loadUsers(), loadLogs()];
+  const results = await Promise.allSettled(tasks);
+  const failed = results.filter((entry) => entry.status === "rejected");
+  if (failed.length) {
+    console.warn("admin refresh partial failure", failed.map((entry) => entry.reason));
+  }
 }
 
 async function loadWords() {
   if (!currentUser) return;
   if (!can("manageWords")) {
-    setStatus(wordStatus, "?⑥뼱 愿由?沅뚰븳???놁뒿?덈떎.", "danger");
+    setStatus(wordStatus, "단어 관리 권한이 없습니다.", "danger");
     wordItems = [];
     renderWords();
     return;
   }
 
+  const { collection, getDocs } = await getFirestoreModule();
   const snap = await getDocs(collection(db, "words"));
   wordItems = snap.docs.map((entry) => entry.data()).sort((a, b) => (a.hanja || "").localeCompare(b.hanja || ""));
-  setStatus(wordStatus, `?⑥뼱 ${wordItems.length}媛쒕? 遺덈윭?붿뒿?덈떎.`, "ok");
+  setStatus(wordStatus, `단어 ${wordItems.length}개를 불러왔습니다.`, "ok");
   renderWords();
 }
 
@@ -590,7 +765,7 @@ function renderWords() {
 
   root.innerHTML = "";
   if (!can("manageWords")) {
-    root.innerHTML = '<div class="row danger">沅뚰븳???놁뒿?덈떎.</div>';
+    root.innerHTML = '<div class="row danger">권한이 없습니다.</div>';
     return;
   }
 
@@ -611,9 +786,9 @@ function renderWords() {
     readingInput.value = item.reading || "";
     const stageSelect = document.createElement("select");
     stageSelect.innerHTML = `
-      <option value="level12">1, 2?④퀎</option>
-      <option value="level34">3, 4?④퀎</option>
-      <option value="level567">5, 6, 7?④퀎</option>
+      <option value="level12">1, 2단계</option>
+      <option value="level34">3, 4단계</option>
+      <option value="level567">5, 6, 7단계</option>
     `;
     stageSelect.value = item.stageGroup || "level12";
 
@@ -623,12 +798,12 @@ function renderWords() {
     buttons.className = "inlineButtons";
     const saveBtn = document.createElement("button");
     saveBtn.className = "primary";
-    saveBtn.textContent = "save";
+    saveBtn.textContent = "저장";
     saveBtn.addEventListener("click", async () => {
       await saveWordRow(item.hanja, hanjaInput.value, readingInput.value, stageSelect.value);
     });
     const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "??젣";
+    deleteBtn.textContent = "삭제";
     deleteBtn.addEventListener("click", async () => {
       await deleteWordRow(item.hanja);
     });
@@ -640,11 +815,11 @@ function renderWords() {
 }
 
 async function saveWord() {
-  if (!can("manageWords")) return setStatus(wordStatus, "沅뚰븳???놁뒿?덈떎.", "danger");
+  if (!can("manageWords")) return setStatus(wordStatus, "권한이 없습니다.", "danger");
   const hanja = document.getElementById("wordHanja").value.trim();
   const reading = document.getElementById("wordReading").value.trim();
   const stageGroup = document.getElementById("wordStage").value;
-  if (!hanja || !reading) return setStatus(wordStatus, "?쒖옄? ?살쓣 ?낅젰?섏꽭??", "danger");
+  if (!hanja || !reading) return setStatus(wordStatus, "한자와 음을 입력하세요.", "danger");
 
   await saveWordRow(editingWordId || hanja, hanja, reading, stageGroup);
   editingWordId = "";
@@ -658,6 +833,7 @@ async function saveWordRow(oldId, hanja, reading, stageGroup) {
   const nextId = hanja.trim();
   if (!nextId || !reading.trim()) return;
 
+  const { deleteDoc, doc, setDoc } = await getFirestoreModule();
   if (oldId && oldId !== nextId) {
     await deleteDoc(doc(db, "words", oldId));
   }
@@ -668,15 +844,16 @@ async function saveWordRow(oldId, hanja, reading, stageGroup) {
     stageGroup,
   });
 
-  setStatus(wordStatus, `????꾨즺: ${nextId}`, "ok");
+  setStatus(wordStatus, `저장 완료: ${nextId}`, "ok");
   await loadWords();
 }
 
 async function deleteWordRow(id) {
   if (!can("manageWords")) return;
-  if (!confirm("??젣?섏떆寃좎뒿?덇퉴?")) return;
+  if (!confirm("삭제하시겠습니까?")) return;
+  const { deleteDoc, doc } = await getFirestoreModule();
   await deleteDoc(doc(db, "words", id));
-  setStatus(wordStatus, `??젣 ?꾨즺: ${id}`, "ok");
+  setStatus(wordStatus, `삭제 완료: ${id}`, "ok");
   await loadWords();
 }
 
@@ -696,22 +873,33 @@ function fillUserForm(record) {
 async function loadUsers() {
   if (!currentUser) return;
   if (!can("manageUsers")) {
-    setStatus(userStatus, "?ъ슜??沅뚰븳 愿由?沅뚰븳???놁뒿?덈떎.", "danger");
+    setStatus(userStatus, "사용자 권한 관리 권한이 없습니다.", "danger");
     userItems = [];
     renderUsers();
     return;
   }
 
-  userItems = await listAccessRecords();
-  setStatus(userStatus, `users loaded: ${userItems.length}`, "ok");
-  renderUsers();
+  try {
+    userItems = await listAccessRecords();
+    setStatus(userStatus, `사용자 ${userItems.length}명을 불러왔습니다.`, "ok");
+    renderUsers();
+  } catch (err) {
+    console.warn("loadUsers failed", err);
+    userItems = [];
+    renderUsers();
+    if (hasNativeAuthBridge()) {
+      setStatus(userStatus, "이 로그인 방식에서는 사용자 권한 데이터를 직접 읽을 수 없습니다.", "danger");
+    } else {
+      setStatus(userStatus, "사용자 권한 데이터를 불러오지 못했습니다.", "danger");
+    }
+  }
 }
 
 function renderUsers() {
   const root = document.getElementById("userList");
   root.innerHTML = "";
   if (!can("manageUsers")) {
-    root.innerHTML = '<div class="row danger">沅뚰븳???놁뒿?덈떎.</div>';
+    root.innerHTML = '<div class="row danger">권한이 없습니다.</div>';
     return;
   }
 
@@ -719,11 +907,11 @@ function renderUsers() {
   table.innerHTML = `
     <thead>
       <tr>
-        <th>?대찓??/th>
-        <th>??븷</th>
-        <th>沅뚰븳</th>
-        <th>硫붾え</th>
-        <th>?묒뾽</th>
+        <th>이메일</th>
+        <th>역할</th>
+        <th>권한</th>
+        <th>메모</th>
+        <th>작업</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -745,12 +933,12 @@ function renderUsers() {
 
     const actionCell = tr.querySelector("td:last-child");
     const editBtn = document.createElement("button");
-    editBtn.textContent = "?섏젙";
+    editBtn.textContent = "수정";
     editBtn.addEventListener("click", () => fillUserForm(item));
     const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "??젣";
+    deleteBtn.textContent = "삭제";
     deleteBtn.addEventListener("click", async () => {
-      if (!confirm("??젣?섏떆寃좎뒿?덇퉴?")) return;
+      if (!confirm("삭제하시겠습니까?")) return;
       await deleteAccessRecord(item.email);
       await loadUsers();
     });
@@ -762,9 +950,9 @@ function renderUsers() {
 }
 
 async function saveUser() {
-  if (!can("manageUsers")) return setStatus(userStatus, "沅뚰븳???놁뒿?덈떎.", "danger");
+  if (!can("manageUsers")) return setStatus(userStatus, "권한이 없습니다.", "danger");
   const email = normalizeEmail(document.getElementById("userEmail").value);
-  if (!email) return setStatus(userStatus, "?대찓?쇱쓣 ?낅젰?섏꽭??", "danger");
+  if (!email) return setStatus(userStatus, "이메일을 입력하세요.", "danger");
 
   const payload = {
     email,
@@ -776,40 +964,52 @@ async function saveUser() {
 
   await saveAccessRecord(payload, currentUser?.email || "");
   editingUserEmail = email;
-  setStatus(userStatus, `????꾨즺: ${email}`, "ok");
+  setStatus(userStatus, `저장 완료: ${email}`, "ok");
   await loadUsers();
 }
 
 async function removeUser() {
-  if (!can("manageUsers")) return setStatus(userStatus, "沅뚰븳???놁뒿?덈떎.", "danger");
+  if (!can("manageUsers")) return setStatus(userStatus, "권한이 없습니다.", "danger");
   const email = normalizeEmail(document.getElementById("userEmail").value);
-  if (!email) return setStatus(userStatus, "?대찓?쇱쓣 ?낅젰?섏꽭??", "danger");
-  if (!confirm(`${email} 沅뚰븳????젣?좉퉴??`)) return;
+  if (!email) return setStatus(userStatus, "이메일을 입력하세요.", "danger");
+  if (!confirm(`${email} 권한을 삭제하시겠습니까?`)) return;
   await deleteAccessRecord(email);
-  setStatus(userStatus, `??젣 ?꾨즺: ${email}`, "ok");
+  setStatus(userStatus, `삭제 완료: ${email}`, "ok");
   await loadUsers();
 }
 
 async function loadLogs() {
   if (!currentUser) return;
   if (!can("viewLogs")) {
-    setStatus(logStatus, "濡쒓렇 議고쉶 沅뚰븳???놁뒿?덈떎.", "danger");
+    setStatus(logStatus, "로그 조회 권한이 없습니다.", "danger");
     logItems = [];
     renderLogs();
     return;
   }
 
-  const snap = await getDocs(query(collection(db, "logs"), orderBy("time", "desc")));
-  logItems = snap.docs.map((entry) => ({ id: entry.id, ...entry.data() })).slice(0, 50);
-  setStatus(logStatus, `logs loaded: ${logItems.length}`, "ok");
-  renderLogs();
+  try {
+    const { collection, getDocs, orderBy, query } = await getFirestoreModule();
+    const snap = await getDocs(query(collection(db, "logs"), orderBy("time", "desc")));
+    logItems = snap.docs.map((entry) => ({ id: entry.id, ...entry.data() })).slice(0, 50);
+    setStatus(logStatus, `로그 ${logItems.length}개를 불러왔습니다.`, "ok");
+    renderLogs();
+  } catch (err) {
+    console.warn("loadLogs failed", err);
+    logItems = [];
+    renderLogs();
+    if (hasNativeAuthBridge()) {
+      setStatus(logStatus, "이 로그인 방식에서는 로그 데이터를 직접 읽을 수 없습니다.", "danger");
+    } else {
+      setStatus(logStatus, "로그 데이터를 불러오지 못했습니다.", "danger");
+    }
+  }
 }
 
 function renderLogs() {
   const root = document.getElementById("logList");
   root.innerHTML = "";
   if (!can("viewLogs")) {
-    root.innerHTML = '<div class="row danger">沅뚰븳???놁뒿?덈떎.</div>';
+    root.innerHTML = '<div class="row danger">권한이 없습니다.</div>';
     return;
   }
 
@@ -830,41 +1030,61 @@ function renderLogs() {
 }
 
 async function clearLogs() {
-  if (!can("viewLogs")) return setStatus(logStatus, "沅뚰븳???놁뒿?덈떎.", "danger");
+  if (!can("viewLogs")) return setStatus(logStatus, "권한이 없습니다.", "danger");
   if (!SUPER_ADMIN_EMAILS.includes(normalizeEmail(currentUser?.email))) {
-    return setStatus(logStatus, "濡쒓렇 ??젣??理쒓퀬 愿由ъ옄留?媛?ν빀?덈떎.", "danger");
+    return setStatus(logStatus, "로그 삭제는 최고 관리자만 가능합니다.", "danger");
   }
-  if (!confirm("紐⑤뱺 濡쒓렇瑜???젣?좉퉴??")) return;
+  if (!confirm("모든 로그를 삭제하시겠습니까?")) return;
 
+  const { collection, getDocs, writeBatch } = await getFirestoreModule();
   const snap = await getDocs(collection(db, "logs"));
   const batch = writeBatch(db);
   snap.docs.forEach((entry) => batch.delete(entry.ref));
   await batch.commit();
-  setStatus(logStatus, "濡쒓렇瑜???젣?덉뒿?덈떎.", "ok");
+  setStatus(logStatus, "로그를 삭제했습니다.", "ok");
   await loadLogs();
 }
 
-onAuthStateChanged(auth, async (user) => {
-  currentUser = user || null;
-  currentAccess = null;
+void (async () => {
+  if (hasNativeAuthBridge()) {
+    const { onAuthStateChanged } = await getAuthModule();
+    const firebaseAuth = await getAuthInstance();
 
-  if (currentUser) {
-    currentAccess = (await getAccessRecord(currentUser.email)) || null;
-    if (!currentAccess) {
-      currentAccess = {
-        email: currentUser.email,
-        role: SUPER_ADMIN_EMAILS.includes(normalizeEmail(currentUser.email)) ? "admin" : "blocked",
-        permissions: SUPER_ADMIN_EMAILS.includes(normalizeEmail(currentUser.email))
-          ? { ...roleToPermissions.admin }
-          : { ...roleToPermissions.blocked },
-      };
-    }
+    onAuthStateChanged(firebaseAuth, async (user) => {
+      authReady = true;
+      currentUser = user || null;
+      currentAccess = null;
+
+      if (currentUser) {
+        currentAccess = (await getAccessRecord(currentUser.email)) || resolveDefaultAccess(currentUser.email);
+      }
+
+      updateHeaderState();
+      updateAccessPills();
+      updateMenuVisibility();
+      await refreshAll();
+    });
+    return;
   }
 
-  updateHeaderState();
-  updateAccessPills();
-  await refreshAll();
-});
+  const { onAuthStateChanged } = await getAuthModule();
+  const firebaseAuth = await getAuthInstance();
+
+  onAuthStateChanged(firebaseAuth, async (user) => {
+    authReady = true;
+    currentUser = user || null;
+    currentAccess = null;
+
+    if (currentUser) {
+      currentAccess = (await getAccessRecord(currentUser.email)) || resolveDefaultAccess(currentUser.email);
+    }
+
+    updateHeaderState();
+    updateAccessPills();
+    updateMenuVisibility();
+    await refreshAll();
+  });
+})();
 
 const initialTab = new URLSearchParams(location.search).get("section");
 if (initialTab && sections[initialTab]) {
@@ -874,6 +1094,7 @@ if (initialTab && sections[initialTab]) {
 window.addEventListener("load", () => {
   updateHeaderState();
   updateAccessPills();
+  updateMenuVisibility();
 });
 </script>
 </body>

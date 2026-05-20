@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>?쒖옄?깆뼱 蹂꾨삦蹂?/title>
+<title>한자성어 별똥별</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 
@@ -91,7 +91,7 @@ h2 {
 }
 
 #missLine::before {
-  content: "媛먯젏??;
+  content: "감점선";
   position: absolute;
   right: 8px;
   bottom: 5px;
@@ -110,7 +110,8 @@ h2 {
 }
 
 .meteor,
-.bombDrop {
+.bombDrop,
+.fireworkParticle {
   position: fixed;
   z-index: 45;
   pointer-events: none;
@@ -132,6 +133,17 @@ h2 {
   font-size: 28px;
   filter: drop-shadow(0 0 8px rgba(255, 80, 80, 0.72));
   animation: bombFall 1100ms ease-in forwards;
+}
+
+.fireworkParticle {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--firework-color, #ffd400);
+  box-shadow:
+    0 0 10px var(--firework-color, #ffd400),
+    0 0 18px rgba(255, 255, 255, 0.65);
+  animation: fireworkBurst 900ms ease-out forwards;
 }
 
 @keyframes meteorFall {
@@ -204,6 +216,33 @@ body.words-hidden .word:not(.bonus) {
   pointer-events: none;
 }
 
+@keyframes fireworkBurst {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(var(--firework-x), var(--firework-y), 0) scale(0.2);
+  }
+}
+
+#startupError {
+  position: fixed;
+  inset: 12px;
+  z-index: 999;
+  display: none;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.88);
+  color: #ffb4b4;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
 #levelModal,
 #gameOverModal {
   position: fixed;
@@ -224,6 +263,67 @@ body.words-hidden .word:not(.bonus) {
   border-radius: 10px;
   background: rgba(0, 31, 63, 0.94);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+}
+
+#adminGateModal {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+#adminGateContent {
+  width: min(92vw, 340px);
+  padding: 22px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  background: rgba(0, 31, 63, 0.96);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+}
+
+#adminGateTitle {
+  margin-bottom: 12px;
+  color: #ffd400;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+#adminGateText {
+  margin-bottom: 14px;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+#adminGateInput {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 8px;
+  background: rgba(2, 6, 23, 0.9);
+  color: #fff;
+  font-size: 18px;
+  text-align: center;
+  outline: none;
+}
+
+#adminGateInput::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+#adminGateActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+#adminGateCancelButton,
+#adminGateSubmitButton {
+  min-width: 100px;
 }
 
 #levelModalTitle,
@@ -275,6 +375,29 @@ body.words-hidden .word:not(.bonus) {
   text-align: center;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+#adminIconButton {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  border-color: rgba(255, 212, 0, 0.38);
+  background: rgba(255, 212, 0, 0.08);
+  color: rgba(255, 212, 0, 0.74);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 17px;
+  line-height: 1;
+  box-shadow: 0 0 12px rgba(255, 212, 0, 0.16);
+}
+
 #introScreen p {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -311,6 +434,7 @@ body.words-hidden .word:not(.bonus) {
 }
 
 #adminMenuBox {
+  display: none;
   padding: 14px 16px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 12px;
@@ -592,9 +716,13 @@ body.playing #keyboardInput {
 </head>
 
 <body>
+<div id="startupError" hidden></div>
 <div class="container">
   <section id="introScreen" aria-labelledby="introTitle">
-    <h1 id="introTitle">&#54620;&#51088;&#49457;&#50612; &#48324;&#46629;&#48324;</h1>
+    <div class="titleRow">
+      <h1 id="introTitle">&#54620;&#51088;&#49457;&#50612; &#48324;&#46629;&#48324;</h1>
+      <button id="adminIconButton" type="button" title="관리자">⚙</button>
+    </div>
     <p>
       &#54616;&#45720;&#50640;&#49436; &#45236;&#47140;&#50724;&#45716; &#54620;&#51088;&#49457;&#50612;&#47484; &#48372;&#44256; &#46496;&#50724;&#47476;&#45716; &#46907;&#51012; &#51077;&#47141;&#54616;&#45716; &#48152;&#48373; &#54617;&#49845; &#44172;&#51076;&#51077;&#45768;&#45796;.
     </p>
@@ -614,40 +742,40 @@ body.playing #keyboardInput {
         <li>&#50640;&#45320;&#51648;&#44032; 0&#51060; &#46104;&#44144;&#45208; 2&#48516; &#47784;&#46300;&#51032; &#49884;&#44036;&#51060; &#45149;&#45208;&#47732; &#44172;&#51076;&#51060; &#51333;&#47308;&#46121;&#45768;&#45796;.</li>
       </ul>
     </div>
-    <div class="introSection" id="adminMenuBox">
+    <div class="introSection" id="adminMenuBox" hidden>
       <h3>&#44288;&#47532; &#47700;&#45684;</h3>
       <div class="menuRow">
         <button type="button" id="openWordAdminButton">&#45824;&#51109; &#44288;&#47532;</button>
         <button type="button" id="openUserAdminButton">&#49324;&#50857;&#51088; &#44428;&#54620;</button>
         <button type="button" id="openLogAdminButton">&#47196;&#44536; &#51312;&#54924;</button>
       </div>
-      <div id="adminAccessState">&#44428;&#54620; &#44032;&#51076; &#50630;&#51020;</div>
+      <div id="adminAccessState">로그인하면 권한을 확인할 수 있습니다.</div>
     </div>
     <button id="introStartButton" type="button" onclick="showGameSetup()">&#44172;&#51076; &#49444;&#51221;&#54616;&#44592;</button>
-    <span id="appVersionLabel">?깅쾭??1.0.10</span>
+    <span id="appVersionLabel">버전 1.0.12</span>
   </section>
 
-  <h2>?쒖옄?깆뼱 蹂꾨삦蹂?/h2>
+  <h2>한자성어 별똥별 게임</h2>
 
-  <input id="nickname" placeholder="?됰꽕?? autocomplete="nickname">
+  <input id="nickname" placeholder="닉네임" autocomplete="nickname">
 
   <div id="status">
-    ?먯닔: <span id="score">0</span> |
-    <span class="comboStatus">肄ㅻ낫: <span id="combo">0</span> |</span>
-    ?쒓컙: <span id="timeLabel">臾댁젣??/span> |
-    ?④퀎: <span id="levelLabel">1</span> |
-    ?먮꼫吏: <span id="hpLabel">100</span>
+    점수: <span id="score">0</span> |
+    <span class="comboStatus">콤보: <span id="combo">0</span> |</span>
+    시간: <span id="timeLabel">무제한</span> |
+    단계: <span id="levelLabel">1</span> |
+    에너지: <span id="hpLabel">100</span>
   </div>
 
   <div class="bar"><div id="hpBar"></div></div>
 
   <div id="controls">
-    ?쒓컙?쒗븳:
-    <label><input type="radio" name="timeMode" value="timed"> 2遺?/label>
-    <label><input type="radio" name="timeMode" value="infinite" checked> 臾댁젣??/label>
-    ?④퀎:
+    시간제한:
+    <label><input type="radio" name="timeMode" value="timed"> 2분</label>
+    <label><input type="radio" name="timeMode" value="infinite" checked> 무제한</label>
+    단계:
     <select id="level" disabled>
-      <option value="1" selected>1 (?곗뒿)</option>
+      <option value="1" selected>1 (연습)</option>
       <option value="2">2</option>
       <option value="3">3</option>
       <option value="4">4</option>
@@ -656,12 +784,12 @@ body.playing #keyboardInput {
       <option value="7">7</option>
       <option value="8">8</option>
       <option value="9">9</option>
-      <option value="10">10 (理쒓퀬)</option>
+      <option value="10">10 (최고)</option>
     </select>
 
     <button onclick="startGame()">START</button>
     <button onclick="resetGame()">RESET</button>
-    <span id="setupVersionLabel">?깅쾭??1.0.10</span>
+    <span id="setupVersionLabel">버전 1.0.12</span>
   </div>
 
   <div id="game">
@@ -670,31 +798,71 @@ body.playing #keyboardInput {
   <div id="bonusNotice"></div>
   <div id="levelModal" role="dialog" aria-modal="true">
     <div id="levelModalContent">
-      <div id="levelModalTitle">?④퀎 ?듦낵</div>
+      <div id="levelModalTitle">단계 통과</div>
       <div id="levelModalText"></div>
-      <button id="levelStartButton" type="button">?쒖옉</button>
+      <button id="levelStartButton" type="button">시작</button>
     </div>
   </div>
   <div id="gameOverModal" role="dialog" aria-modal="true">
     <div id="gameOverModalContent">
-      <div id="gameOverModalTitle">寃뚯엫?ㅻ쾭</div>
+      <div id="gameOverModalTitle">게임 오버</div>
       <div id="gameOverModalText"></div>
-      <button id="gameOverOkButton" type="button">?뺤씤</button>
+      <button id="gameOverOkButton" type="button">확인</button>
+    </div>
+  </div>
+  <div id="adminGateModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div id="adminGateContent">
+      <div id="adminGateTitle">관리자 확인</div>
+      <div id="adminGateText">비밀번호를 입력하면 관리자 로그인으로 이동합니다.</div>
+      <input id="adminGateInput" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호">
+      <div id="adminGateActions">
+        <button id="adminGateCancelButton" type="button">취소</button>
+        <button id="adminGateSubmitButton" type="button">확인</button>
+      </div>
     </div>
   </div>
 
   <div id="rankingBox">
     <h3>TOP 10</h3>
     <div id="rankingList"></div>
-    <button id="rankingRestartButton" type="button" onclick="resetGame()">?ㅼ떆 ?쒖옉</button>
+    <button id="rankingRestartButton" type="button" onclick="resetGame()">다시 시작</button>
   </div>
 </div>
 
-<input id="keyboardInput" placeholder="???낅젰 ??Enter" inputmode="text" enterkeyhint="done">
+<input id="keyboardInput" placeholder="한자 입력 후 Enter" inputmode="text" enterkeyhint="done">
+
+<script>
+(function () {
+  function renderStartupError(title, detail) {
+    const panel = document.getElementById("startupError");
+    if (!panel) return;
+
+    panel.hidden = false;
+    panel.style.display = "block";
+    panel.textContent = detail ? `${title}\n\n${detail}` : title;
+  }
+
+  window.__showStartupError = renderStartupError;
+
+  window.addEventListener("error", (event) => {
+    const detail = event && event.error && event.error.stack
+      ? event.error.stack
+      : (event && event.message) || "알 수 없는 오류";
+    renderStartupError("앱 시작 오류", detail);
+  }, true);
+
+  window.addEventListener("unhandledrejection", (event) => {
+    const reason = event && event.reason;
+    const detail = reason && reason.stack
+      ? reason.stack
+      : (reason && reason.message) || String(reason || "알 수 없는 비동기 오류");
+    renderStartupError("앱 비동기 오류", detail);
+  });
+})();
+</script>
 
 <script type="module">
-import { loadWords, saveScore, loadRanking, auth, provider, signInWithPopup } from "./firebase.js";
-import { getAccessRecord, canUseFeature, isSuperAdmin } from "./access.js";
+import { loadWords, saveScore, loadRanking } from "./firebase.js";
 
 let words = [];
 let activeWords = [];
@@ -723,21 +891,29 @@ let gameOverButtonAction = "ranking";
 let audioContext = null;
 let speechVoice = null;
 let keyboardOffsetTimer = null;
-let currentUser = null;
-let currentAccess = null;
+let adminTapCount = 0;
+let adminTapTimer = null;
+let adminGateModal = null;
+let adminGateInput = null;
+let adminGateStatusTimer = null;
 
 const levelSettings = [
-  { speed: 0.05, spawnDelay: 4300, clearTarget: 10 },
-  { speed: 0.05, spawnDelay: 4300, clearTarget: 12 },
-  { speed: 0.1, spawnDelay: 3600, clearTarget: 10 },
-  { speed: 0.1, spawnDelay: 3600, clearTarget: 12 },
-  { speed: 0.15, spawnDelay: 3100, clearTarget: 10 },
-  { speed: 0.15, spawnDelay: 3100, clearTarget: 12 },
-  { speed: 0.15, spawnDelay: 3100, clearTarget: 14 },
-  { speed: 0.23, spawnDelay: 2700, clearTarget: 10 },
-  { speed: 0.23, spawnDelay: 2700, clearTarget: 15 },
-  { speed: 0.23, spawnDelay: 2700, clearTarget: 20 },
+  { speed: 0.05, spawnDelay: 6000, clearTarget: 10 },
+  { speed: 0.05, spawnDelay: 6000, clearTarget: 12 },
+  { speed: 0.1, spawnDelay: 6000, clearTarget: 10 },
+  { speed: 0.1, spawnDelay: 6000, clearTarget: 12 },
+  { speed: 0.15, spawnDelay: 6000, clearTarget: 10 },
+  { speed: 0.15, spawnDelay: 6000, clearTarget: 12 },
+  { speed: 0.15, spawnDelay: 6000, clearTarget: 14 },
+  { speed: 0.23, spawnDelay: 6000, clearTarget: 10 },
+  { speed: 0.23, spawnDelay: 6000, clearTarget: 15 },
+  { speed: 0.23, spawnDelay: 6000, clearTarget: 20 },
 ];
+
+const laneRatios = [0, 0.5, 1, 0.25, 0.75];
+const ADMIN_TAP_REQUIRED = 5;
+const ADMIN_PASSCODE = "13579";
+const ADMIN_URL = "https://kindrichman-hanja-game.web.app/admin.html";
 
 document.addEventListener("DOMContentLoaded", async () => {
   syncViewportHeight();
@@ -776,7 +952,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await navigator.serviceWorker.register("./sw.js");
     } catch (err) {
-      console.log("SW ?깅줉 ?ㅽ뙣", err);
+      console.log("SW 등록 실패", err);
     }
   }
 
@@ -799,75 +975,82 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateScore();
   loadSpeechVoice();
 
-  document.getElementById("openWordAdminButton").addEventListener("click", () => openProtectedAdmin("manageWords", "words"));
-  document.getElementById("openUserAdminButton").addEventListener("click", () => openProtectedAdmin("manageUsers", "users"));
-  document.getElementById("openLogAdminButton").addEventListener("click", () => openProtectedAdmin("viewLogs", "logs"));
-  await refreshHomepageAccess();
+  const openWordAdminButton = document.getElementById("openWordAdminButton");
+  const openUserAdminButton = document.getElementById("openUserAdminButton");
+  const openLogAdminButton = document.getElementById("openLogAdminButton");
+  const adminIconButton = document.getElementById("adminIconButton");
+  adminGateModal = document.getElementById("adminGateModal");
+  adminGateInput = document.getElementById("adminGateInput");
+  if (openWordAdminButton) openWordAdminButton.addEventListener("click", () => openProtectedAdmin("manageWords", "words"));
+  if (openUserAdminButton) openUserAdminButton.addEventListener("click", () => openProtectedAdmin("manageUsers", "users"));
+  if (openLogAdminButton) openLogAdminButton.addEventListener("click", () => openProtectedAdmin("viewLogs", "logs"));
+  if (adminIconButton) adminIconButton.addEventListener("click", openAdminEntrance);
+  if (adminGateModal) {
+    adminGateModal.addEventListener("click", (event) => {
+      if (event.target === adminGateModal) closeAdminGateModal();
+    });
+  }
+  const adminGateCancelButton = document.getElementById("adminGateCancelButton");
+  const adminGateSubmitButton = document.getElementById("adminGateSubmitButton");
+  if (adminGateCancelButton) adminGateCancelButton.addEventListener("click", closeAdminGateModal);
+  if (adminGateSubmitButton) adminGateSubmitButton.addEventListener("click", submitAdminGate);
+  if (adminGateInput) {
+    adminGateInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        void submitAdminGate();
+      } else if (event.key === "Escape") {
+        closeAdminGateModal();
+      }
+    });
+  }
+  updateAdminAccessStateLabel();
 });
 
 function updateAdminAccessStateLabel() {
   const label = document.getElementById("adminAccessState");
   if (!label) return;
 
-  if (!currentUser) {
-    label.textContent = "濡쒓렇????沅뚰븳???뺤씤?????덉뒿?덈떎.";
-    return;
-  }
-
-  if (!currentAccess) {
-    label.textContent = `${currentUser.email} - 沅뚰븳 ?놁쓬`;
-    return;
-  }
-
-  const summary = [];
-  if (currentAccess.permissions.manageWords) summary.push("words");
-  if (currentAccess.permissions.manageUsers) summary.push("users");
-  if (currentAccess.permissions.viewLogs) summary.push("logs");
-
-  label.textContent = `${currentUser.email} - ${currentAccess.role}${summary.length ? ` (${summary.join(", ")})` : ""}`;
-}
-
-async function ensureSignedInForAdmin() {
-  if (currentUser) return currentUser;
-
-  const result = await signInWithPopup(auth, provider);
-  currentUser = result.user;
-  return currentUser;
-}
-
-async function refreshHomepageAccess() {
-  if (!auth.currentUser) {
-    currentUser = null;
-    currentAccess = null;
-    updateAdminAccessStateLabel();
-    return null;
-  }
-
-  currentUser = auth.currentUser;
-  currentAccess = await getAccessRecord(currentUser.email);
-  if (!currentAccess && isSuperAdmin(currentUser.email)) {
-    currentAccess = await getAccessRecord(currentUser.email);
-  }
-
-  updateAdminAccessStateLabel();
-  return currentAccess;
+  label.textContent = "관리자 페이지는 별도 웹 화면에서 로그인합니다.";
 }
 
 async function openProtectedAdmin(featureKey, section) {
-  try {
-    const user = await ensureSignedInForAdmin();
-    await refreshHomepageAccess();
+  void featureKey;
+  location.href = `${ADMIN_URL}?section=${encodeURIComponent(section)}`;
+}
 
-    if (!canUseFeature(currentAccess, featureKey)) {
-      alert("沅뚰븳???놁뒿?덈떎.");
-      return;
-    }
+function openAdminGateModal() {
+  if (!adminGateModal || !adminGateInput) return;
+  adminGateInput.value = "";
+  adminGateModal.style.display = "flex";
+  adminGateModal.setAttribute("aria-hidden", "false");
+  clearTimeout(adminGateStatusTimer);
+  adminGateStatusTimer = setTimeout(() => {
+    adminGateInput.focus();
+  }, 0);
+}
 
-    location.href = `./admin.html?section=${encodeURIComponent(section)}&email=${encodeURIComponent(user.email)}`;
-  } catch (err) {
-    console.error("admin access error", err);
-    alert("愿由?硫붾돱瑜??????놁뒿?덈떎.");
+function closeAdminGateModal() {
+  if (!adminGateModal || !adminGateInput) return;
+  adminGateModal.style.display = "none";
+  adminGateModal.setAttribute("aria-hidden", "true");
+  adminGateInput.value = "";
+}
+
+async function submitAdminGate() {
+  if (!adminGateInput) return;
+
+  const passcode = adminGateInput.value.trim();
+  if (passcode !== ADMIN_PASSCODE) {
+    alert("비밀번호가 맞지 않습니다.");
+    adminGateInput.focus();
+    adminGateInput.select();
+    return;
   }
+
+  sessionStorage.setItem("adminGateApproved", "1");
+  closeAdminGateModal();
+  location.href = ADMIN_URL;
 }
 
 function syncViewportHeight() {
@@ -930,10 +1113,6 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") endGameByScreenLeave();
 });
 
-window.addEventListener("blur", () => {
-  if (document.visibilityState !== "hidden") endGameByScreenLeave();
-});
-
 window.addEventListener("pagehide", endGameByScreenLeave);
 
 const wordsLoadPromise = loadWords()
@@ -942,7 +1121,11 @@ const wordsLoadPromise = loadWords()
   })
   .catch(err => {
     wordsLoadError = err;
-    console.error("?⑥뼱 遺덈윭?ㅺ린 ?ㅽ뙣", err);
+    console.error("단어 불러오기 실패", err);
+    window.__showStartupError?.(
+      "단어를 불러오지 못했습니다.",
+      err?.stack || err?.message || String(err)
+    );
   })
   .finally(() => {
     isWordsLoading = false;
@@ -997,19 +1180,19 @@ function startTimer() {
 
 window.startGame = async function() {
   document.body.classList.add("intro-complete");
-  unlockAudio();
+  await unlockAudio();
   nickname = document.getElementById("nickname").value.trim().toLowerCase();
 
-  if (!nickname) return alert("?됰꽕???낅젰");
+  if (!nickname) return alert("닉네임을 입력하세요.");
   if (isWordsLoading) {
     await wordsLoadPromise;
   }
   if (wordsLoadError) {
-    alert("?⑥뼱瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲?? ?명꽣???곌껐怨?Firebase 沅뚰븳???뺤씤?댁＜?몄슂.");
+    alert("단어를 불러오지 못했습니다. 인터넷 연결과 Firebase 권한을 확인해주세요.");
     return;
   }
   if (words.length === 0) {
-    alert("?깅줉???쒖옄 ?⑥뼱媛 ?놁뒿?덈떎. 愿由ъ옄 ?섏씠吏?먯꽌 ?⑥뼱瑜?癒쇱? ?깅줉?댁＜?몄슂.");
+    alert("등록된 한자성어가 없습니다. 관리자 페이지에서 단어를 먼저 등록해주세요.");
     return;
   }
 
@@ -1054,7 +1237,7 @@ window.startGame = async function() {
 
 window.showGameSetup = function() {
   document.body.classList.add("intro-complete");
-  unlockAudio();
+  void unlockAudio();
   syncViewportHeight();
   document.getElementById("nickname").focus();
 };
@@ -1084,7 +1267,7 @@ function updateScore() {
   if (!label) return;
 
   const target = getLevelSettings(currentLevel).clearTarget;
-  label.innerText = `${currentLevel} level ${stageCorrectCount}/${target} cleared / total ${score} points`;
+  label.innerText = `${currentLevel}단계 ${stageCorrectCount}/${target} 완료 / 총점 ${score}`;
 }
 
 function spawnWord() {
@@ -1108,7 +1291,6 @@ function spawnWord() {
   const wordWidth = Math.max(el.offsetWidth, 56);
   const fallWidth = Math.min(playWidth * 0.92, 640);
   const fallStart = (playWidth - fallWidth) / 2;
-  const laneRatios = [0, 1, 0.5];
   const laneRatio = laneRatios[spawnLaneIndex % laneRatios.length];
   const rawLeft = fallStart + fallWidth * laneRatio - wordWidth / 2;
   const minLeft = 6;
@@ -1168,7 +1350,7 @@ function updateTimeLabel() {
   }
 }
 
-function unlockAudio() {
+async function unlockAudio() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
 
@@ -1177,17 +1359,36 @@ function unlockAudio() {
   }
 
   if (audioContext.state === "suspended") {
-    audioContext.resume().catch(() => {});
+    try {
+      await audioContext.resume();
+    } catch (err) {
+      console.warn("audio resume failed", err);
+    }
   }
 }
 
+async function openAdminEntrance() {
+  adminTapCount += 1;
+  clearTimeout(adminTapTimer);
+  adminTapTimer = setTimeout(() => {
+    adminTapCount = 0;
+  }, 1800);
+
+  if (adminTapCount < ADMIN_TAP_REQUIRED) {
+    return;
+  }
+
+  adminTapCount = 0;
+  openAdminGateModal();
+}
+
 function getAudioTime() {
-  unlockAudio();
+  void unlockAudio();
   return audioContext ? audioContext.currentTime : 0;
 }
 
 function playTone(frequency, startOffset, duration, type = "sine", peak = 0.12) {
-  if (!audioContext) unlockAudio();
+  if (!audioContext) void unlockAudio();
   if (!audioContext) return;
 
   const start = audioContext.currentTime + startOffset;
@@ -1206,7 +1407,7 @@ function playTone(frequency, startOffset, duration, type = "sine", peak = 0.12) 
 }
 
 function playSlideTone(startFrequency, endFrequency, startOffset, duration, type = "sine", peak = 0.18) {
-  if (!audioContext) unlockAudio();
+  if (!audioContext) void unlockAudio();
   if (!audioContext) return;
 
   const start = audioContext.currentTime + startOffset;
@@ -1233,8 +1434,13 @@ function playCorrectSound() {
 
 function playWrongSound() {
   getAudioTime();
-  playTone(180, 0, 0.16, "sawtooth", 0.11);
-  playTone(120, 0.1, 0.18, "sawtooth", 0.08);
+  playTone(220, 0, 0.07, "square", 0.18);
+  playTone(140, 0.08, 0.08, "square", 0.15);
+  playTone(90, 0.17, 0.12, "sawtooth", 0.12);
+
+  if ("vibrate" in navigator) {
+    navigator.vibrate([45, 35, 45]);
+  }
 }
 
 function playMagicSound() {
@@ -1250,7 +1456,7 @@ function playMagicSound() {
 }
 
 function playBombSound() {
-  if (!audioContext) unlockAudio();
+  if (!audioContext) void unlockAudio();
   if (!audioContext) return;
 
   const start = audioContext.currentTime;
@@ -1311,10 +1517,18 @@ function stopSpeech() {
 }
 
 function speakHanjaPhrase(text) {
-  if (!text || !("speechSynthesis" in window)) return;
+  if (!text) return;
+
+  if (window.HanjaNativeTts && typeof window.HanjaNativeTts.speak === "function") {
+    window.HanjaNativeTts.speak(text);
+    return;
+  }
+
+  if (!("speechSynthesis" in window)) return;
 
   stopSpeech();
   loadSpeechVoice();
+  window.speechSynthesis.resume();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = speechVoice ? speechVoice.lang : "ko-KR";
   utterance.voice = speechVoice;
@@ -1334,18 +1548,38 @@ function speakHanjaPhraseAfter(text, delay = 0) {
   }, delay);
 }
 
+function speakBonusResult(result, phrase) {
+  if (!result) {
+    speakHanjaPhraseAfter(phrase, 120);
+    return;
+  }
+
+  speakHanjaPhrase(result.speech);
+  speakHanjaPhraseAfter(phrase, result.hanjaDelay);
+}
+
 function checkAnswer(input) {
   if (isStagePaused) return;
 
   let matched = false;
   let matchedHanja = "";
+  let matchedSpeech = "";
   let matchedBonus = false;
+  let bonusResult = null;
 
   for (let i = activeWords.length - 1; i >= 0; i -= 1) {
     const w = activeWords[i];
-    if (w.data.reading === input) {
+    const data = w && w.data ? w.data : null;
+    if (!data || !data.reading) {
+      if (w && w.el) w.el.remove();
+      activeWords.splice(i, 1);
+      continue;
+    }
+
+    if (data.reading === input) {
       matched = true;
-      matchedHanja = matchedHanja || w.data.hanja;
+      matchedHanja = matchedHanja || data.hanja;
+      matchedSpeech = matchedSpeech || data.speech || data.reading || data.hanja;
       matchedBonus = matchedBonus || w.isBonus;
       score += 10;
       stageCorrectCount += 1;
@@ -1355,17 +1589,17 @@ function checkAnswer(input) {
       activeWords.splice(i, 1);
 
       if (w.isBonus) {
-        runBonusEffect();
+        bonusResult = runBonusEffect();
       }
     }
   }
 
   if (matched) {
     if (matchedBonus) {
-      speakHanjaPhraseAfter(matchedHanja, 1650);
+      speakBonusResult(bonusResult, matchedSpeech);
     } else {
       playCorrectSound();
-      speakHanjaPhraseAfter(matchedHanja, 120);
+      speakHanjaPhraseAfter(matchedSpeech, 120);
     }
   } else if (input) {
     playWrongSound();
@@ -1399,19 +1633,27 @@ function runBonusEffect() {
     clearWords();
     activeWords = [];
     playMagicSound();
+    playFireworkEffect();
     playLuckyMeteorEffect();
-    showBonusNotice("Bonus! All hanja cleared.");
-    return;
+    showBonusNotice("행운! 모든 한자가 사라졌어요");
+    return {
+      speech: "축하합니다. 행운입니다.",
+      hanjaDelay: 2300,
+    };
   }
 
   if (effect === "levelUp") {
     score += 100;
     updateScore();
     playMagicSound();
+    playFireworkEffect();
     playLuckyMeteorEffect();
-  showBonusNotice("Bomb! Bonus words hidden for 5 seconds.");
+    showBonusNotice("행운! 100점 추가, 다음 단계로 이동");
     showLevelTransition(currentLevel, currentLevel + 1);
-    return;
+    return {
+      speech: "축하합니다. 100점 추가입니다.",
+      hanjaDelay: 2600,
+    };
   }
 
   playBombSound();
@@ -1421,7 +1663,38 @@ function runBonusEffect() {
   hiddenWordsTimer = setTimeout(() => {
     document.body.classList.remove("words-hidden");
   }, 5000);
-  showBonusNotice("Bomb! Bonus words hidden for 5 seconds.");
+  showBonusNotice("꽝! 5초 동안 한자가 가려져요");
+  return {
+    speech: "꽝입니다. 한자 숨김입니다.",
+    hanjaDelay: 2100,
+  };
+}
+
+function playFireworkEffect() {
+  const colors = ["#ffd400", "#ff6b6b", "#67e8f9", "#a7f3d0", "#f9a8d4"];
+  const centers = [
+    { x: 28 + Math.random() * 12, y: 18 + Math.random() * 12 },
+    { x: 58 + Math.random() * 18, y: 18 + Math.random() * 16 },
+    { x: 42 + Math.random() * 18, y: 34 + Math.random() * 12 },
+  ];
+
+  centers.forEach((center, centerIndex) => {
+    for (let i = 0; i < 18; i += 1) {
+      const angle = (Math.PI * 2 * i) / 18;
+      const distance = 52 + Math.random() * 42;
+      const particle = document.createElement("span");
+
+      particle.className = "fireworkParticle";
+      particle.style.left = `${center.x}vw`;
+      particle.style.top = `${center.y}vh`;
+      particle.style.setProperty("--firework-color", colors[(i + centerIndex) % colors.length]);
+      particle.style.setProperty("--firework-x", `${Math.cos(angle) * distance}px`);
+      particle.style.setProperty("--firework-y", `${Math.sin(angle) * distance}px`);
+      particle.style.animationDelay = `${centerIndex * 120 + Math.random() * 80}ms`;
+      document.body.appendChild(particle);
+      particle.addEventListener("animationend", () => particle.remove(), { once: true });
+    }
+  });
 }
 
 function playLuckyMeteorEffect() {
@@ -1441,7 +1714,7 @@ function playBombEffect() {
   for (let i = 0; i < 7; i += 1) {
     const bomb = document.createElement("span");
     bomb.className = "bombDrop";
-    bomb.textContent = "?뮗";
+    bomb.textContent = "💣";
     bomb.style.left = `${8 + Math.random() * 84}vw`;
     bomb.style.top = `${-12 - Math.random() * 14}vh`;
     bomb.style.animationDelay = `${i * 120 + Math.random() * 120}ms`;
@@ -1462,8 +1735,8 @@ function showLevelTransition(fromLevel, nextLevel) {
   clearWords();
   activeWords = [];
 
-  document.getElementById("levelModalTitle").innerText = `${fromLevel}?④퀎 ?듦낵`;
-  document.getElementById("levelModalText").innerText = `${nextLevel}?④퀎 ?쒖옉`;
+  document.getElementById("levelModalTitle").innerText = `${fromLevel}단계 통과`;
+  document.getElementById("levelModalText").innerText = `${nextLevel}단계 시작`;
   document.getElementById("levelModal").style.display = "flex";
   document.getElementById("keyboardInput").blur();
 }
@@ -1514,9 +1787,9 @@ async function gameOver() {
   stopGame();
   document.body.classList.remove("playing", "ranking-visible");
   document.body.classList.add("game-over");
-  document.getElementById("gameOverModalText").innerText = `?먯닔: ${pendingGameOverScore}`;
+  document.getElementById("gameOverModalText").innerText = `점수: ${pendingGameOverScore}`;
   document.getElementById("gameOverOkButton").disabled = false;
-  document.getElementById("gameOverOkButton").innerText = "?뺤씤";
+  document.getElementById("gameOverOkButton").innerText = "확인";
   document.getElementById("gameOverModal").style.display = "flex";
   document.getElementById("keyboardInput").blur();
 }
@@ -1553,7 +1826,7 @@ async function showGameOverRanking() {
 
   const button = document.getElementById("gameOverOkButton");
   button.disabled = true;
-  button.innerText = "??μ쨷...";
+  button.innerText = "저장 중...";
 
   try {
     const scoreChanged = await saveScore(nickname, pendingGameOverScore);
@@ -1565,10 +1838,10 @@ async function showGameOverRanking() {
     document.getElementById("gameOverModal").style.display = "none";
     showRanking(ranking);
   } catch (err) {
-    console.error("?먯닔 ????먮뒗 ??궧 遺덈윭?ㅺ린 ?ㅽ뙣", err);
-    alert("?먯닔 ????먮뒗 ??궧 遺덈윭?ㅺ린???ㅽ뙣?덉뒿?덈떎. ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂.");
+    console.error("점수 저장 또는 랭킹 불러오기 실패", err);
+    alert("점수 저장 또는 랭킹 불러오기에 실패했습니다. 잠시 후 다시 시도해주세요.");
     button.disabled = false;
-    button.innerText = "?ㅼ떆 ?쒕룄";
+    button.innerText = "다시 시도";
   }
 }
 
@@ -1580,13 +1853,13 @@ function showRanking(ranking) {
     const el = document.createElement("div");
 
     if (i === 0) {
-      el.textContent = `1??- ${r.nickname} (${r.score})`;
+      el.textContent = `1위 - ${r.nickname} (${r.score})`;
       el.style.color = "gold";
     } else if (r.nickname === nickname) {
-      el.textContent = `${i + 1}??- ${r.nickname} (${r.score})`;
+      el.textContent = `${i + 1}위 - ${r.nickname} (${r.score})`;
       el.style.color = "yellow";
     } else {
-      el.innerText = `${i + 1}??- ${r.nickname} (${r.score})`;
+      el.innerText = `${i + 1}위 - ${r.nickname} (${r.score})`;
     }
 
     list.appendChild(el);

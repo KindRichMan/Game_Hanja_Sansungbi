@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "553963274568",
+    "project_id": "kindrichman-hanja-game",
+    "storage_bucket": "kindrichman-hanja-game.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:553963274568:android:c00d385faa5b2bba45b37d",
+        "android_client_info": {
+          "package_name": "com.kindrich.hanja"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "553963274568-cdp8qbqmd3jqa8f4h8dc6bgkgc144u38.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kindrich.hanja",
+            "certificate_hash": "cae2337a0934c021d5af76ad8bc6be7b0036a077"
+          }
+        },
+        {
+          "client_id": "553963274568-ntv35s94p8odgtahnvgbmlr934509ehn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kindrich.hanja",
+            "certificate_hash": "ac5fcc408ccb71a2c74a7fcaab4f5a108d5e3203"
+          }
+        },
+        {
+          "client_id": "553963274568-imnf65sapc7qlo1cqivvb0fsc34gc3po.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeYo1vzL7boW5be0zty1OZBYs8As3oI40"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "553963274568-imnf65sapc7qlo1cqivvb0fsc34gc3po.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

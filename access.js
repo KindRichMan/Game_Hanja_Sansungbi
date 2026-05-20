@@ -1,18 +1,20 @@
-import { db } from "./firebase.js";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { db, ensureFirebase } from "./firebase.js";
 
+const FIRESTORE_BASE_URL = "https://www.gstatic.com/firebasejs/10.12.0";
 const ACCESS_COLLECTION = "userRoles";
 
-export const SUPER_ADMIN_EMAILS = Object.freeze([
+let firestoreModulePromise = null;
+
+export const ORGANIZATION_ADMIN_EMAILS = Object.freeze([
   "anghks12@gmail.com",
+]);
+
+export const WORD_ADMIN_EMAILS = Object.freeze([
   "dolsaen@gmail.com",
+]);
+
+export const SUPER_ADMIN_EMAILS = Object.freeze([
+  ...ORGANIZATION_ADMIN_EMAILS,
 ]);
 
 const ROLE_PRESETS = {
@@ -44,6 +46,16 @@ const ROLE_PRESETS = {
 
 const FEATURE_KEYS = Object.keys(ROLE_PRESETS.admin);
 
+async function loadFirestoreModule() {
+  await ensureFirebase();
+
+  if (!firestoreModulePromise) {
+    firestoreModulePromise = import(`${FIRESTORE_BASE_URL}/firebase-firestore.js`);
+  }
+
+  return firestoreModulePromise;
+}
+
 function normalizeEmail(email) {
   return (email || "").trim().toLowerCase();
 }
@@ -54,6 +66,14 @@ function normalizeRole(role) {
 
 function normalizePermissions(role, permissions, email) {
   const base = { ...ROLE_PRESETS[normalizeRole(role)] };
+
+  if (ORGANIZATION_ADMIN_EMAILS.includes(normalizeEmail(email))) {
+    return { ...ROLE_PRESETS.admin };
+  }
+
+  if (WORD_ADMIN_EMAILS.includes(normalizeEmail(email))) {
+    return { ...ROLE_PRESETS.editor };
+  }
 
   if (permissions && typeof permissions === "object") {
     FEATURE_KEYS.forEach((key) => {
@@ -94,6 +114,14 @@ export function isSuperAdmin(email) {
   return SUPER_ADMIN_EMAILS.includes(normalizeEmail(email));
 }
 
+export function isOrganizationAdmin(email) {
+  return ORGANIZATION_ADMIN_EMAILS.includes(normalizeEmail(email));
+}
+
+export function isWordManager(email) {
+  return WORD_ADMIN_EMAILS.includes(normalizeEmail(email));
+}
+
 export async function getAccessRecord(email) {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return null;
@@ -106,6 +134,15 @@ export async function getAccessRecord(email) {
     });
   }
 
+  if (isWordManager(normalizedEmail)) {
+    return buildAccessRecord({
+      email: normalizedEmail,
+      role: "editor",
+      permissions: ROLE_PRESETS.editor,
+    });
+  }
+
+  const { collection, doc, getDoc } = await loadFirestoreModule();
   const snap = await getDoc(doc(db, ACCESS_COLLECTION, normalizedEmail));
   if (!snap.exists()) return null;
 
@@ -116,6 +153,7 @@ export async function getAccessRecord(email) {
 }
 
 export async function listAccessRecords() {
+  const { collection, getDocs } = await loadFirestoreModule();
   const snap = await getDocs(collection(db, ACCESS_COLLECTION));
   return snap.docs
     .map((entry) => buildAccessRecord({ email: entry.id, ...entry.data() }))
@@ -128,6 +166,7 @@ export async function saveAccessRecord(record, actorEmail = "") {
     throw new Error("email is required");
   }
 
+  const { doc, setDoc } = await loadFirestoreModule();
   const payload = buildAccessRecord({
     ...record,
     email: normalizedEmail,
@@ -143,6 +182,6 @@ export async function deleteAccessRecord(email) {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) return;
 
+  const { doc, deleteDoc } = await loadFirestoreModule();
   await deleteDoc(doc(db, ACCESS_COLLECTION, normalizedEmail));
 }
-

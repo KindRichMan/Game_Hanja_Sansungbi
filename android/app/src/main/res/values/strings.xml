@@ -4,4 +4,5 @@
     <string name="title_activity_main">한자성어 별똥별</string>
     <string name="package_name">com.kindrich.hanja</string>
     <string name="custom_url_scheme">com.kindrich.hanja</string>
+    <string name="server_client_id">553963274568-imnf65sapc7qlo1cqivvb0fsc34gc3po.apps.googleusercontent.com</string>
 </resources>
